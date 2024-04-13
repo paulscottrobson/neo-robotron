@@ -1,0 +1,5 @@
+cls:sprite clear
+gload "graphics.gfx"
+for i = 0 to 35
+	sprite i image i+$80 to i % 16*20+10,i\16*20+10
+next

@@ -1,0 +1,21 @@
+Robotron objects
+================
+
++0 	y position  0..119 		half the y coordinate $80 if not in use.
++1 	x position 	0..159 		half the x coordinate
++2  direction  	0..7 		0 is up right, moves clockwise, $80 stationary.
++3 	sprite #1 				ID of sprite image 1.
++4  sprite #2 				ID of sprite image 2
++5 	size 					Radius of sprite image, for collision.
++6 	move.rate 				ticks per move, 0 = doesn't move or animate.
++7 	life.count 				if non zero, decrement per move, kill if zero.
++8 	control.rate 			ticks per control change, if 0 then doesn't.
++9	score on death 			x 10, in BCD. May require minor changes $FF means it's a 
++10 handler.low 			event handler address.
++11 handler.high 			
++12	move.counter 			move counter
++13	control.counter 		control change counter
++14 specific storage 		initialised to zero, used by the handler for status
++15 storage #2
+
+
