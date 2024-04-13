@@ -1,0 +1,47 @@
+Robotron enemies by wave
+There is a subroutine at $2B7C that sets up game-play parameters for each wave. The code pulls out unique data for the first 40 waves, then it repeats waves 21-40 as needed. The enemy counts are the easiest data to decode, since you can count the enemies at the start of each wave and compare those counts to the table entries. There's a table starting at $2E24 that holds the number of Grunts for waves 1-40, then the number of Electrodes, then the number of Mommies, etc.
+There's also a table of data starting at $2C12 that contains a dozen other game-play parameters, probably including timing values and possibly maximum shot counts. The data pulled from this table is modified depending on the difficulty level selected in the game setup screens. Nine of these variables generally decrease as the wave increases, and the other 3 generally increase. I suspect the ones that decrease are timing variables, so that the game speeds up the longer you play.
+
+The wave number is displayed on the screen using just 2 decimal digits, so the wave after 99 is shown as 0, but the difficulty level remains high. The wave number is stored as 8 bits, and the game returns to wave 1 after wave 255 (which is displayed on the screen as 55); the difficulty level resets, just like the beginning of a new game. So a long game will go from wave 1 [easy] to 99 [hard] to 0 (100) [hard] to 99 (199) [hard] to 0 (200) [hard] to 55 (255) [hard] to 1 [easy].
+
+Wave	Grunts	Electrodes	Mommies	Daddies	Mikeys	Hulks	Brains	Spheroids	Quarks
+1	15	5	1	1	0	0	0	0	0
+2	17	15	1	1	1	5	0	1	0
+3	22	25	2	2	2	6	0	3	0
+4	34	25	2	2	2	7	0	4	0
+5	20	20	15	0	1	0	15	1	0
+6	32	25	3	3	3	7	0	4	0
+7	0	0	4	4	4	12	0	0	10
+8	35	25	3	3	3	8	0	5	0
+9	60	0	3	3	3	4	0	5	0
+10	25	20	0	22	0	0	20	1	0
+11	35	25	3	3	3	8	0	5	0
+12	0	0	3	3	3	13	0	0	12
+13	35	25	3	3	3	8	0	5	0
+14	27	5	5	5	5	20	0	2	0
+15	25	20	0	0	22	2	20	1	0
+16	35	25	3	3	3	3	0	5	0
+17	0	0	3	3	3	14	0	0	12
+18	35	25	3	3	3	8	0	5	0
+19	70	0	3	3	3	3	0	5	0
+20	25	20	8	8	8	2	20	2	0
+21	35	25	3	3	3	8	0	5	0
+22	0	0	3	3	3	15	0	0	12
+23	35	25	3	3	3	8	0	5	0
+24	0	0	3	3	3	13	0	6	7
+25	25	20	25	0	1	1	21	1	0
+26	35	25	3	3	3	8	0	5	0
+27	0	0	3	3	3	16	0	0	12
+28	35	25	3	3	3	8	0	5	1
+29	75	0	3	3	3	4	0	5	1
+30	25	20	0	25	0	1	22	1	1
+31	35	25	3	3	3	8	0	5	1
+32	0	0	3	3	3	16	0	0	13
+33	35	25	3	3	3	8	0	5	1
+34	30	0	3	3	3	25	0	2	2
+35	27	15	0	0	25	2	23	1	2
+36	35	25	3	3	3	8	0	5	2
+37	0	0	3	3	3	16	0	0	14
+38	35	25	3	3	3	8	0	5	2
+39	80	0	3	3	3	6	0	5	1
+40	30	15	10	10	10	2	25	1	1
