@@ -1,0 +1,36 @@
+
+; 64tass Turbo Assembler Macro V1.59. listing file
+; 64tass -b -c -Wall -o ../storage/robotron.bin -L ../build/robotron.lst main.asm
+; Sun Apr 14 08:39:07 2024
+
+;Offset	;Hex		;Monitor	;Source
+
+;******  Processing input file: main.asm
+
+
+;******  Processing file: constants.inc
+
+=0					GR_PLAYERH = 0 								; horizontal player
+=2					GR_PLAYERV = 2  							; vertical player
+=4					GR_HUMANS = 4  								; 3 sets of human graphics
+=10					GR_HULK = 10  								; Hulk graphic
+=12					GR_GRUNT = 12  								; Grunt graphic
+=14					GR_SPHEROID = 14   							; Spheroid graphic
+=16					GR1_EMBRYO	= 16  							; Embryo graphic (1 only)
+=17					GR1_QUARK = 17   							; Quark graphic (1 only)
+=18					GR_TANK = 18  								; Tank graphic
+=20					GR_BRAIN = 20  								; Brain graphic
+=22					GR8_ELECTRODES = 22  						; Set of 8 electrode graphics
+=30					GR1_MISSILE1 = 30  							; Robotron missiles
+=31					GR1_MISSILE2 = 31
+=32					GR1_HORIZFIRE = 32  						; Horizontal fire
+=33					GR1_VERTFIRE = 33  							; Vertical fire
+=34					GR1_SWNEFIRE = 34   						; / fire
+=35					GR1_NWSEFIRE = 35  							; \ fire
+=100					OBJ_COUNT = 100 							; maximum number of supported objects
+
+;******  Return to file: main.asm
+
+.c000	60		rts				rts
+
+;******  End of listing

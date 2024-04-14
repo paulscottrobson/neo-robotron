@@ -12,12 +12,19 @@
 
 include ../common.make
 
-all:
-	echo $(ROOTDIR)
-	$(PYTHON) $(BINDIR)makeimg.zip
-	cp graphics.gfx ../source/storage/robotron.gfx
+SOURCES = basic/robotron.bsc
+
+.any:
+
+assembler: .any
+	cd assembler ; 64tass -b -c -Wall main.asm -o ../storage/robotron.bin -L ../build/robotron.lst
+
+basic: .any 
+	$(PYTHON) $(BINDIR)makebasic.zip $(SOURCES) -orobotron.bas
+
+app: assembler basic 
+
+run: app
+	$(BINDIR)neo robotron.bas@page exec
+
 	
-run:	
-	cp graphics.gfx storage
-	$(PYTHON) $(BINDIR)makebasic.zip show.bsc -oshow.bas
-	$(BINDIR)neo show.bas@page exec

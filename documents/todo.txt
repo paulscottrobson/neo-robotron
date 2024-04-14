@@ -1,0 +1,6 @@
+Basic object creation
+Drawing
+Animation and movement, with delayed termination
+Events
+User control.
+Adding intelligence, chasing a specific object.
