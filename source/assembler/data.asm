@@ -16,7 +16,8 @@ OBBase = *
 ;			Object flags. 
 ;
 ;			Bit 7 : object is not in use if set.
-;			Bit 0 : animation selector bit.
+;			Bit 6 : animation selector bit.
+;			Bit 0..3 : object ID
 ;
 OBFlags = OBBase + 0*OBJ_COUNT
 ;
@@ -29,3 +30,13 @@ OBYPos = OBBase + 2*OBJ_COUNT
 ;
 OBSprite1 = OBBase + 3*OBJ_COUNT
 OBSprite2 = OBBase + 4*OBJ_COUNT
+;
+;			Move direction. These are the same as the joypad
+; 			bit 0:Left bit 1:Right bit2:Up bit3:Down
+;
+OBDirection = OBBase + 5*OBJ_COUNT
+;
+;			Speed and Speed counter
+;
+OBSpeed = OBBase + 6*OBJ_COUNT
+OBSpeedCounter = OBBase + 7*OBJ_COUNT

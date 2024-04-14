@@ -1,5 +1,3 @@
-Set initial random direction, set flip
-Basic moving without control. 
 Default handler.
 		Setup Message
 		Premove Message

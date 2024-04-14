@@ -52,10 +52,17 @@ RedrawObject:
 		sta 	APIParams+3
 
 		lda 	OBSprite1,x 				; set graphic
+		bit 	OBFlags,x
+		bvc 	_ROUseSprite1
+		lda 	OBSprite2,x
+_ROUseSprite1:		
 		sta 	APIParams+5
 
-		stz 	APIParams+6 				; set flip
+		lda 	OBDirection,x 				; check moving left
+		and 	#1 							; bit 0 of direction sets xflip
+		sta 	APIParams+6 				; set flip
 
+_RONotLeft:		
 		lda 	#2  						; and draw it.
 		sta 	APIFunction
 		lda 	#6

@@ -1,7 +1,7 @@
 
 ; 64tass Turbo Assembler Macro V1.59. listing file
 ; 64tass -b -c -Wall -o ../storage/robotron.bin -L ../build/robotron.lst main.asm
-; Sun Apr 14 10:27:05 2024
+; Sun Apr 14 16:02:31 2024
 
 ;Offset	;Hex		;Monitor	;Source
 
@@ -34,114 +34,202 @@
 
 ;******  Return to file: main.asm
 
-.c000	4c 5c c0	jmp $c05c			jmp 	ResetObjects 				; $C000 reset all sprites.
-.c003	4c 06 c0	jmp $c006			jmp 	CreateObject 				; $C003 create object of type A.
+.c000	4c de c0	jmp $c0de			jmp 	ResetObjects 				; $C000 reset all sprites.
+.c003	4c 09 c0	jmp $c009			jmp 	CreateObject 				; $C003 create object of type A.
+.c006	4c 84 c0	jmp $c084			jmp 	MoveObjects 				; $C006 move all objects
 
 ;******  Processing file: create.asm
 
-.c006					CreateObject:
-.c006	a2 00		ldx #$00			ldx 	#0  						; look for an unused object
-.c008					_COLoop:
-.c008	3c 00 e0	bit $e000,x			bit 	OBFlags,x
-.c00b	30 06		bmi $c013			bmi 	_COFound
-.c00d	e8		inx				inx
-.c00e	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
-.c010	d0 f6		bne $c008			bne 	_COLoop
-.c012	60		rts				rts  								; cannot create, exit.
-.c013					_COFound:
-.c013	9e 00 e0	stz $e000,x			stz 	OBFlags,x 					; clear unused flag
-.c016					_COPos1:
-.c016	20 9e c0	jsr $c09e			jsr 	Random8Bit  				; value is 0-150
-.c019	c9 96		cmp #$96			cmp 	#150
-.c01b	b0 f9		bcs $c016			bcs 	_COPos1
-.c01d	69 04		adc #$04			adc 	#4
-.c01f	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
-.c022					_COPos2:
-.c022	20 9e c0	jsr $c09e			jsr 	Random8Bit 					; value is 0-103
-.c025	29 7f		and #$7f			and 	#$7F
-.c027	c9 68		cmp #$68			cmp 	#104
-.c029	b0 f7		bcs $c022			bcs 	_COPos2
-.c02b	69 04		adc #$04			adc 	#4
-.c02d	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
-.c030	38		sec				sec   								; check Y centre offset
-.c031	e9 34		sbc #$34			sbc 	#52
-.c033	20 54 c0	jsr $c054			jsr 	_COAbsolute
-.c036	c9 27		cmp #$27			cmp 	#39
-.c038	b0 0d		bcs $c047			bcs 	_COIsOkay
-.c03a	bd 6c e0	lda $e06c,x			lda 	OBXPos,x 					; same for X
-.c03d	38		sec				sec
-.c03e	e9 4b		sbc #$4b			sbc 	#75
-.c040	20 54 c0	jsr $c054			jsr 	_COAbsolute
-.c043	c9 37		cmp #$37			cmp 	#55
-.c045	90 cf		bcc $c016			bcc 	_COPos1
-.c047					_COIsOkay:
-.c047	a9 0a		lda #$0a			lda 	#GR_HULK
-.c049	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c04c	1a		inc a				inc 	a
-.c04d	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c050	20 69 c0	jsr $c069			jsr 	RedrawObject
-.c053	60		rts				rts
-.c054					_COAbsolute:
-.c054	c9 00		cmp #$00			cmp 	#0
-.c056	10 03		bpl $c05b			bpl 	_COAExit
-.c058	49 ff		eor #$ff			eor 	#$FF
-.c05a	1a		inc a				inc 	a
-.c05b					_COAExit:
-.c05b	60		rts				rts
+.c009					CreateObject:
+.c009	a2 00		ldx #$00			ldx 	#0  						; look for an unused object
+.c00b					_COLoop:
+.c00b	3c 00 e0	bit $e000,x			bit 	OBFlags,x
+.c00e	30 06		bmi $c016			bmi 	_COFound
+.c010	e8		inx				inx
+.c011	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
+.c013	d0 f6		bne $c00b			bne 	_COLoop
+.c015	60		rts				rts  								; cannot create, exit.
+.c016					_COFound:
+.c016	9d 00 e0	sta $e000,x			sta 	OBFlags,x 					; clear unused flag
+.c019					_COPos1:
+.c019	20 2d c1	jsr $c12d			jsr 	Random8Bit  				; value is 0-151
+.c01c	c9 98		cmp #$98			cmp 	#152
+.c01e	b0 f9		bcs $c019			bcs 	_COPos1
+.c020	69 04		adc #$04			adc 	#4
+.c022	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
+.c025					_COPos2:
+.c025	20 2d c1	jsr $c12d			jsr 	Random8Bit 					; value is 0-103
+.c028	29 7f		and #$7f			and 	#$7F
+.c02a	c9 68		cmp #$68			cmp 	#104
+.c02c	b0 f7		bcs $c025			bcs 	_COPos2
+.c02e	69 04		adc #$04			adc 	#4
+.c030	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
+.c033	38		sec				sec   								; check Y centre offset
+.c034	e9 34		sbc #$34			sbc 	#52
+.c036	20 7c c0	jsr $c07c			jsr 	_COAbsolute
+.c039	c9 27		cmp #$27			cmp 	#39
+.c03b	b0 0d		bcs $c04a			bcs 	_COIsOkay
+.c03d	bd 6c e0	lda $e06c,x			lda 	OBXPos,x 					; same for X
+.c040	38		sec				sec
+.c041	e9 4b		sbc #$4b			sbc 	#75
+.c043	20 7c c0	jsr $c07c			jsr 	_COAbsolute
+.c046	c9 37		cmp #$37			cmp 	#55
+.c048	90 cf		bcc $c019			bcc 	_COPos1
+.c04a					_COIsOkay:
+.c04a	a9 0a		lda #$0a			lda 	#GR_HULK 					; temporary value.
+.c04c	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c04f	1a		inc a				inc 	a
+.c050	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c053	8a		txa				txa  								; set speed & counter default.
+.c054	29 07		and #$07			and 	#7
+.c056	1a		inc a				inc 	a
+.c057	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x 			; init counter derived from index so they don't all move in sync.
+.c05a	a9 01		lda #$01			lda 	#1
+.c05c	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c05f					_CODirection:
+.c05f	20 2d c1	jsr $c12d			jsr 	Random8Bit 					; get valid random direction
+.c062	29 0f		and #$0f			and 	#15
+.c064	f0 f9		beq $c05f			beq 	_CODirection 				; stationary (0)
+.c066	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c069	29 03		and #$03			and 	#3 							; check LR not both on.
+.c06b	c9 03		cmp #$03			cmp 	#3
+.c06d	f0 f0		beq $c05f			beq 	_CODirection
+.c06f	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check UD not both on
+.c072	29 0c		and #$0c			and 	#12
+.c074	c9 0c		cmp #$0c			cmp 	#12
+.c076	f0 e7		beq $c05f			beq 	_CODirection
+.c078	20 eb c0	jsr $c0eb			jsr 	RedrawObject
+.c07b	60		rts				rts
+.c07c					_COAbsolute:
+.c07c	c9 00		cmp #$00			cmp 	#0
+.c07e	10 03		bpl $c083			bpl 	_COAExit
+.c080	49 ff		eor #$ff			eor 	#$FF
+.c082	1a		inc a				inc 	a
+.c083					_COAExit:
+.c083	60		rts				rts
+
+;******  Return to file: main.asm
+
+
+;******  Processing file: move.asm
+
+.c084					MoveObjects:
+.c084	a2 00		ldx #$00			ldx 	#0  						; look for an unused object
+.c086					_MOLoop:
+.c086	3c 00 e0	bit $e000,x			bit 	OBFlags,x
+.c089	30 03		bmi $c08e			bmi 	_MONoObject
+.c08b	20 94 c0	jsr $c094			jsr 	_MoveOneObject
+.c08e					_MONoObject:
+.c08e	e8		inx				inx
+.c08f	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
+.c091	d0 f3		bne $c086			bne 	_MOLoop
+.c093	60		rts				rts  								; cannot create, exit.
+.c094					_MoveOneObject:
+.c094	de f4 e2	dec $e2f4,x			dec 	OBSpeedCounter,x 			; speed counter down to zero.
+.c097	d0 43		bne $c0dc			bne 	_MONotMove
+.c099	bd 88 e2	lda $e288,x			lda 	OBSpeed,x 					; reset speed counter
+.c09c	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x
+.c09f	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; current direction.
+.c0a2	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x 					; new X position => Y
+.c0a5	4a		lsr a				lsr 	a
+.c0a6	90 01		bcc $c0a9			bcc 	_MONotLeft
+.c0a8	88		dey				dey
+.c0a9					_MONotLeft:
+.c0a9	4a		lsr a				lsr 	a
+.c0aa	90 01		bcc $c0ad			bcc 	_MONotRight
+.c0ac	c8		iny				iny
+.c0ad					_MONotRight:
+.c0ad	5a		phy				phy 								; new Y position on stack
+.c0ae	bc d8 e0	ldy $e0d8,x			ldy 	OBYPos,x 					; new Y position => Y
+.c0b1	4a		lsr a				lsr 	a
+.c0b2	90 01		bcc $c0b5			bcc 	_MONotUp
+.c0b4	88		dey				dey
+.c0b5					_MONotUp:
+.c0b5	4a		lsr a				lsr 	a
+.c0b6	90 01		bcc $c0b9			bcc 	_MONotDown
+.c0b8	c8		iny				iny
+.c0b9					_MONotDown:
+.c0b9	68		pla				pla 								; (A,Y) are new coordinates.
+.c0ba	c9 04		cmp #$04			cmp 	#4  						; check out of bounds.
+.c0bc	90 1f		bcc $c0dd			bcc 	_MOHitWall
+.c0be	c9 9c		cmp #$9c			cmp 	#156
+.c0c0	b0 1b		bcs $c0dd			bcs 	_MOHitWall
+.c0c2	c0 04		cpy #$04			cpy 	#4
+.c0c4	90 17		bcc $c0dd			bcc 	_MOHitWall
+.c0c6	c0 6c		cpy #$6c			cpy 	#108
+.c0c8	b0 13		bcs $c0dd			bcs 	_MOHitWall
+.c0ca	9d 6c e0	sta $e06c,x			sta 	OBXPos,x 					; update position.
+.c0cd	98		tya				tya
+.c0ce	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
+.c0d1	20 eb c0	jsr $c0eb			jsr 	RedrawObject
+.c0d4	bd 00 e0	lda $e000,x			lda 	OBFlags,x 					; toggle animation flag
+.c0d7	49 40		eor #$40			eor 	#$40
+.c0d9	9d 00 e0	sta $e000,x			sta 	OBFlags,x
+.c0dc					_MONotMove:
+.c0dc	60		rts				rts
+.c0dd					_MOHitWall:
+.c0dd	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: utility.asm
 
-.c05c					ResetObjects:
-.c05c	a2 00		ldx #$00			ldx 	#0
-.c05e					_RSLoop:
-.c05e	a9 ff		lda #$ff			lda 	#$FF
-.c060	9d 00 e0	sta $e000,x			sta 	OBFlags,x
-.c063	e8		inx				inx
-.c064	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
-.c066	d0 f6		bne $c05e			bne 	_RSLoop
-.c068	60		rts				rts
-.c069					RedrawObject:
-.c069	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
-.c06c	d0 fb		bne $c069			bne 	RedrawObject
-.c06e	8e 04 ff	stx $ff04			stx 	APIParams+0 				; sprite # same as object #
-.c071	9c 06 ff	stz $ff06			stz 	APIParams+2 				; shift X left into X position
-.c074	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
-.c077	0a		asl a				asl 	a
-.c078	8d 05 ff	sta $ff05			sta 	APIParams+1
-.c07b	2e 06 ff	rol $ff06			rol 	APIParams+2
-.c07e	9c 08 ff	stz $ff08			stz 	APIParams+4  				; shift Y left into Y position
-.c081	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
-.c084	0a		asl a				asl 	a
-.c085	69 10		adc #$10			adc 	#16 						; allow for top area
-.c087	8d 07 ff	sta $ff07			sta 	APIParams+3
-.c08a	bd 44 e1	lda $e144,x			lda 	OBSprite1,x 				; set graphic
-.c08d	8d 09 ff	sta $ff09			sta 	APIParams+5
-.c090	9c 0a ff	stz $ff0a			stz 	APIParams+6 				; set flip
-.c093	a9 02		lda #$02			lda 	#2  						; and draw it.
-.c095	8d 01 ff	sta $ff01			sta 	APIFunction
-.c098	a9 06		lda #$06			lda 	#6
-.c09a	8d 00 ff	sta $ff00			sta 	APICommand
-.c09d	60		rts				rts
-.c09e					Random8Bit:
-.c09e	5a		phy				phy
-.c09f	a0 08		ldy #$08			ldy 	#8
-.c0a1	ad b4 c0	lda $c0b4			lda 	_R8SeedValue+0
-.c0a4					_R8RandomLoop
-.c0a4	0a		asl a				asl     a
-.c0a5	2e b5 c0	rol $c0b5			rol 	_R8SeedValue+1
-.c0a8	90 02		bcc $c0ac			bcc 	_R8NotSet
-.c0aa	49 39		eor #$39			eor 	#$39
-.c0ac					_R8NotSet:
-.c0ac	88		dey				dey
-.c0ad	d0 f5		bne $c0a4			bne 	_R8RandomLoop
-.c0af	8d b4 c0	sta $c0b4			sta 	_R8SeedValue+0
-.c0b2	7a		ply				ply
-.c0b3	60		rts				rts
-.c0b4					_R8SeedValue
->c0b4	cd ab						.word 	$ABCD
+.c0de					ResetObjects:
+.c0de	a2 00		ldx #$00			ldx 	#0
+.c0e0					_RSLoop:
+.c0e0	a9 ff		lda #$ff			lda 	#$FF
+.c0e2	9d 00 e0	sta $e000,x			sta 	OBFlags,x
+.c0e5	e8		inx				inx
+.c0e6	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
+.c0e8	d0 f6		bne $c0e0			bne 	_RSLoop
+.c0ea	60		rts				rts
+.c0eb					RedrawObject:
+.c0eb	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
+.c0ee	d0 fb		bne $c0eb			bne 	RedrawObject
+.c0f0	8e 04 ff	stx $ff04			stx 	APIParams+0 				; sprite # same as object #
+.c0f3	9c 06 ff	stz $ff06			stz 	APIParams+2 				; shift X left into X position
+.c0f6	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
+.c0f9	0a		asl a				asl 	a
+.c0fa	8d 05 ff	sta $ff05			sta 	APIParams+1
+.c0fd	2e 06 ff	rol $ff06			rol 	APIParams+2
+.c100	9c 08 ff	stz $ff08			stz 	APIParams+4  				; shift Y left into Y position
+.c103	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
+.c106	0a		asl a				asl 	a
+.c107	69 10		adc #$10			adc 	#16 						; allow for top area
+.c109	8d 07 ff	sta $ff07			sta 	APIParams+3
+.c10c	bd 44 e1	lda $e144,x			lda 	OBSprite1,x 				; set graphic
+.c10f	3c 00 e0	bit $e000,x			bit 	OBFlags,x
+.c112	50 03		bvc $c117			bvc 	_ROUseSprite1
+.c114	bd b0 e1	lda $e1b0,x			lda 	OBSprite2,x
+.c117					_ROUseSprite1:
+.c117	8d 09 ff	sta $ff09			sta 	APIParams+5
+.c11a	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check moving left
+.c11d	29 01		and #$01			and 	#1 							; bit 0 of direction sets xflip
+.c11f	8d 0a ff	sta $ff0a			sta 	APIParams+6 				; set flip
+.c122					_RONotLeft:
+.c122	a9 02		lda #$02			lda 	#2  						; and draw it.
+.c124	8d 01 ff	sta $ff01			sta 	APIFunction
+.c127	a9 06		lda #$06			lda 	#6
+.c129	8d 00 ff	sta $ff00			sta 	APICommand
+.c12c	60		rts				rts
+.c12d					Random8Bit:
+.c12d	5a		phy				phy
+.c12e	a0 08		ldy #$08			ldy 	#8
+.c130	ad 43 c1	lda $c143			lda 	_R8SeedValue+0
+.c133					_R8RandomLoop
+.c133	0a		asl a				asl     a
+.c134	2e 44 c1	rol $c144			rol 	_R8SeedValue+1
+.c137	90 02		bcc $c13b			bcc 	_R8NotSet
+.c139	49 39		eor #$39			eor 	#$39
+.c13b					_R8NotSet:
+.c13b	88		dey				dey
+.c13c	d0 f5		bne $c133			bne 	_R8RandomLoop
+.c13e	8d 43 c1	sta $c143			sta 	_R8SeedValue+0
+.c141	7a		ply				ply
+.c142	60		rts				rts
+.c143					_R8SeedValue
+>c143	cd ab						.word 	$ABCD
 
 ;******  Return to file: main.asm
 
@@ -154,6 +242,9 @@
 =$e0d8					OBYPos = OBBase + 2*OBJ_COUNT
 =$e144					OBSprite1 = OBBase + 3*OBJ_COUNT
 =$e1b0					OBSprite2 = OBBase + 4*OBJ_COUNT
+=$e21c					OBDirection = OBBase + 5*OBJ_COUNT
+=$e288					OBSpeed = OBBase + 6*OBJ_COUNT
+=$e2f4					OBSpeedCounter = OBBase + 7*OBJ_COUNT
 
 ;******  Return to file: main.asm
 

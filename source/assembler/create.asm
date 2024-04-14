@@ -28,11 +28,11 @@ _COLoop:
 		rts  								; cannot create, exit.
 
 _COFound:
-		stz 	OBFlags,x 					; clear unused flag
+		sta 	OBFlags,x 					; clear unused flag
 
 _COPos1:
-		jsr 	Random8Bit  				; value is 0-150
-		cmp 	#150
+		jsr 	Random8Bit  				; value is 0-151
+		cmp 	#152
 		bcs 	_COPos1
 		adc 	#4
 		sta 	OBXPos,x
@@ -59,10 +59,31 @@ _COPos2:
 		bcc 	_COPos1
 
 _COIsOkay:		
-		lda 	#GR_HULK
+		lda 	#GR_HULK 					; temporary value.
 		sta 	OBSprite1,x
 		inc 	a
 		sta 	OBSprite2,x
+
+		txa  								; set speed & counter default.
+		and 	#7
+		inc 	a
+		sta 	OBSpeedCounter,x 			; init counter derived from index so they don't all move in sync.
+		lda 	#1
+		sta 	OBSpeed,x  			
+
+_CODirection:
+		jsr 	Random8Bit 					; get valid random direction
+		and 	#15
+		beq 	_CODirection 				; stationary (0)
+		sta 	OBDirection,x  				
+		and 	#3 							; check LR not both on.
+		cmp 	#3  
+		beq 	_CODirection
+
+		lda 	OBDirection,x 				; check UD not both on
+		and 	#12
+		cmp 	#12
+		beq 	_CODirection
 
 		jsr 	RedrawObject
 		rts
