@@ -13,5 +13,11 @@
 		.include 	"constants.inc"
 
 		* = $C000
-		
-		rts
+		jmp 	ResetObjects 				; $C000 reset all sprites.
+		jmp 	CreateObject 				; $C003 create object of type A.
+
+		.include 	"create.asm"
+		.include 	"utility.asm"
+
+		* = $E000
+		.include "data.asm"

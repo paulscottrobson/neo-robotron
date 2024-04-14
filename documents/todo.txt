@@ -1,6 +1,6 @@
-Basic object creation
-Drawing
-Animation and movement, with delayed termination
-Events
-User control.
-Adding intelligence, chasing a specific object.
+Set initial random direction, set flip
+Basic moving without control. 
+Default handler.
+		Setup Message
+		Premove Message
+	

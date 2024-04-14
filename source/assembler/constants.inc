@@ -30,5 +30,8 @@ GR1_NWSEFIRE = 35  							; \ fire
 
 
 
-OBJ_COUNT = 100 							; maximum number of supported objects
+OBJ_COUNT = 108 								; maximum number of supported objects
 
+APICommand = $FF00
+APIFunction = $FF01
+APIParams = $FF04
