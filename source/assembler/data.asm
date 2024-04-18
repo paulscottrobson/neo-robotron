@@ -40,3 +40,8 @@ OBDirection = OBBase + 5*OBJ_COUNT
 ;
 OBSpeed = OBBase + 6*OBJ_COUNT
 OBSpeedCounter = OBBase + 7*OBJ_COUNT
+;
+;			Message Handler
+;
+OBHandlerLow = OBBase + 8*OBJ_COUNT
+OBHandlerHigh = OBBase + 9*OBJ_COUNT

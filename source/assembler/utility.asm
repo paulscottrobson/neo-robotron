@@ -94,3 +94,31 @@ _R8NotSet:
 
 _R8SeedValue
 		.word 	$ABCD
+
+; ***************************************************************************************
+;
+;									 Send object message
+;
+; ***************************************************************************************
+
+SendObjectMessage:
+		pha
+		lda 	OBHandlerLow,x
+		sta 	_SMCall+1
+		lda 	OBHandlerHigh,x
+		sta 	_SMCall+2
+		pla
+_SMCall:
+		jmp 	$0000		
+
+; ***************************************************************************************
+;
+;									Set the object graphic
+;
+; ***************************************************************************************
+
+SetObjectGraphic:
+		sta 	OBSprite1,x
+		inc 	a
+		sta 	OBSprite2,x
+		rts

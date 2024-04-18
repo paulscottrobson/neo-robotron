@@ -62,7 +62,13 @@ _COLoop:
 		rts  								; cannot create, exit.
 
 _COFound:
-		sta 	OBFlags,x 					; clear unused flag
+		sta 	OBFlags,x 					; clear unused flag, set type.
+		asl 	a 							; double -> Y
+		tay
+		lda 	HandlerTable,y  			; put the handler address in.
+		sta 	OBHandlerLow,x
+		lda 	HandlerTable+1,y  			
+		sta 	OBHandlerHigh,x
 
 _COPos1:
 		jsr 	Random8Bit  				; value is 0-151
@@ -105,19 +111,10 @@ _COIsOkay:
 		lda 	#1
 		sta 	OBSpeed,x  			
 
-_CODirection:
-		jsr 	Random8Bit 					; get valid random direction
-		and 	#15
-		beq 	_CODirection 				; stationary (0)
-		sta 	OBDirection,x  				
-		and 	#3 							; check LR not both on.
-		cmp 	#3  
-		beq 	_CODirection
+		jsr 	ChooseRandomDirection
 
-		lda 	OBDirection,x 				; check UD not both on
-		and 	#12
-		cmp 	#12
-		beq 	_CODirection
+		.sendmsg MSG_INIT 					; send Initialise message
+		.sendmsg MSG_REPAINT 				; send Repaint due message
 
 		jsr 	RedrawObject
 		rts
@@ -129,3 +126,18 @@ _COAbsolute:
 		inc 	a
 _COAExit:
 		rts		
+
+ChooseRandomDirection:
+		jsr 	Random8Bit 					; get valid random direction
+		and 	#15
+		beq 	ChooseRandomDirection 				; stationary (0)
+		sta 	OBDirection,x  				
+		and 	#3 							; check LR not both on.
+		cmp 	#3  
+		beq 	ChooseRandomDirection
+
+		lda 	OBDirection,x 				; check UD not both on
+		and 	#12
+		cmp 	#12
+		beq 	ChooseRandomDirection
+		rts

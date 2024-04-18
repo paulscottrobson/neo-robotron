@@ -20,6 +20,12 @@
 		.include 	"create.asm"
 		.include 	"move.asm"
 		.include 	"utility.asm"
+		.include 	"classes/default.asm"
+		.include 	"classes/player.asm"
+
+HandlerTable:
+		.word 		OHPlayer 				; type 0, player object
+		
 
 		* = $E000
 		.include "data.asm"

@@ -1,15 +1,10 @@
 TODO
 	- default subclassing code
-			- add initialise, create player
-				make player graphic, speed correct.
-				default nothing
 			- add iq code and repeat rate
 				default move randomly
 				make player moveable
-			- add repaint
-				default nothing
-				change player according to directions.
+			- change player according to directions.
 			- add hit wall
-				default nothing
+				default nothing other than movement block
 
 	- create player missiles.				

@@ -10,11 +10,23 @@
 ; ***************************************************************************************
 ; ***************************************************************************************
 
+; ***************************************************************************************
+;
+;									Class numbers
+;
+; ***************************************************************************************
+
 TP_PLAYER = 0
 TP_PLAYERMISSILE = 1
 TP_MUM = 2
 TP_DAD = 3
 TP_CHILD = 4
+
+; ***************************************************************************************
+;
+;									Object constants
+;
+; ***************************************************************************************
 
 OB_PLAYER = 0 								; player object (1)
 OB_PLAYERMISSILE = 1 						; player missile (4)
@@ -24,6 +36,12 @@ OB_ENEMIES = 11 							; enemies (everything else)
 OBC_PLAYERMISSILES = OB_HUMANS-OB_PLAYERMISSILE
 OBC_HUMANS = OB_ENEMIES-OB_HUMANS
 OBC_ENEMIES = OBJ_COUNT - OB_ENEMIES
+
+; ***************************************************************************************
+;
+;									Graphic values
+;
+; ***************************************************************************************
 
 GR_PLAYERH = 0 								; horizontal player
 GR_PLAYERV = 2  							; vertical player
@@ -43,10 +61,57 @@ GR1_VERTFIRE = 33  							; Vertical fire
 GR1_SWNEFIRE = 34   						; / fire  
 GR1_NWSEFIRE = 35  							; \ fire 
 
-
-
 OBJ_COUNT = 108 								; maximum number of supported objects
+
+
+; ***************************************************************************************
+;
+;									API Constants
+;
+; ***************************************************************************************
 
 APICommand = $FF00
 APIFunction = $FF01
 APIParams = $FF04
+
+
+; ***************************************************************************************
+;
+;									Messages
+;
+; ***************************************************************************************
+
+MSG_INIT = $01 								; Initialise object
+MSG_REPAINT = $02 							; About to repaint
+
+sendmsg	.macro
+		lda 	#\1
+		jsr 	SendObjectMessage
+		bcc 	_1
+		jsr 	DefaultHandler
+_1:		
+		.endm
+
+method 	.macro
+		cmp 	#\1
+		bne 	_1
+		jsr 	\2
+		clc
+		rts
+_1:		
+		.endm
+
+superclass .macro				
+		sec
+		rts
+		.endm
+
+animation .macro
+		lda 	#\1
+		jsr 	SetObjectGraphic
+		.endm
+
+speed .macro
+		lda 	#\1
+		sta 	OBSpeed,x
+		.endm		
