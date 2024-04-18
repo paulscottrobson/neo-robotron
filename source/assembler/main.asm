@@ -14,7 +14,7 @@
 
 		* = $C000
 		jmp 	ResetObjects 				; $C000 reset all sprites.
-		jmp 	CreateObject 				; $C003 create object of type A.
+		jmp 	CreateObjects 				; $C003 create X objects of type A.
 		jmp 	MoveObjects 				; $C006 move all objects
 		
 		.include 	"create.asm"

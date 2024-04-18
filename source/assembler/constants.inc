@@ -10,6 +10,21 @@
 ; ***************************************************************************************
 ; ***************************************************************************************
 
+TP_PLAYER = 0
+TP_PLAYERMISSILE = 1
+TP_MUM = 2
+TP_DAD = 3
+TP_CHILD = 4
+
+OB_PLAYER = 0 								; player object (1)
+OB_PLAYERMISSILE = 1 						; player missile (4)
+OB_HUMANS = 5 								; humans (6)
+OB_ENEMIES = 11 							; enemies (everything else)
+
+OBC_PLAYERMISSILES = OB_HUMANS-OB_PLAYERMISSILE
+OBC_HUMANS = OB_ENEMIES-OB_HUMANS
+OBC_ENEMIES = OBJ_COUNT - OB_ENEMIES
+
 GR_PLAYERH = 0 								; horizontal player
 GR_PLAYERV = 2  							; vertical player
 GR_HUMANS = 4  								; 3 sets of human graphics

@@ -10,6 +10,24 @@
 ; ***************************************************************************************
 ; ***************************************************************************************
 
+; ***************************************************************************************
+;
+;						Create X objects of type A
+;
+; ***************************************************************************************
+
+CreateObjects:
+		cpx 	#0
+		beq 	_COExit
+		phx
+		pha
+		jsr 	CreateObject
+		pla
+		plx
+		dex 	
+		bne 	CreateObjects
+_COExit:		
+		rts
 
 ; ***************************************************************************************
 ;
@@ -18,12 +36,28 @@
 ; ***************************************************************************************
 
 CreateObject:
-		ldx 	#0  						; look for an unused object
+		ldx 	#OB_PLAYER 					; player object (1st one)
+		ldy 	#1
+		cmp 	#TP_PLAYER 					
+		beq 	_COLoop
+
+		ldx 	#OB_PLAYERMISSILE 			; player missiles (next 4)
+		ldy 	#OBC_PLAYERMISSILES
+		cmp 	#TP_PLAYERMISSILE
+		beq 	_COLoop
+
+		ldx 	#OB_HUMANS 					; humans (next 6)
+		ldy 	#OBC_HUMANS
+		cmp 	#TP_CHILD+1
+		bcc 	_COLoop
+
+		ldx 	#OB_ENEMIES 				; check everything else
+		ldy 	#OBC_ENEMIES
 _COLoop: 			
 		bit 	OBFlags,x  
 		bmi 	_COFound
 		inx
-		cpx 	#OBJ_COUNT
+		dey
 		bne 	_COLoop 
 		rts  								; cannot create, exit.
 

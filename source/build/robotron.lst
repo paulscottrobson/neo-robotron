@@ -1,7 +1,7 @@
 
-; 64tass Turbo Assembler Macro V1.59. listing file
+; 64tass Turbo Assembler Macro V1.59.3120 listing file
 ; 64tass -b -c -Wall -o ../storage/robotron.bin -L ../build/robotron.lst main.asm
-; Sun Apr 14 16:02:31 2024
+; Thu Apr 18 08:04:42 2024
 
 ;Offset	;Hex		;Monitor	;Source
 
@@ -10,6 +10,18 @@
 
 ;******  Processing file: constants.inc
 
+=0					TP_PLAYER = 0
+=1					TP_PLAYERMISSILE = 1
+=2					TP_MUM = 2
+=3					TP_DAD = 3
+=4					TP_CHILD = 4
+=0					OB_PLAYER = 0 								; player object (1)
+=1					OB_PLAYERMISSILE = 1 						; player missile (4)
+=5					OB_HUMANS = 5 								; humans (6)
+=11					OB_ENEMIES = 11 							; enemies (everything else)
+=4					OBC_PLAYERMISSILES = OB_HUMANS-OB_PLAYERMISSILE
+=6					OBC_HUMANS = OB_ENEMIES-OB_HUMANS
+=97					OBC_ENEMIES = OBJ_COUNT - OB_ENEMIES
 =0					GR_PLAYERH = 0 								; horizontal player
 =2					GR_PLAYERV = 2  							; vertical player
 =4					GR_HUMANS = 4  								; 3 sets of human graphics
@@ -34,202 +46,227 @@
 
 ;******  Return to file: main.asm
 
-.c000	4c de c0	jmp $c0de			jmp 	ResetObjects 				; $C000 reset all sprites.
-.c003	4c 09 c0	jmp $c009			jmp 	CreateObject 				; $C003 create object of type A.
-.c006	4c 84 c0	jmp $c084			jmp 	MoveObjects 				; $C006 move all objects
+.c000	4c 06 c1	jmp $c106			jmp 	ResetObjects 				; $C000 reset all sprites.
+.c003	4c 09 c0	jmp $c009			jmp 	CreateObjects 				; $C003 create X objects of type A.
+.c006	4c ac c0	jmp $c0ac			jmp 	MoveObjects 				; $C006 move all objects
 
 ;******  Processing file: create.asm
 
-.c009					CreateObject:
-.c009	a2 00		ldx #$00			ldx 	#0  						; look for an unused object
-.c00b					_COLoop:
-.c00b	3c 00 e0	bit $e000,x			bit 	OBFlags,x
-.c00e	30 06		bmi $c016			bmi 	_COFound
-.c010	e8		inx				inx
-.c011	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
-.c013	d0 f6		bne $c00b			bne 	_COLoop
-.c015	60		rts				rts  								; cannot create, exit.
-.c016					_COFound:
-.c016	9d 00 e0	sta $e000,x			sta 	OBFlags,x 					; clear unused flag
-.c019					_COPos1:
-.c019	20 2d c1	jsr $c12d			jsr 	Random8Bit  				; value is 0-151
-.c01c	c9 98		cmp #$98			cmp 	#152
-.c01e	b0 f9		bcs $c019			bcs 	_COPos1
-.c020	69 04		adc #$04			adc 	#4
-.c022	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
-.c025					_COPos2:
-.c025	20 2d c1	jsr $c12d			jsr 	Random8Bit 					; value is 0-103
-.c028	29 7f		and #$7f			and 	#$7F
-.c02a	c9 68		cmp #$68			cmp 	#104
-.c02c	b0 f7		bcs $c025			bcs 	_COPos2
-.c02e	69 04		adc #$04			adc 	#4
-.c030	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
-.c033	38		sec				sec   								; check Y centre offset
-.c034	e9 34		sbc #$34			sbc 	#52
-.c036	20 7c c0	jsr $c07c			jsr 	_COAbsolute
-.c039	c9 27		cmp #$27			cmp 	#39
-.c03b	b0 0d		bcs $c04a			bcs 	_COIsOkay
-.c03d	bd 6c e0	lda $e06c,x			lda 	OBXPos,x 					; same for X
-.c040	38		sec				sec
-.c041	e9 4b		sbc #$4b			sbc 	#75
-.c043	20 7c c0	jsr $c07c			jsr 	_COAbsolute
-.c046	c9 37		cmp #$37			cmp 	#55
-.c048	90 cf		bcc $c019			bcc 	_COPos1
-.c04a					_COIsOkay:
-.c04a	a9 0a		lda #$0a			lda 	#GR_HULK 					; temporary value.
-.c04c	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c04f	1a		inc a				inc 	a
-.c050	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c053	8a		txa				txa  								; set speed & counter default.
-.c054	29 07		and #$07			and 	#7
-.c056	1a		inc a				inc 	a
-.c057	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x 			; init counter derived from index so they don't all move in sync.
-.c05a	a9 01		lda #$01			lda 	#1
-.c05c	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c05f					_CODirection:
-.c05f	20 2d c1	jsr $c12d			jsr 	Random8Bit 					; get valid random direction
-.c062	29 0f		and #$0f			and 	#15
-.c064	f0 f9		beq $c05f			beq 	_CODirection 				; stationary (0)
-.c066	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c069	29 03		and #$03			and 	#3 							; check LR not both on.
-.c06b	c9 03		cmp #$03			cmp 	#3
-.c06d	f0 f0		beq $c05f			beq 	_CODirection
-.c06f	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check UD not both on
-.c072	29 0c		and #$0c			and 	#12
-.c074	c9 0c		cmp #$0c			cmp 	#12
-.c076	f0 e7		beq $c05f			beq 	_CODirection
-.c078	20 eb c0	jsr $c0eb			jsr 	RedrawObject
-.c07b	60		rts				rts
-.c07c					_COAbsolute:
-.c07c	c9 00		cmp #$00			cmp 	#0
-.c07e	10 03		bpl $c083			bpl 	_COAExit
-.c080	49 ff		eor #$ff			eor 	#$FF
-.c082	1a		inc a				inc 	a
-.c083					_COAExit:
-.c083	60		rts				rts
+.c009					CreateObjects:
+.c009	e0 00		cpx #$00			cpx 	#0
+.c00b	f0 0a		beq $c017			beq 	_COExit
+.c00d	da		phx				phx
+.c00e	48		pha				pha
+.c00f	20 18 c0	jsr $c018			jsr 	CreateObject
+.c012	68		pla				pla
+.c013	fa		plx				plx
+.c014	ca		dex				dex
+.c015	d0 f2		bne $c009			bne 	CreateObjects
+.c017					_COExit:
+.c017	60		rts				rts
+.c018					CreateObject:
+.c018	a2 00		ldx #$00			ldx 	#OB_PLAYER 					; player object (1st one)
+.c01a	a0 01		ldy #$01			ldy 	#1
+.c01c	c9 00		cmp #$00			cmp 	#TP_PLAYER
+.c01e	f0 14		beq $c034			beq 	_COLoop
+.c020	a2 01		ldx #$01			ldx 	#OB_PLAYERMISSILE 			; player missiles (next 4)
+.c022	a0 04		ldy #$04			ldy 	#OBC_PLAYERMISSILES
+.c024	c9 01		cmp #$01			cmp 	#TP_PLAYERMISSILE
+.c026	f0 0c		beq $c034			beq 	_COLoop
+.c028	a2 05		ldx #$05			ldx 	#OB_HUMANS 					; humans (next 6)
+.c02a	a0 06		ldy #$06			ldy 	#OBC_HUMANS
+.c02c	c9 05		cmp #$05			cmp 	#TP_CHILD+1
+.c02e	90 04		bcc $c034			bcc 	_COLoop
+.c030	a2 0b		ldx #$0b			ldx 	#OB_ENEMIES 				; check everything else
+.c032	a0 61		ldy #$61			ldy 	#OBC_ENEMIES
+.c034					_COLoop:
+.c034	3c 00 e0	bit $e000,x			bit 	OBFlags,x
+.c037	30 05		bmi $c03e			bmi 	_COFound
+.c039	e8		inx				inx
+.c03a	88		dey				dey
+.c03b	d0 f7		bne $c034			bne 	_COLoop
+.c03d	60		rts				rts  								; cannot create, exit.
+.c03e					_COFound:
+.c03e	9d 00 e0	sta $e000,x			sta 	OBFlags,x 					; clear unused flag
+.c041					_COPos1:
+.c041	20 55 c1	jsr $c155			jsr 	Random8Bit  				; value is 0-151
+.c044	c9 98		cmp #$98			cmp 	#152
+.c046	b0 f9		bcs $c041			bcs 	_COPos1
+.c048	69 04		adc #$04			adc 	#4
+.c04a	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
+.c04d					_COPos2:
+.c04d	20 55 c1	jsr $c155			jsr 	Random8Bit 					; value is 0-103
+.c050	29 7f		and #$7f			and 	#$7F
+.c052	c9 68		cmp #$68			cmp 	#104
+.c054	b0 f7		bcs $c04d			bcs 	_COPos2
+.c056	69 04		adc #$04			adc 	#4
+.c058	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
+.c05b	38		sec				sec   								; check Y centre offset
+.c05c	e9 34		sbc #$34			sbc 	#52
+.c05e	20 a4 c0	jsr $c0a4			jsr 	_COAbsolute
+.c061	c9 27		cmp #$27			cmp 	#39
+.c063	b0 0d		bcs $c072			bcs 	_COIsOkay
+.c065	bd 6c e0	lda $e06c,x			lda 	OBXPos,x 					; same for X
+.c068	38		sec				sec
+.c069	e9 4b		sbc #$4b			sbc 	#75
+.c06b	20 a4 c0	jsr $c0a4			jsr 	_COAbsolute
+.c06e	c9 37		cmp #$37			cmp 	#55
+.c070	90 cf		bcc $c041			bcc 	_COPos1
+.c072					_COIsOkay:
+.c072	a9 0a		lda #$0a			lda 	#GR_HULK 					; temporary value.
+.c074	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c077	1a		inc a				inc 	a
+.c078	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c07b	8a		txa				txa  								; set speed & counter default.
+.c07c	29 07		and #$07			and 	#7
+.c07e	1a		inc a				inc 	a
+.c07f	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x 			; init counter derived from index so they don't all move in sync.
+.c082	a9 01		lda #$01			lda 	#1
+.c084	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c087					_CODirection:
+.c087	20 55 c1	jsr $c155			jsr 	Random8Bit 					; get valid random direction
+.c08a	29 0f		and #$0f			and 	#15
+.c08c	f0 f9		beq $c087			beq 	_CODirection 				; stationary (0)
+.c08e	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c091	29 03		and #$03			and 	#3 							; check LR not both on.
+.c093	c9 03		cmp #$03			cmp 	#3
+.c095	f0 f0		beq $c087			beq 	_CODirection
+.c097	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check UD not both on
+.c09a	29 0c		and #$0c			and 	#12
+.c09c	c9 0c		cmp #$0c			cmp 	#12
+.c09e	f0 e7		beq $c087			beq 	_CODirection
+.c0a0	20 13 c1	jsr $c113			jsr 	RedrawObject
+.c0a3	60		rts				rts
+.c0a4					_COAbsolute:
+.c0a4	c9 00		cmp #$00			cmp 	#0
+.c0a6	10 03		bpl $c0ab			bpl 	_COAExit
+.c0a8	49 ff		eor #$ff			eor 	#$FF
+.c0aa	1a		inc a				inc 	a
+.c0ab					_COAExit:
+.c0ab	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: move.asm
 
-.c084					MoveObjects:
-.c084	a2 00		ldx #$00			ldx 	#0  						; look for an unused object
-.c086					_MOLoop:
-.c086	3c 00 e0	bit $e000,x			bit 	OBFlags,x
-.c089	30 03		bmi $c08e			bmi 	_MONoObject
-.c08b	20 94 c0	jsr $c094			jsr 	_MoveOneObject
-.c08e					_MONoObject:
-.c08e	e8		inx				inx
-.c08f	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
-.c091	d0 f3		bne $c086			bne 	_MOLoop
-.c093	60		rts				rts  								; cannot create, exit.
-.c094					_MoveOneObject:
-.c094	de f4 e2	dec $e2f4,x			dec 	OBSpeedCounter,x 			; speed counter down to zero.
-.c097	d0 43		bne $c0dc			bne 	_MONotMove
-.c099	bd 88 e2	lda $e288,x			lda 	OBSpeed,x 					; reset speed counter
-.c09c	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x
-.c09f	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; current direction.
-.c0a2	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x 					; new X position => Y
-.c0a5	4a		lsr a				lsr 	a
-.c0a6	90 01		bcc $c0a9			bcc 	_MONotLeft
-.c0a8	88		dey				dey
-.c0a9					_MONotLeft:
-.c0a9	4a		lsr a				lsr 	a
-.c0aa	90 01		bcc $c0ad			bcc 	_MONotRight
-.c0ac	c8		iny				iny
-.c0ad					_MONotRight:
-.c0ad	5a		phy				phy 								; new Y position on stack
-.c0ae	bc d8 e0	ldy $e0d8,x			ldy 	OBYPos,x 					; new Y position => Y
-.c0b1	4a		lsr a				lsr 	a
-.c0b2	90 01		bcc $c0b5			bcc 	_MONotUp
-.c0b4	88		dey				dey
-.c0b5					_MONotUp:
-.c0b5	4a		lsr a				lsr 	a
-.c0b6	90 01		bcc $c0b9			bcc 	_MONotDown
-.c0b8	c8		iny				iny
-.c0b9					_MONotDown:
-.c0b9	68		pla				pla 								; (A,Y) are new coordinates.
-.c0ba	c9 04		cmp #$04			cmp 	#4  						; check out of bounds.
-.c0bc	90 1f		bcc $c0dd			bcc 	_MOHitWall
-.c0be	c9 9c		cmp #$9c			cmp 	#156
-.c0c0	b0 1b		bcs $c0dd			bcs 	_MOHitWall
-.c0c2	c0 04		cpy #$04			cpy 	#4
-.c0c4	90 17		bcc $c0dd			bcc 	_MOHitWall
-.c0c6	c0 6c		cpy #$6c			cpy 	#108
-.c0c8	b0 13		bcs $c0dd			bcs 	_MOHitWall
-.c0ca	9d 6c e0	sta $e06c,x			sta 	OBXPos,x 					; update position.
-.c0cd	98		tya				tya
-.c0ce	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
-.c0d1	20 eb c0	jsr $c0eb			jsr 	RedrawObject
-.c0d4	bd 00 e0	lda $e000,x			lda 	OBFlags,x 					; toggle animation flag
-.c0d7	49 40		eor #$40			eor 	#$40
-.c0d9	9d 00 e0	sta $e000,x			sta 	OBFlags,x
-.c0dc					_MONotMove:
-.c0dc	60		rts				rts
-.c0dd					_MOHitWall:
-.c0dd	60		rts				rts
+.c0ac					MoveObjects:
+.c0ac	a2 00		ldx #$00			ldx 	#0  						; look for an unused object
+.c0ae					_MOLoop:
+.c0ae	3c 00 e0	bit $e000,x			bit 	OBFlags,x
+.c0b1	30 03		bmi $c0b6			bmi 	_MONoObject
+.c0b3	20 bc c0	jsr $c0bc			jsr 	_MoveOneObject
+.c0b6					_MONoObject:
+.c0b6	e8		inx				inx
+.c0b7	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
+.c0b9	d0 f3		bne $c0ae			bne 	_MOLoop
+.c0bb	60		rts				rts  								; cannot create, exit.
+.c0bc					_MoveOneObject:
+.c0bc	de f4 e2	dec $e2f4,x			dec 	OBSpeedCounter,x 			; speed counter down to zero.
+.c0bf	d0 43		bne $c104			bne 	_MONotMove
+.c0c1	bd 88 e2	lda $e288,x			lda 	OBSpeed,x 					; reset speed counter
+.c0c4	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x
+.c0c7	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; current direction.
+.c0ca	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x 					; new X position => Y
+.c0cd	4a		lsr a				lsr 	a
+.c0ce	90 01		bcc $c0d1			bcc 	_MONotLeft
+.c0d0	88		dey				dey
+.c0d1					_MONotLeft:
+.c0d1	4a		lsr a				lsr 	a
+.c0d2	90 01		bcc $c0d5			bcc 	_MONotRight
+.c0d4	c8		iny				iny
+.c0d5					_MONotRight:
+.c0d5	5a		phy				phy 								; new Y position on stack
+.c0d6	bc d8 e0	ldy $e0d8,x			ldy 	OBYPos,x 					; new Y position => Y
+.c0d9	4a		lsr a				lsr 	a
+.c0da	90 01		bcc $c0dd			bcc 	_MONotUp
+.c0dc	88		dey				dey
+.c0dd					_MONotUp:
+.c0dd	4a		lsr a				lsr 	a
+.c0de	90 01		bcc $c0e1			bcc 	_MONotDown
+.c0e0	c8		iny				iny
+.c0e1					_MONotDown:
+.c0e1	68		pla				pla 								; (A,Y) are new coordinates.
+.c0e2	c9 04		cmp #$04			cmp 	#4  						; check out of bounds.
+.c0e4	90 1f		bcc $c105			bcc 	_MOHitWall
+.c0e6	c9 9c		cmp #$9c			cmp 	#156
+.c0e8	b0 1b		bcs $c105			bcs 	_MOHitWall
+.c0ea	c0 04		cpy #$04			cpy 	#4
+.c0ec	90 17		bcc $c105			bcc 	_MOHitWall
+.c0ee	c0 6c		cpy #$6c			cpy 	#108
+.c0f0	b0 13		bcs $c105			bcs 	_MOHitWall
+.c0f2	9d 6c e0	sta $e06c,x			sta 	OBXPos,x 					; update position.
+.c0f5	98		tya				tya
+.c0f6	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
+.c0f9	20 13 c1	jsr $c113			jsr 	RedrawObject
+.c0fc	bd 00 e0	lda $e000,x			lda 	OBFlags,x 					; toggle animation flag
+.c0ff	49 40		eor #$40			eor 	#$40
+.c101	9d 00 e0	sta $e000,x			sta 	OBFlags,x
+.c104					_MONotMove:
+.c104	60		rts				rts
+.c105					_MOHitWall:
+.c105	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: utility.asm
 
-.c0de					ResetObjects:
-.c0de	a2 00		ldx #$00			ldx 	#0
-.c0e0					_RSLoop:
-.c0e0	a9 ff		lda #$ff			lda 	#$FF
-.c0e2	9d 00 e0	sta $e000,x			sta 	OBFlags,x
-.c0e5	e8		inx				inx
-.c0e6	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
-.c0e8	d0 f6		bne $c0e0			bne 	_RSLoop
-.c0ea	60		rts				rts
-.c0eb					RedrawObject:
-.c0eb	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
-.c0ee	d0 fb		bne $c0eb			bne 	RedrawObject
-.c0f0	8e 04 ff	stx $ff04			stx 	APIParams+0 				; sprite # same as object #
-.c0f3	9c 06 ff	stz $ff06			stz 	APIParams+2 				; shift X left into X position
-.c0f6	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
-.c0f9	0a		asl a				asl 	a
-.c0fa	8d 05 ff	sta $ff05			sta 	APIParams+1
-.c0fd	2e 06 ff	rol $ff06			rol 	APIParams+2
-.c100	9c 08 ff	stz $ff08			stz 	APIParams+4  				; shift Y left into Y position
-.c103	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
-.c106	0a		asl a				asl 	a
-.c107	69 10		adc #$10			adc 	#16 						; allow for top area
-.c109	8d 07 ff	sta $ff07			sta 	APIParams+3
-.c10c	bd 44 e1	lda $e144,x			lda 	OBSprite1,x 				; set graphic
-.c10f	3c 00 e0	bit $e000,x			bit 	OBFlags,x
-.c112	50 03		bvc $c117			bvc 	_ROUseSprite1
-.c114	bd b0 e1	lda $e1b0,x			lda 	OBSprite2,x
-.c117					_ROUseSprite1:
-.c117	8d 09 ff	sta $ff09			sta 	APIParams+5
-.c11a	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check moving left
-.c11d	29 01		and #$01			and 	#1 							; bit 0 of direction sets xflip
-.c11f	8d 0a ff	sta $ff0a			sta 	APIParams+6 				; set flip
-.c122					_RONotLeft:
-.c122	a9 02		lda #$02			lda 	#2  						; and draw it.
-.c124	8d 01 ff	sta $ff01			sta 	APIFunction
-.c127	a9 06		lda #$06			lda 	#6
-.c129	8d 00 ff	sta $ff00			sta 	APICommand
-.c12c	60		rts				rts
-.c12d					Random8Bit:
-.c12d	5a		phy				phy
-.c12e	a0 08		ldy #$08			ldy 	#8
-.c130	ad 43 c1	lda $c143			lda 	_R8SeedValue+0
-.c133					_R8RandomLoop
-.c133	0a		asl a				asl     a
-.c134	2e 44 c1	rol $c144			rol 	_R8SeedValue+1
-.c137	90 02		bcc $c13b			bcc 	_R8NotSet
-.c139	49 39		eor #$39			eor 	#$39
-.c13b					_R8NotSet:
-.c13b	88		dey				dey
-.c13c	d0 f5		bne $c133			bne 	_R8RandomLoop
-.c13e	8d 43 c1	sta $c143			sta 	_R8SeedValue+0
-.c141	7a		ply				ply
-.c142	60		rts				rts
-.c143					_R8SeedValue
->c143	cd ab						.word 	$ABCD
+.c106					ResetObjects:
+.c106	a2 00		ldx #$00			ldx 	#0
+.c108					_RSLoop:
+.c108	a9 ff		lda #$ff			lda 	#$FF
+.c10a	9d 00 e0	sta $e000,x			sta 	OBFlags,x
+.c10d	e8		inx				inx
+.c10e	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
+.c110	d0 f6		bne $c108			bne 	_RSLoop
+.c112	60		rts				rts
+.c113					RedrawObject:
+.c113	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
+.c116	d0 fb		bne $c113			bne 	RedrawObject
+.c118	8e 04 ff	stx $ff04			stx 	APIParams+0 				; sprite # same as object #
+.c11b	9c 06 ff	stz $ff06			stz 	APIParams+2 				; shift X left into X position
+.c11e	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
+.c121	0a		asl a				asl 	a
+.c122	8d 05 ff	sta $ff05			sta 	APIParams+1
+.c125	2e 06 ff	rol $ff06			rol 	APIParams+2
+.c128	9c 08 ff	stz $ff08			stz 	APIParams+4  				; shift Y left into Y position
+.c12b	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
+.c12e	0a		asl a				asl 	a
+.c12f	69 10		adc #$10			adc 	#16 						; allow for top area
+.c131	8d 07 ff	sta $ff07			sta 	APIParams+3
+.c134	bd 44 e1	lda $e144,x			lda 	OBSprite1,x 				; set graphic
+.c137	3c 00 e0	bit $e000,x			bit 	OBFlags,x
+.c13a	50 03		bvc $c13f			bvc 	_ROUseSprite1
+.c13c	bd b0 e1	lda $e1b0,x			lda 	OBSprite2,x
+.c13f					_ROUseSprite1:
+.c13f	8d 09 ff	sta $ff09			sta 	APIParams+5
+.c142	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check moving left
+.c145	29 01		and #$01			and 	#1 							; bit 0 of direction sets xflip
+.c147	8d 0a ff	sta $ff0a			sta 	APIParams+6 				; set flip
+.c14a					_RONotLeft:
+.c14a	a9 02		lda #$02			lda 	#2  						; and draw it.
+.c14c	8d 01 ff	sta $ff01			sta 	APIFunction
+.c14f	a9 06		lda #$06			lda 	#6
+.c151	8d 00 ff	sta $ff00			sta 	APICommand
+.c154	60		rts				rts
+.c155					Random8Bit:
+.c155	5a		phy				phy
+.c156	a0 08		ldy #$08			ldy 	#8
+.c158	ad 6b c1	lda $c16b			lda 	_R8SeedValue+0
+.c15b					_R8RandomLoop
+.c15b	0a		asl a				asl     a
+.c15c	2e 6c c1	rol $c16c			rol 	_R8SeedValue+1
+.c15f	90 02		bcc $c163			bcc 	_R8NotSet
+.c161	49 39		eor #$39			eor 	#$39
+.c163					_R8NotSet:
+.c163	88		dey				dey
+.c164	d0 f5		bne $c15b			bne 	_R8RandomLoop
+.c166	8d 6b c1	sta $c16b			sta 	_R8SeedValue+0
+.c169	7a		ply				ply
+.c16a	60		rts				rts
+.c16b					_R8SeedValue
+>c16b	cd ab						.word 	$ABCD
 
 ;******  Return to file: main.asm
 

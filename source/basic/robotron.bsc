@@ -3,7 +3,7 @@ gload "robotron.gfx"
 load "robotron.bin",$C000
 rect 0,16 frame ink 3 to 319,239
 sys $C000
-for a = 0 to 100:sys $C003:next
+x = 110:a = 6:sys $C003
 repeat
 	sys $C006
 	wait 4
