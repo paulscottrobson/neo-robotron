@@ -17,5 +17,12 @@
 ; ***************************************************************************************
 
 DefaultHandler:
-		rts
-		
+		.method MSG_CONTROL,DefaultControl
+		.superclass
+
+;
+;		Control default is random walking.
+;
+DefaultControl:
+		jmp 	ChooseRandomDirection		
+

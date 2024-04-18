@@ -1,10 +1,9 @@
 TODO
 	- default subclassing code
-			- add iq code and repeat rate
-				default move randomly
-				make player moveable
-			- change player according to directions.
+			- change player graphic according to directions.
 			- add hit wall
-				default nothing other than movement block
+				default sets iq counter to 1 so wanderers keep repositioning till off wall.
 
 	- create player missiles.				
+
+	- launch player missiles.

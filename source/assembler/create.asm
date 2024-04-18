@@ -104,17 +104,19 @@ _COIsOkay:
 		inc 	a
 		sta 	OBSprite2,x
 
-		txa  								; set speed & counter default.
-		and 	#7
+		txa  								; set intelligence, speed & counter defaults.
+		and 	#7 							
 		inc 	a
 		sta 	OBSpeedCounter,x 			; init counter derived from index so they don't all move in sync.
+		sta 	OBIntelligenceCount,x
 		lda 	#1
 		sta 	OBSpeed,x  			
+		lda 	#10
+		sta 	OBIntelligence,x
 
 		jsr 	ChooseRandomDirection
 
 		.sendmsg MSG_INIT 					; send Initialise message
-		.sendmsg MSG_REPAINT 				; send Repaint due message
 
 		jsr 	RedrawObject
 		rts

@@ -45,3 +45,8 @@ OBSpeedCounter = OBBase + 7*OBJ_COUNT
 ;
 OBHandlerLow = OBBase + 8*OBJ_COUNT
 OBHandlerHigh = OBBase + 9*OBJ_COUNT
+;
+;			Intelligence check (switches per move)
+;
+OBIntelligence = OBBase + 10*OBJ_COUNT
+OBIntelligenceCount = OBBase + 11*OBJ_COUNT

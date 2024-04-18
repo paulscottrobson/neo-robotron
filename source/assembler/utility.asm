@@ -63,6 +63,8 @@ _ROUseSprite1:
 		sta 	APIParams+6 				; set flip
 
 _RONotLeft:		
+		.sendmsg MSG_REPAINT 				; prior to repaint
+		
 		lda 	#2  						; and draw it.
 		sta 	APIFunction
 		lda 	#6

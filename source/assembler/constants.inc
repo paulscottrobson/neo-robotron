@@ -83,6 +83,7 @@ APIParams = $FF04
 
 MSG_INIT = $01 								; Initialise object
 MSG_REPAINT = $02 							; About to repaint
+MSG_CONTROL = $03 							; Time for a rethink
 
 sendmsg	.macro
 		lda 	#\1
@@ -114,4 +115,9 @@ animation .macro
 speed .macro
 		lda 	#\1
 		sta 	OBSpeed,x
+		.endm		
+
+brains .macro		
+		lda 	#\1
+		sta 	OBIntelligence,x
 		.endm		

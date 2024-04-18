@@ -35,6 +35,13 @@ _MoveOneObject:
 		lda 	OBSpeed,x 					; reset speed counter
 		sta 	OBSpeedCounter,x
 		
+		dec 	OBIntelligenceCount,x 		; time for a rethink
+		bne 	_MONoProcess
+		lda 	OBIntelligence,x 			; reset the counter
+		sta 	OBIntelligenceCount,x
+		.sendmsg MSG_CONTROL 				; send a request to control change.
+_MONoProcess:
+
 		lda 	OBDirection,x 				; current direction.
 		ldy 	OBXPos,x 					; new X position => Y
 		lsr 	a
@@ -71,7 +78,8 @@ _MONotDown:
 		tya
 		sta 	OBYPos,x
 
-		jsr 	RedrawObject
+
+		jsr 	RedrawObject 				; repaint.
 
 		lda 	OBFlags,x 					; toggle animation flag
 		eor 	#$40
