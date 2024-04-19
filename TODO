@@ -1,9 +1,4 @@
 TODO
-	- default subclassing code
-			- change player graphic according to directions.
-			- add hit wall
-				default sets iq counter to 1 so wanderers keep repositioning till off wall.
-
+	- kill on hitting wall.				
 	- create player missiles.				
-
 	- launch player missiles.

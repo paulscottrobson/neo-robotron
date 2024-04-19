@@ -51,11 +51,23 @@ RedrawObject:
 		adc 	#16 						; allow for top area
 		sta 	APIParams+3
 
-		lda 	OBSprite1,x 				; set graphic
-		bit 	OBFlags,x
-		bvc 	_ROUseSprite1
+		ldy 	OBXPos,x 					; use Y to animate
+		lda 	OBDirection,x 				; get direction.
+		and 	#15 						; if 0 do not animate at all.
+		beq 	_ROUseSprite2
+		and 	#3  						; if a L/R component use X Pos
+		bne 	_ROHasHorizonMovement
+		ldy 	OBYPos,x 					; otherwise use Y Pos
+_ROHasHorizonMovement:
+		tya 								; put bit 2 into carry.
+		lsr 	a
+		lsr 	a
+		lsr 	a
+		lda 	OBSprite1,x 				; set graphic according to carry.
+		bcc 	_ROUseSprite
+_ROUseSprite2:		
 		lda 	OBSprite2,x
-_ROUseSprite1:		
+_ROUseSprite:		
 		sta 	APIParams+5
 
 		lda 	OBDirection,x 				; check moving left

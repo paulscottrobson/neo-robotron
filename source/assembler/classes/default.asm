@@ -18,6 +18,7 @@
 
 DefaultHandler:
 		.method MSG_CONTROL,DefaultControl
+		.method MSG_HITWALL,DefaultHitWall
 		.superclass
 
 ;
@@ -25,4 +26,8 @@ DefaultHandler:
 ;
 DefaultControl:
 		jmp 	ChooseRandomDirection		
-
+;
+;		Hit wall default is to randomly redirect.
+;
+DefaultHitWall:
+		jmp 	ChooseRandomDirection		

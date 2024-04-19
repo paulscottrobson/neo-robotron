@@ -22,10 +22,11 @@
 		.include 	"utility.asm"
 		.include 	"classes/default.asm"
 		.include 	"classes/player.asm"
+		.include 	"classes/pmissile.asm"
 
 HandlerTable:
 		.word 		OHPlayer 				; type 0, player object
-		
+		.word 		OHMissile 				; type 1, player missile object
 
 		* = $E000
 		.include "data.asm"

@@ -53,15 +53,15 @@ GR1_EMBRYO	= 16  							; Embryo graphic (1 only)
 GR1_QUARK = 17   							; Quark graphic (1 only)
 GR_TANK = 18  								; Tank graphic
 GR_BRAIN = 20  								; Brain graphic
-GR8_ELECTRODES = 22  						; Set of 8 electrode graphics
+GR1_HORIZFIRE = 22  						; Horizontal fire
+GR1_VERTFIRE = 23  							; Vertical fire 
+GR1_SWNEFIRE = 24   						; / fire  
+GR1_NWSEFIRE = 25  							; \ fire 
+GR4_ELECTRODES = 26  						; Set of 3 electrode graphics
 GR1_MISSILE1 = 30  							; Robotron missiles
 GR1_MISSILE2 = 31
-GR1_HORIZFIRE = 32  						; Horizontal fire
-GR1_VERTFIRE = 33  							; Vertical fire 
-GR1_SWNEFIRE = 34   						; / fire  
-GR1_NWSEFIRE = 35  							; \ fire 
 
-OBJ_COUNT = 108 								; maximum number of supported objects
+OBJ_COUNT = 108 							; maximum number of supported objects
 
 
 ; ***************************************************************************************
@@ -84,6 +84,7 @@ APIParams = $FF04
 MSG_INIT = $01 								; Initialise object
 MSG_REPAINT = $02 							; About to repaint
 MSG_CONTROL = $03 							; Time for a rethink
+MSG_HITWALL = $04 							; Hit wall.
 
 sendmsg	.macro
 		lda 	#\1

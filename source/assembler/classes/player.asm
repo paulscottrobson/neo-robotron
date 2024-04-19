@@ -32,6 +32,12 @@ OHPInitHandler:
 		rts
 
 OHPRepaintHandler:
+		lda 	OBDirection,x 				; is movement purely vertical
+		and 	#3
+		bne 	_OHPRHorizontal
+		.animation GR_PLAYERV
+		rts
+_OHPRHorizontal:		
 		.animation GR_PLAYERH
 		rts
 
@@ -48,4 +54,11 @@ _OHPWait
 		lda 	APIParams 					; put the controller dpad bits into the direction.
 		and 	#15  						; (made the same for this reason)
 		sta 	OBDirection,x
+		beq 	_OHPNoSetLast 				; set last direction if non zero
+		sta 	OHPLastDirection
+_OHPNoSetLast:		
 		rts		
+
+OHPLastDirection:
+		.byte 	2		
+		

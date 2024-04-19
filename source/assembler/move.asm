@@ -81,12 +81,9 @@ _MONotDown:
 
 		jsr 	RedrawObject 				; repaint.
 
-		lda 	OBFlags,x 					; toggle animation flag
-		eor 	#$40
-		sta 	OBFlags,x
-
 _MONotMove:
 		rts
 
 _MOHitWall:
+		.sendmsg MSG_HITWALL 				; hit the wall.
 		rts		
