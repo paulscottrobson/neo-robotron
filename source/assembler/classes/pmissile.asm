@@ -20,6 +20,7 @@ OHMissile:
 		.method MSG_INIT,OHMInitHandler
 		.method MSG_REPAINT,OHMRepaintHandler
 		.method MSG_CONTROL,OHMControl
+		.method MSG_HITWALL,OHMHitWall
 		.superclass
 
 OHMInitHandler:
@@ -47,8 +48,11 @@ OHMGraphic:
 		.byte 	GR1_VERTFIRE,GR1_SWNEFIRE,GR1_NWSEFIRE,0
 		.byte 	0,0,0,0
 
-_OHMIVertical:
 OHMControl:
 		rts	
 
+OHMHitWall:
+		jsr 	KillObject
+		rts
+		
 

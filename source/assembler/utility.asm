@@ -29,6 +29,25 @@ _RSLoop:
 
 ; ***************************************************************************************
 ;
+;							Kill the current object
+;
+; ***************************************************************************************
+
+KillObject:
+		lda 	APICommand 					; wait for API to be available
+		bne 	KillObject
+		lda 	#$FF 						; mark not in use
+		sta 	OBFlags,x
+
+		stx 	APIParams					; sprite ID
+		lda 	#3  						; and hide it.
+		sta 	APIFunction
+		lda 	#6
+		sta 	APICommand
+		rts
+
+; ***************************************************************************************
+;
 ;							Redraw the current object
 ;
 ; ***************************************************************************************

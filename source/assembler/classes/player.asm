@@ -54,11 +54,29 @@ _OHPWait
 		lda 	APIParams 					; put the controller dpad bits into the direction.
 		and 	#15  						; (made the same for this reason)
 		sta 	OBDirection,x
-		beq 	_OHPNoSetLast 				; set last direction if non zero
+		beq 	_OHPNoSetLast 				; don't set last if no direction.
+		lda 	APIParams 					; any fire button pressed, if zero, set direction
+		and 	#$F0 						
+		bne 	_OHPNoSetLast 				; don't set last direction if non zero
+		lda 	OBDirection,x
 		sta 	OHPLastDirection
-_OHPNoSetLast:		
+_OHPNoSetLast:	
+		
+		inc 	OHPFireCount 				; fire one time in 15
+		lda 	OHPFireCount
+		and 	#15
+		bne 	_OHPNoFire
+
+		phx 								; create player missile object.
+		phy
+		lda 	#1	
+		jsr 	CreateObject
+		ply
+		plx
+_OHPNoFire:		
 		rts		
 
 OHPLastDirection:
 		.byte 	2		
-		
+OHPFireCount:		
+		.byte 	0

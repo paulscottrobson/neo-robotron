@@ -1,4 +1,7 @@
 TODO
-	- kill on hitting wall.				
-	- create player missiles.				
-	- launch player missiles.
+
+	- launch player missiles automatically with repeat delay
+	- lock direction on fire.
+
+	- start robots.
+	
