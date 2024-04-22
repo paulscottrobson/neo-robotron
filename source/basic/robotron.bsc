@@ -4,7 +4,8 @@ load "robotron.bin",$C000
 rect 0,16 frame ink 3 to 319,239
 sys $C000
 x = 1:a = 0:sys $C003
-x = 1:a = 1:sys $C003
+x = 2:for a = 2 to 4:sys $C003:next
+x = 4:a = 5:sys $C003
 repeat
 	sys $C006
 	for i = 1 to 100:next

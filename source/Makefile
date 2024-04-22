@@ -38,3 +38,6 @@ sendbin:
 	$(PYTHON) $(BINDIR)nxmit.zip /dev/ttyUSB0 s:storage/robotron.bin
 sendgfx:		
 	$(PYTHON) $(BINDIR)nxmit.zip /dev/ttyUSB0 s:storage/robotron.gfx
+
+update:
+	cd .. ; git add * ; git add * -u ; git commit -m "Update" ; git push

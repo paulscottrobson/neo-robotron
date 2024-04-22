@@ -23,10 +23,15 @@
 		.include 	"classes/default.asm"
 		.include 	"classes/player.asm"
 		.include 	"classes/pmissile.asm"
+		.include 	"classes/human.asm"
+		.include 	"classes/grunt.asm"
 
 HandlerTable:
 		.word 		OHPlayer 				; type 0, player object
 		.word 		OHMissile 				; type 1, player missile object
-
+		.word 		OHHuman1 				; type 2-4 humans
+		.word 		OHHuman2
+		.word 		OHHuman3
+		.word 		OHGrunt 				; type 5 grunt
 		* = $E000
 		.include "data.asm"

@@ -105,6 +105,43 @@ _RONotLeft:
 
 ; ***************************************************************************************
 ;
+;							Chase object X towards Object Y
+;
+; ***************************************************************************************
+
+ChaseObject:
+		lda 	OBXPos,y
+		cmp 	OBXPos,x
+		jsr 	_ChaseCalculate
+		sta 	_ChaseTemp
+
+		lda 	OBYPos,y
+		cmp 	OBYPos,x
+		jsr 	_ChaseCalculate
+		asl 	a
+		asl 	a
+		ora 	_ChaseTemp
+		sta 	OBDirection,x
+		rts
+
+_ChaseTemp:
+		.byte 	0
+
+_ChaseCalculate:
+		beq 	_CCNoMove
+		bcc 	_CCMoveRight
+		lda 	#2
+		rts
+_CCMoveRight:
+		lda 	#1
+		rts
+_CCNoMove:
+		lda 	#0
+		rts								
+
+
+; ***************************************************************************************
+;
 ;										8 bit RNG
 ;
 ; ***************************************************************************************
