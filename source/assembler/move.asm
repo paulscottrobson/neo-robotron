@@ -66,13 +66,13 @@ _MONotUp:
 _MONotDown:
 		pla 								; (A,Y) are new coordinates.
 
-		cmp 	#4  						; check out of bounds.
+		cmp 	#PF_LEFT					; check out of bounds.
 		bcc 	_MOHitWall
-		cmp 	#156
+		cmp 	#PF_RIGHT
 		bcs 	_MOHitWall
-		cpy 	#4
+		cpy 	#PF_TOP
 		bcc 	_MOHitWall
-		cpy 	#108
+		cpy 	#PF_BOTTOM
 		bcs 	_MOHitWall
 
 		sta 	OBXPos,x 					; update position.
@@ -80,7 +80,9 @@ _MONotDown:
 		sta 	OBYPos,x
 
 		.sendmsg MSG_ONMOVE
-		
+		bit 	OBFlags,x 					; killed.		
+		bmi 	_MONotMove		
+
 		jsr 	RedrawObject 				; repaint.
 
 _MONotMove:

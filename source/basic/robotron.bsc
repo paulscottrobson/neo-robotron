@@ -1,13 +1,15 @@
 cls:sprite clear
 gload "robotron.gfx"
 load "robotron.bin",$C000
-rect 0,16 frame ink 3 to 319,239
+rect 0,8 frame ink 3 to 319,231
 sys $C000
 x = 1:a = 0:sys $C003
 x = 2:for a = 2 to 4:sys $C003:next
 x = 4:a = 5:sys $C003
 x = 4:a = 6 :sys $C003
-x = 2:a = 9:sys $C003
+x = 1:a = 9:sys $C003
+x = 1:a = 12:sys $C003
+x = 10:a = 13:sys $C003
 repeat
 	sys $C006
 	for i = 1 to 100:next

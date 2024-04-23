@@ -67,7 +67,7 @@ RedrawObject:
 		stz 	APIParams+4  				; shift Y left into Y position
 		lda 	OBYPos,x
 		asl 	a
-		adc 	#16 						; allow for top area
+		adc 	#8 							; allow for top area
 		sta 	APIParams+3
 
 		ldy 	OBXPos,x 					; use Y to animate

@@ -26,6 +26,10 @@ TP_HULK = 6
 TP_ESPARK = 7
 TP_ENFORCER = 8
 TP_SPHERE = 9
+TP_SHELL = 10
+TP_TANK = 11
+TP_QUARK = 12
+TP_ELECTRODE = 13
 
 ; ***************************************************************************************
 ;
@@ -41,6 +45,17 @@ OB_ENEMIES = 11 							; enemies (everything else)
 OBC_PLAYERMISSILES = OB_HUMANS-OB_PLAYERMISSILE
 OBC_HUMANS = OB_ENEMIES-OB_HUMANS
 OBC_ENEMIES = OBJ_COUNT - OB_ENEMIES
+
+; ***************************************************************************************
+;
+;									Playfield frame
+;
+; ***************************************************************************************
+
+PF_LEFT = 4
+PF_RIGHT = 156
+PF_TOP = 4
+PF_BOTTOM = 108
 
 ; ***************************************************************************************
 ;

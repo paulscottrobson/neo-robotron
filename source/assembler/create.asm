@@ -73,17 +73,17 @@ _COFound:
 
 _COPos1:
 		jsr 	Random8Bit  				; value is 0-151
-		cmp 	#152
+		cmp 	#PF_RIGHT-PF_LEFT
 		bcs 	_COPos1
-		adc 	#4
+		adc 	#PF_LEFT
 		sta 	OBXPos,x
 
 _COPos2:
 		jsr 	Random8Bit 					; value is 0-103
 		and 	#$7F		
-		cmp 	#104
+		cmp 	#PF_BOTTOM-PF_TOP
 		bcs 	_COPos2
-		adc 	#4
+		adc 	#PF_TOP
 		sta 	OBYPos,x		
 
 		sec   								; check Y centre offset

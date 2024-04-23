@@ -27,6 +27,8 @@
 		.include 	"classes/grunt.asm"
 		.include 	"classes/hulk.asm"
 		.include 	"classes/sphere.asm"
+		.include 	"classes/quarks.asm"
+		.include 	"classes/electrode.asm"
 
 HandlerTable:
 		.word 		OHPlayer 				; type 0, player object
@@ -39,6 +41,10 @@ HandlerTable:
 		.word 		OHESpark 				; type 7 Enforcer Sparks.
 		.word 		OHEnforcer 				; type 8 Enforcer
 		.word 		OHSphere 				; type 9 Sphere
-		
+		.word 		OHShell 				; type 10 shell
+		.word 		OHTank 					; type 11 tank
+		.word 		OHQuark 				; type 12 quark
+		.word 		OHElectrode 			; type 13 electrode
+
 		* = $E000
 		.include "data.asm"
