@@ -12,22 +12,54 @@
 
 ; ***************************************************************************************
 ;
-;							Enforcer Sparks Object 
+;									Sphere Object 
 ;
 ; ***************************************************************************************
 
-OHESpark:
-		.method MSG_INIT,OHESInitHandler
-		.method MSG_HITWALL,KillObject
-		.method MSG_CONTROL,NoControlEffect
+OHSphere:
+		.method MSG_INIT,OHSInitHandler
+		.method MSG_CONTROL,OHSControl
+		.method MSG_ONMOVE,OHSCheckFire
+		.method MSG_REPAINT,OHSRepaint
 		.superclass
 
-OHESInitHandler:
-		jsr 	ChasePlayer
-		.static GR1_MISSILE2
-		.speed 	7
-		.brains 255
-		.score  25
+OHSInitHandler:
+		.animation GR_SPHEROID
+		.speed 	8
+		.brains 40
+		.score  1000
+		jsr 	Random8Bit
+		and 	#63
+		sta 	OBIntelligenceCount,x
+		rts
+
+OHSControl:
+		lda 	OBDirection,x
+		bne 	_OHSNoMove
+		jsr		ChooseRandomDirection 	
+		rts
+_OHSNoMove:
+		stz 	OBDirection,x
+		rts		
+
+OHSCheckFire:
+		jsr 	Random8Bit
+		and 	#31
+		bne 	_OHSCFExit
+		lda 	#TP_ENFORCER
+		jsr 	CreateSingleObject
+		ldy 	NewObject
+		jsr 	CopyStartPosition
+		rts
+_OHSCFExit:
+		rts		
+
+OHSRepaint:		
+		lsr 	APIParams+5
+		inc 	OBObjectData1,x
+		lda 	OBObjectData1,x
+		lsr 	a
+		rol 	APIParams+5		
 		rts
 
 ; ***************************************************************************************
@@ -62,3 +94,22 @@ OHENCheckFire:
 _OHENCFExit:
 		rts		
 
+; ***************************************************************************************
+;
+;							Enforcer Sparks Object 
+;
+; ***************************************************************************************
+
+OHESpark:
+		.method MSG_INIT,OHESInitHandler
+		.method MSG_HITWALL,KillObject
+		.method MSG_CONTROL,NoControlEffect
+		.superclass
+
+OHESInitHandler:
+		jsr 	ChasePlayer
+		.static GR1_MISSILE2
+		.speed 	7
+		.brains 255
+		.score  25
+		rts

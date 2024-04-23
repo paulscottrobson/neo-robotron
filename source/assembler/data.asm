@@ -54,3 +54,7 @@ OBIntelligenceCount = OBBase + 11*OBJ_COUNT
 ;
 OBScoreLow = OBBase + 12*OBJ_COUNT
 OBScoreHigh = OBBase + 13*OBJ_COUNT
+;
+;			General data
+;
+OBObjectData1 = OBBase + 14*OBJ_COUNT

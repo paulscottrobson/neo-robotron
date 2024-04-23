@@ -38,5 +38,7 @@ HandlerTable:
 		.word 		OHHulk 					; type 6 hulk
 		.word 		OHESpark 				; type 7 Enforcer Sparks.
 		.word 		OHEnforcer 				; type 8 Enforcer
+		.word 		OHSphere 				; type 9 Sphere
+		
 		* = $E000
 		.include "data.asm"
