@@ -1,7 +1,7 @@
 ; ***************************************************************************************
 ; ***************************************************************************************
 ;
-;		Name : 		grunt.asm
+;		Name : 		hulk.asm
 ;		Author :	Paul Robson (paul@robsons.org.uk)
 ;		Date : 		22nd April 2024
 ;		Reviewed :	No
@@ -16,17 +16,16 @@
 ;
 ; ***************************************************************************************
 
-OHGrunt:
-		.method MSG_INIT,OHGInitHandler
+OHHulk:
+		.method MSG_INIT,OHHUInitHandler
 		.method MSG_CONTROL,ChasePlayer
 		.superclass
 
 
-OHGInitHandler:
-		.animation GR_GRUNT
-		.speed 	32
+OHHUInitHandler:
+		.animation GR_HULK
+		.speed 	64
 		.brains 1
-		.score  100
 		rts
 
 

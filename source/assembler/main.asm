@@ -25,6 +25,7 @@
 		.include 	"classes/pmissile.asm"
 		.include 	"classes/human.asm"
 		.include 	"classes/grunt.asm"
+		.include 	"classes/hulk.asm"
 
 HandlerTable:
 		.word 		OHPlayer 				; type 0, player object
@@ -33,5 +34,7 @@ HandlerTable:
 		.word 		OHHuman2
 		.word 		OHHuman3
 		.word 		OHGrunt 				; type 5 grunt
+		.word 		OHHulk 					; type 6 hulk
+
 		* = $E000
 		.include "data.asm"

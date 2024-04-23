@@ -78,9 +78,7 @@ RedrawObject:
 		bne 	_ROHasHorizonMovement
 		ldy 	OBYPos,x 					; otherwise use Y Pos
 _ROHasHorizonMovement:
-		tya 								; put bit 2 into carry.
-		lsr 	a
-		lsr 	a
+		tya 								; put bit 1 into carry.
 		lsr 	a
 		lda 	OBSprite1,x 				; set graphic according to carry.
 		bcc 	_ROUseSprite
@@ -139,6 +137,18 @@ _CCNoMove:
 		lda 	#0
 		rts								
 
+; ***************************************************************************************
+;
+;			Chase the player (by setting the object direction towards it)
+;
+; ***************************************************************************************
+
+ChasePlayer:
+		phy
+		ldy 	#0
+		jsr 	ChaseObject
+		ply
+		rts
 
 ; ***************************************************************************************
 ;
@@ -191,4 +201,18 @@ SetObjectGraphic:
 		sta 	OBSprite1,x
 		inc 	a
 		sta 	OBSprite2,x
+		rts
+
+; ***************************************************************************************
+;
+;					Create a single player missile object
+;
+; ***************************************************************************************
+
+CreateSingleObject:
+		phx 								; create player missile object.
+		phy
+		jsr 	CreateObject
+		ply
+		plx		
 		rts

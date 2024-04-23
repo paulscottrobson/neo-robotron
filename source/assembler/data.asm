@@ -49,3 +49,8 @@ OBHandlerHigh = OBBase + 9*OBJ_COUNT
 ;
 OBIntelligence = OBBase + 10*OBJ_COUNT
 OBIntelligenceCount = OBBase + 11*OBJ_COUNT
+;
+;			Score (in BCD), $FFFF to be non-shootable
+;
+OBScoreLow = OBBase + 12*OBJ_COUNT
+OBScoreHigh = OBBase + 13*OBJ_COUNT

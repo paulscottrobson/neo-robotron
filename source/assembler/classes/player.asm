@@ -32,6 +32,22 @@ OHPInitHandler:
 		rts
 
 OHPRepaintHandler:
+		ldy 	OBXPos,x
+		lda 	OBDirection,x
+		and 	#3
+		bne 	_OHPUseVertical
+		ldy		OBYPos,x
+_OHPUseVertical:
+		lsr 	APIParams+5,x
+		asl 	APIParams+5,x		
+		tya
+		and 	#16
+		beq 	_OHPNoAlternate
+		inc 	APIParams+5,x
+_OHPNoAlternate:
+		rts
+
+OHPSetGraphic:
 		lda 	OBDirection,x 				; is movement purely vertical
 		and 	#3
 		bne 	_OHPRHorizontal
@@ -67,13 +83,11 @@ _OHPNoSetLast:
 		and 	#15
 		bne 	_OHPNoFire
 
-		phx 								; create player missile object.
-		phy
 		lda 	#1	
-		jsr 	CreateObject
-		ply
-		plx
+		jsr 	CreateSingleObject
+
 _OHPNoFire:		
+		jsr 	OHPSetGraphic
 		rts		
 
 OHPLastDirection:

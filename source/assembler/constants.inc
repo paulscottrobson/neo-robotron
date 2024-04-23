@@ -62,6 +62,8 @@ GR4_ELECTRODES = 26  						; Set of 3 electrode graphics
 GR1_MISSILE1 = 30  							; Robotron missiles
 GR1_MISSILE2 = 31
 
+GR_HIDE = 63 								; stops drawing
+
 OBJ_COUNT = 108 							; maximum number of supported objects
 
 
@@ -122,4 +124,11 @@ speed .macro
 brains .macro		
 		lda 	#\1
 		sta 	OBIntelligence,x
+		.endm		
+
+score 	.macro
+		lda 	#($\1 & 255)
+		sta 	OBScoreLow,x
+		lda 	#($\1 >> 8)
+		sta 	OBScoreHigh,x
 		.endm		

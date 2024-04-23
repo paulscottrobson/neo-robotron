@@ -99,10 +99,13 @@ _COPos2:
 		bcc 	_COPos1
 
 _COIsOkay:		
-		lda 	#GR_HULK 					; temporary value.
+		lda 	#GR_HIDE 					; not visible
 		sta 	OBSprite1,x
-		inc 	a
 		sta 	OBSprite2,x
+
+		lda 	#$FF
+		sta 	OBScoreLow,x 				; set default score, not shootable.
+		sta 	OBScoreHigh,x
 
 		txa  								; set intelligence, speed & counter defaults.
 		and 	#7 							
