@@ -78,7 +78,8 @@ _MONotDown:
 		tya
 		sta 	OBYPos,x
 
-
+		.sendmsg MSG_ONMOVE
+		
 		jsr 	RedrawObject 				; repaint.
 
 _MONotMove:

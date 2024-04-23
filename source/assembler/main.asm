@@ -26,6 +26,7 @@
 		.include 	"classes/human.asm"
 		.include 	"classes/grunt.asm"
 		.include 	"classes/hulk.asm"
+		.include 	"classes/sphere.asm"
 
 HandlerTable:
 		.word 		OHPlayer 				; type 0, player object
@@ -35,6 +36,7 @@ HandlerTable:
 		.word 		OHHuman3
 		.word 		OHGrunt 				; type 5 grunt
 		.word 		OHHulk 					; type 6 hulk
-
+		.word 		OHESpark 				; type 7 Enforcer Sparks.
+		.word 		OHEnforcer 				; type 8 Enforcer
 		* = $E000
 		.include "data.asm"

@@ -103,6 +103,36 @@ _RONotLeft:
 
 ; ***************************************************************************************
 ;
+;							Pick a random direction
+;
+; ***************************************************************************************
+
+ChooseRandomDirection:
+		jsr 	Random8Bit 					; get valid random direction
+		and 	#15
+		beq 	ChooseRandomDirection 		; stationary (0)
+		sta 	OBDirection,x  				
+		and 	#3 							; check LR not both on.
+		cmp 	#3  
+		beq 	ChooseRandomDirection
+
+		lda 	OBDirection,x 				; check UD not both on
+		and 	#12
+		cmp 	#12
+		beq 	ChooseRandomDirection
+		rts
+
+; ***************************************************************************************
+;
+;						  Used to disable default behaviour
+;
+; ***************************************************************************************
+
+NoControlEffect:
+		rts
+
+; ***************************************************************************************
+;
 ;							Chase object X towards Object Y
 ;
 ; ***************************************************************************************
@@ -215,4 +245,31 @@ CreateSingleObject:
 		jsr 	CreateObject
 		ply
 		plx		
+		rts
+
+; ***************************************************************************************
+;
+;					Copy start position of object X to object Y
+;
+; ***************************************************************************************
+
+CopyStartPosition:
+		lda 	OBXPos,x
+		sta 	OBXPos,y
+		lda 	OBYPos,x
+		sta 	OBYPos,y
+		rts
+
+; ***************************************************************************************
+;
+;								Object Y chase player
+;
+; ***************************************************************************************
+
+ChasePlayerY:
+		phx
+		tya
+		tax
+		jsr 	ChasePlayer
+		plx
 		rts

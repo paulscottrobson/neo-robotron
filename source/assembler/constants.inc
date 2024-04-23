@@ -22,6 +22,9 @@ TP_MUM = 2
 TP_DAD = 3
 TP_CHILD = 4
 TP_GRUNT = 5
+TP_HULK = 6
+TP_ESPARK = 7
+TP_ENFORCER = 8
 
 ; ***************************************************************************************
 ;
@@ -50,7 +53,7 @@ GR_HUMANS = 4  								; 3 sets of human graphics
 GR_HULK = 10  								; Hulk graphic
 GR_GRUNT = 12  								; Grunt graphic
 GR_SPHEROID = 14   							; Spheroid graphic 
-GR1_EMBRYO	= 16  							; Embryo graphic (1 only)
+GR1_ENFORCER= 16  							; Enforcer graphic (1 only)
 GR1_QUARK = 17   							; Quark graphic (1 only)
 GR_TANK = 18  								; Tank graphic
 GR_BRAIN = 20  								; Brain graphic
@@ -88,6 +91,7 @@ MSG_INIT = $01 								; Initialise object
 MSG_REPAINT = $02 							; About to repaint
 MSG_CONTROL = $03 							; Time for a rethink
 MSG_HITWALL = $04 							; Hit wall.
+MSG_ONMOVE = $05 							; On movement.
 
 sendmsg	.macro
 		lda 	#\1
@@ -116,6 +120,12 @@ animation .macro
 		jsr 	SetObjectGraphic
 		.endm
 
+static .macro
+		lda 	#\1
+		sta 	OBSprite1,x
+		sta 	OBSprite2,x
+		.endm
+		
 speed .macro
 		lda 	#\1
 		sta 	OBSpeed,x

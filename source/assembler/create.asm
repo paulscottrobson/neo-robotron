@@ -62,6 +62,7 @@ _COLoop:
 		rts  								; cannot create, exit.
 
 _COFound:
+		stx 	NewObject 					; remember the new object
 		sta 	OBFlags,x 					; clear unused flag, set type.
 		asl 	a 							; double -> Y
 		tay
@@ -132,17 +133,6 @@ _COAbsolute:
 _COAExit:
 		rts		
 
-ChooseRandomDirection:
-		jsr 	Random8Bit 					; get valid random direction
-		and 	#15
-		beq 	ChooseRandomDirection 				; stationary (0)
-		sta 	OBDirection,x  				
-		and 	#3 							; check LR not both on.
-		cmp 	#3  
-		beq 	ChooseRandomDirection
 
-		lda 	OBDirection,x 				; check UD not both on
-		and 	#12
-		cmp 	#12
-		beq 	ChooseRandomDirection
-		rts
+NewObject:
+		.byte 	0

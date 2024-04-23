@@ -1,7 +1,7 @@
 
 ; 64tass Turbo Assembler Macro V1.59. listing file
 ; 64tass -b -c -Wall -o ../storage/robotron.bin -L ../build/robotron.lst main.asm
-; Tue Apr 23 09:46:03 2024
+; Tue Apr 23 13:39:03 2024
 
 ;Offset	;Hex		;Monitor	;Source
 
@@ -16,6 +16,9 @@
 =3					TP_DAD = 3
 =4					TP_CHILD = 4
 =5					TP_GRUNT = 5
+=6					TP_HULK = 6
+=7					TP_ESPARK = 7
+=8					TP_ENFORCER = 8
 =0					OB_PLAYER = 0 								; player object (1)
 =1					OB_PLAYERMISSILE = 1 						; player missile (4)
 =5					OB_HUMANS = 5 								; humans (6)
@@ -29,7 +32,7 @@
 =10					GR_HULK = 10  								; Hulk graphic
 =12					GR_GRUNT = 12  								; Grunt graphic
 =14					GR_SPHEROID = 14   							; Spheroid graphic
-=16					GR1_EMBRYO	= 16  							; Embryo graphic (1 only)
+=16					GR1_ENFORCER= 16  							; Enforcer graphic (1 only)
 =17					GR1_QUARK = 17   							; Quark graphic (1 only)
 =18					GR_TANK = 18  								; Tank graphic
 =20					GR_BRAIN = 20  								; Brain graphic
@@ -49,12 +52,13 @@
 =$02					MSG_REPAINT = $02 							; About to repaint
 =$03					MSG_CONTROL = $03 							; Time for a rethink
 =$04					MSG_HITWALL = $04 							; Hit wall.
+=$05					MSG_ONMOVE = $05 							; On movement.
 
 ;******  Return to file: main.asm
 
-.c000	4c 48 c1	jmp $c148			jmp 	ResetObjects 				; $C000 reset all sprites.
+.c000	4c 3c c1	jmp $c13c			jmp 	ResetObjects 				; $C000 reset all sprites.
 .c003	4c 09 c0	jmp $c009			jmp 	CreateObjects 				; $C003 create X objects of type A.
-.c006	4c d7 c0	jmp $c0d7			jmp 	MoveObjects 				; $C006 move all objects
+.c006	4c c1 c0	jmp $c0c1			jmp 	MoveObjects 				; $C006 move all objects
 
 ;******  Processing file: create.asm
 
@@ -93,600 +97,712 @@
 .c03b	d0 f7		bne $c034			bne 	_COLoop
 .c03d	60		rts				rts  								; cannot create, exit.
 .c03e					_COFound:
-.c03e	9d 00 e0	sta $e000,x			sta 	OBFlags,x 					; clear unused flag, set type.
-.c041	0a		asl a				asl 	a 							; double -> Y
-.c042	a8		tay				tay
-.c043	b9 e7 c3	lda $c3e7,y			lda 	HandlerTable,y  			; put the handler address in.
-.c046	9d 60 e3	sta $e360,x			sta 	OBHandlerLow,x
-.c049	b9 e8 c3	lda $c3e8,y			lda 	HandlerTable+1,y
-.c04c	9d cc e3	sta $e3cc,x			sta 	OBHandlerHigh,x
-.c04f					_COPos1:
-.c04f	20 fd c1	jsr $c1fd			jsr 	Random8Bit  				; value is 0-151
-.c052	c9 98		cmp #$98			cmp 	#152
-.c054	b0 f9		bcs $c04f			bcs 	_COPos1
-.c056	69 04		adc #$04			adc 	#4
-.c058	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
-.c05b					_COPos2:
-.c05b	20 fd c1	jsr $c1fd			jsr 	Random8Bit 					; value is 0-103
-.c05e	29 7f		and #$7f			and 	#$7F
-.c060	c9 68		cmp #$68			cmp 	#104
-.c062	b0 f7		bcs $c05b			bcs 	_COPos2
-.c064	69 04		adc #$04			adc 	#4
-.c066	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
-.c069	38		sec				sec   								; check Y centre offset
-.c06a	e9 34		sbc #$34			sbc 	#52
-.c06c	20 b5 c0	jsr $c0b5			jsr 	_COAbsolute
-.c06f	c9 27		cmp #$27			cmp 	#39
-.c071	b0 0d		bcs $c080			bcs 	_COIsOkay
-.c073	bd 6c e0	lda $e06c,x			lda 	OBXPos,x 					; same for X
-.c076	38		sec				sec
-.c077	e9 4b		sbc #$4b			sbc 	#75
-.c079	20 b5 c0	jsr $c0b5			jsr 	_COAbsolute
-.c07c	c9 37		cmp #$37			cmp 	#55
-.c07e	90 cf		bcc $c04f			bcc 	_COPos1
-.c080					_COIsOkay:
-.c080	a9 3f		lda #$3f			lda 	#GR_HIDE 					; not visible
-.c082	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c085	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c088	a9 ff		lda #$ff			lda 	#$FF
-.c08a	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x 				; set default score, not shootable.
-.c08d	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c090	8a		txa				txa  								; set intelligence, speed & counter defaults.
-.c091	29 07		and #$07			and 	#7
-.c093	1a		inc a				inc 	a
-.c094	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x 			; init counter derived from index so they don't all move in sync.
-.c097	9d a4 e4	sta $e4a4,x			sta 	OBIntelligenceCount,x
-.c09a	a9 01		lda #$01			lda 	#1
-.c09c	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c09f	a9 0a		lda #$0a			lda 	#10
-.c0a1	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c0a4	20 bd c0	jsr $c0bd			jsr 	ChooseRandomDirection
-.c0a7	a9 01		lda #$01			lda 	#MSG_INIT
-.c0a9	20 15 c2	jsr $c215			jsr 	SendObjectMessage
-.c0ac	90 03		bcc $c0b1			bcc 	_1
-.c0ae	20 36 c2	jsr $c236			jsr 	DefaultHandler
-.c0b1					_1:
-.c0b1	20 6d c1	jsr $c16d			jsr 	RedrawObject
-.c0b4	60		rts				rts
-.c0b5					_COAbsolute:
-.c0b5	c9 00		cmp #$00			cmp 	#0
-.c0b7	10 03		bpl $c0bc			bpl 	_COAExit
-.c0b9	49 ff		eor #$ff			eor 	#$FF
-.c0bb	1a		inc a				inc 	a
-.c0bc					_COAExit:
-.c0bc	60		rts				rts
-.c0bd					ChooseRandomDirection:
-.c0bd	20 fd c1	jsr $c1fd			jsr 	Random8Bit 					; get valid random direction
-.c0c0	29 0f		and #$0f			and 	#15
-.c0c2	f0 f9		beq $c0bd			beq 	ChooseRandomDirection 				; stationary (0)
-.c0c4	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c0c7	29 03		and #$03			and 	#3 							; check LR not both on.
-.c0c9	c9 03		cmp #$03			cmp 	#3
-.c0cb	f0 f0		beq $c0bd			beq 	ChooseRandomDirection
-.c0cd	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check UD not both on
-.c0d0	29 0c		and #$0c			and 	#12
-.c0d2	c9 0c		cmp #$0c			cmp 	#12
-.c0d4	f0 e7		beq $c0bd			beq 	ChooseRandomDirection
-.c0d6	60		rts				rts
+.c03e	8e c0 c0	stx $c0c0			stx 	NewObject 					; remember the new object
+.c041	9d 00 e0	sta $e000,x			sta 	OBFlags,x 					; clear unused flag, set type.
+.c044	0a		asl a				asl 	a 							; double -> Y
+.c045	a8		tay				tay
+.c046	b9 99 c4	lda $c499,y			lda 	HandlerTable,y  			; put the handler address in.
+.c049	9d 60 e3	sta $e360,x			sta 	OBHandlerLow,x
+.c04c	b9 9a c4	lda $c49a,y			lda 	HandlerTable+1,y
+.c04f	9d cc e3	sta $e3cc,x			sta 	OBHandlerHigh,x
+.c052					_COPos1:
+.c052	20 0c c2	jsr $c20c			jsr 	Random8Bit  				; value is 0-151
+.c055	c9 98		cmp #$98			cmp 	#152
+.c057	b0 f9		bcs $c052			bcs 	_COPos1
+.c059	69 04		adc #$04			adc 	#4
+.c05b	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
+.c05e					_COPos2:
+.c05e	20 0c c2	jsr $c20c			jsr 	Random8Bit 					; value is 0-103
+.c061	29 7f		and #$7f			and 	#$7F
+.c063	c9 68		cmp #$68			cmp 	#104
+.c065	b0 f7		bcs $c05e			bcs 	_COPos2
+.c067	69 04		adc #$04			adc 	#4
+.c069	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
+.c06c	38		sec				sec   								; check Y centre offset
+.c06d	e9 34		sbc #$34			sbc 	#52
+.c06f	20 b8 c0	jsr $c0b8			jsr 	_COAbsolute
+.c072	c9 27		cmp #$27			cmp 	#39
+.c074	b0 0d		bcs $c083			bcs 	_COIsOkay
+.c076	bd 6c e0	lda $e06c,x			lda 	OBXPos,x 					; same for X
+.c079	38		sec				sec
+.c07a	e9 4b		sbc #$4b			sbc 	#75
+.c07c	20 b8 c0	jsr $c0b8			jsr 	_COAbsolute
+.c07f	c9 37		cmp #$37			cmp 	#55
+.c081	90 cf		bcc $c052			bcc 	_COPos1
+.c083					_COIsOkay:
+.c083	a9 3f		lda #$3f			lda 	#GR_HIDE 					; not visible
+.c085	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c088	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c08b	a9 ff		lda #$ff			lda 	#$FF
+.c08d	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x 				; set default score, not shootable.
+.c090	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c093	8a		txa				txa  								; set intelligence, speed & counter defaults.
+.c094	29 07		and #$07			and 	#7
+.c096	1a		inc a				inc 	a
+.c097	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x 			; init counter derived from index so they don't all move in sync.
+.c09a	9d a4 e4	sta $e4a4,x			sta 	OBIntelligenceCount,x
+.c09d	a9 01		lda #$01			lda 	#1
+.c09f	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c0a2	a9 0a		lda #$0a			lda 	#10
+.c0a4	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c0a7	20 bd c1	jsr $c1bd			jsr 	ChooseRandomDirection
+.c0aa	a9 01		lda #$01			lda 	#MSG_INIT
+.c0ac	20 24 c2	jsr $c224			jsr 	SendObjectMessage
+.c0af	90 03		bcc $c0b4			bcc 	_1
+.c0b1	20 5a c2	jsr $c25a			jsr 	DefaultHandler
+.c0b4					_1:
+.c0b4	20 61 c1	jsr $c161			jsr 	RedrawObject
+.c0b7	60		rts				rts
+.c0b8					_COAbsolute:
+.c0b8	c9 00		cmp #$00			cmp 	#0
+.c0ba	10 03		bpl $c0bf			bpl 	_COAExit
+.c0bc	49 ff		eor #$ff			eor 	#$FF
+.c0be	1a		inc a				inc 	a
+.c0bf					_COAExit:
+.c0bf	60		rts				rts
+.c0c0					NewObject:
+>c0c0	00						.byte 	0
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: move.asm
 
-.c0d7					MoveObjects:
-.c0d7	a2 00		ldx #$00			ldx 	#0  						; look for an unused object
-.c0d9					_MOLoop:
-.c0d9	3c 00 e0	bit $e000,x			bit 	OBFlags,x
-.c0dc	30 03		bmi $c0e1			bmi 	_MONoObject
-.c0de	20 e7 c0	jsr $c0e7			jsr 	_MoveOneObject
-.c0e1					_MONoObject:
-.c0e1	e8		inx				inx
-.c0e2	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
-.c0e4	d0 f3		bne $c0d9			bne 	_MOLoop
-.c0e6	60		rts				rts  								; cannot create, exit.
-.c0e7					_MoveOneObject:
-.c0e7	de f4 e2	dec $e2f4,x			dec 	OBSpeedCounter,x 			; speed counter down to zero.
-.c0ea	d0 50		bne $c13c			bne 	_MONotMove
-.c0ec	bd 88 e2	lda $e288,x			lda 	OBSpeed,x 					; reset speed counter
-.c0ef	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x
-.c0f2	de a4 e4	dec $e4a4,x			dec 	OBIntelligenceCount,x 		; time for a rethink
-.c0f5	d0 10		bne $c107			bne 	_MONoProcess
-.c0f7	bd 38 e4	lda $e438,x			lda 	OBIntelligence,x 			; reset the counter
-.c0fa	9d a4 e4	sta $e4a4,x			sta 	OBIntelligenceCount,x
-.c0fd	a9 03		lda #$03			lda 	#MSG_CONTROL
-.c0ff	20 15 c2	jsr $c215			jsr 	SendObjectMessage
-.c102	90 03		bcc $c107			bcc 	_1
-.c104	20 36 c2	jsr $c236			jsr 	DefaultHandler
-.c107					_1:
-.c107					_MONoProcess:
-.c107	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; current direction.
-.c10a	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x 					; new X position => Y
-.c10d	4a		lsr a				lsr 	a
-.c10e	90 01		bcc $c111			bcc 	_MONotLeft
-.c110	88		dey				dey
-.c111					_MONotLeft:
-.c111	4a		lsr a				lsr 	a
-.c112	90 01		bcc $c115			bcc 	_MONotRight
-.c114	c8		iny				iny
-.c115					_MONotRight:
-.c115	5a		phy				phy 								; new Y position on stack
-.c116	bc d8 e0	ldy $e0d8,x			ldy 	OBYPos,x 					; new Y position => Y
-.c119	4a		lsr a				lsr 	a
-.c11a	90 01		bcc $c11d			bcc 	_MONotUp
-.c11c	88		dey				dey
-.c11d					_MONotUp:
-.c11d	4a		lsr a				lsr 	a
-.c11e	90 01		bcc $c121			bcc 	_MONotDown
-.c120	c8		iny				iny
-.c121					_MONotDown:
-.c121	68		pla				pla 								; (A,Y) are new coordinates.
-.c122	c9 04		cmp #$04			cmp 	#4  						; check out of bounds.
-.c124	90 17		bcc $c13d			bcc 	_MOHitWall
-.c126	c9 9c		cmp #$9c			cmp 	#156
-.c128	b0 13		bcs $c13d			bcs 	_MOHitWall
-.c12a	c0 04		cpy #$04			cpy 	#4
-.c12c	90 0f		bcc $c13d			bcc 	_MOHitWall
-.c12e	c0 6c		cpy #$6c			cpy 	#108
-.c130	b0 0b		bcs $c13d			bcs 	_MOHitWall
-.c132	9d 6c e0	sta $e06c,x			sta 	OBXPos,x 					; update position.
-.c135	98		tya				tya
-.c136	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
-.c139	20 6d c1	jsr $c16d			jsr 	RedrawObject 				; repaint.
-.c13c					_MONotMove:
-.c13c	60		rts				rts
-.c13d					_MOHitWall:
-.c13d	a9 04		lda #$04			lda 	#MSG_HITWALL
-.c13f	20 15 c2	jsr $c215			jsr 	SendObjectMessage
-.c142	90 03		bcc $c147			bcc 	_1
-.c144	20 36 c2	jsr $c236			jsr 	DefaultHandler
-.c147					_1:
-.c147	60		rts				rts
+.c0c1					MoveObjects:
+.c0c1	a2 00		ldx #$00			ldx 	#0  						; look for an unused object
+.c0c3					_MOLoop:
+.c0c3	3c 00 e0	bit $e000,x			bit 	OBFlags,x
+.c0c6	30 03		bmi $c0cb			bmi 	_MONoObject
+.c0c8	20 d1 c0	jsr $c0d1			jsr 	_MoveOneObject
+.c0cb					_MONoObject:
+.c0cb	e8		inx				inx
+.c0cc	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
+.c0ce	d0 f3		bne $c0c3			bne 	_MOLoop
+.c0d0	60		rts				rts  								; cannot create, exit.
+.c0d1					_MoveOneObject:
+.c0d1	de f4 e2	dec $e2f4,x			dec 	OBSpeedCounter,x 			; speed counter down to zero.
+.c0d4	d0 5a		bne $c130			bne 	_MONotMove
+.c0d6	bd 88 e2	lda $e288,x			lda 	OBSpeed,x 					; reset speed counter
+.c0d9	9d f4 e2	sta $e2f4,x			sta 	OBSpeedCounter,x
+.c0dc	de a4 e4	dec $e4a4,x			dec 	OBIntelligenceCount,x 		; time for a rethink
+.c0df	d0 10		bne $c0f1			bne 	_MONoProcess
+.c0e1	bd 38 e4	lda $e438,x			lda 	OBIntelligence,x 			; reset the counter
+.c0e4	9d a4 e4	sta $e4a4,x			sta 	OBIntelligenceCount,x
+.c0e7	a9 03		lda #$03			lda 	#MSG_CONTROL
+.c0e9	20 24 c2	jsr $c224			jsr 	SendObjectMessage
+.c0ec	90 03		bcc $c0f1			bcc 	_1
+.c0ee	20 5a c2	jsr $c25a			jsr 	DefaultHandler
+.c0f1					_1:
+.c0f1					_MONoProcess:
+.c0f1	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; current direction.
+.c0f4	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x 					; new X position => Y
+.c0f7	4a		lsr a				lsr 	a
+.c0f8	90 01		bcc $c0fb			bcc 	_MONotLeft
+.c0fa	88		dey				dey
+.c0fb					_MONotLeft:
+.c0fb	4a		lsr a				lsr 	a
+.c0fc	90 01		bcc $c0ff			bcc 	_MONotRight
+.c0fe	c8		iny				iny
+.c0ff					_MONotRight:
+.c0ff	5a		phy				phy 								; new Y position on stack
+.c100	bc d8 e0	ldy $e0d8,x			ldy 	OBYPos,x 					; new Y position => Y
+.c103	4a		lsr a				lsr 	a
+.c104	90 01		bcc $c107			bcc 	_MONotUp
+.c106	88		dey				dey
+.c107					_MONotUp:
+.c107	4a		lsr a				lsr 	a
+.c108	90 01		bcc $c10b			bcc 	_MONotDown
+.c10a	c8		iny				iny
+.c10b					_MONotDown:
+.c10b	68		pla				pla 								; (A,Y) are new coordinates.
+.c10c	c9 04		cmp #$04			cmp 	#4  						; check out of bounds.
+.c10e	90 21		bcc $c131			bcc 	_MOHitWall
+.c110	c9 9c		cmp #$9c			cmp 	#156
+.c112	b0 1d		bcs $c131			bcs 	_MOHitWall
+.c114	c0 04		cpy #$04			cpy 	#4
+.c116	90 19		bcc $c131			bcc 	_MOHitWall
+.c118	c0 6c		cpy #$6c			cpy 	#108
+.c11a	b0 15		bcs $c131			bcs 	_MOHitWall
+.c11c	9d 6c e0	sta $e06c,x			sta 	OBXPos,x 					; update position.
+.c11f	98		tya				tya
+.c120	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
+.c123	a9 05		lda #$05			lda 	#MSG_ONMOVE
+.c125	20 24 c2	jsr $c224			jsr 	SendObjectMessage
+.c128	90 03		bcc $c12d			bcc 	_1
+.c12a	20 5a c2	jsr $c25a			jsr 	DefaultHandler
+.c12d					_1:
+.c12d	20 61 c1	jsr $c161			jsr 	RedrawObject 				; repaint.
+.c130					_MONotMove:
+.c130	60		rts				rts
+.c131					_MOHitWall:
+.c131	a9 04		lda #$04			lda 	#MSG_HITWALL
+.c133	20 24 c2	jsr $c224			jsr 	SendObjectMessage
+.c136	90 03		bcc $c13b			bcc 	_1
+.c138	20 5a c2	jsr $c25a			jsr 	DefaultHandler
+.c13b					_1:
+.c13b	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: utility.asm
 
-.c148					ResetObjects:
-.c148	a2 00		ldx #$00			ldx 	#0
-.c14a					_RSLoop:
-.c14a	a9 ff		lda #$ff			lda 	#$FF
-.c14c	9d 00 e0	sta $e000,x			sta 	OBFlags,x
-.c14f	e8		inx				inx
-.c150	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
-.c152	d0 f6		bne $c14a			bne 	_RSLoop
-.c154	60		rts				rts
-.c155					KillObject:
-.c155	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
-.c158	d0 fb		bne $c155			bne 	KillObject
-.c15a	a9 ff		lda #$ff			lda 	#$FF 						; mark not in use
-.c15c	9d 00 e0	sta $e000,x			sta 	OBFlags,x
-.c15f	8e 04 ff	stx $ff04			stx 	APIParams					; sprite ID
-.c162	a9 03		lda #$03			lda 	#3  						; and hide it.
-.c164	8d 01 ff	sta $ff01			sta 	APIFunction
-.c167	a9 06		lda #$06			lda 	#6
-.c169	8d 00 ff	sta $ff00			sta 	APICommand
-.c16c	60		rts				rts
-.c16d					RedrawObject:
-.c16d	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
-.c170	d0 fb		bne $c16d			bne 	RedrawObject
-.c172	8e 04 ff	stx $ff04			stx 	APIParams+0 				; sprite # same as object #
-.c175	9c 06 ff	stz $ff06			stz 	APIParams+2 				; shift X left into X position
-.c178	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
-.c17b	0a		asl a				asl 	a
-.c17c	8d 05 ff	sta $ff05			sta 	APIParams+1
-.c17f	2e 06 ff	rol $ff06			rol 	APIParams+2
-.c182	9c 08 ff	stz $ff08			stz 	APIParams+4  				; shift Y left into Y position
-.c185	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
-.c188	0a		asl a				asl 	a
-.c189	69 10		adc #$10			adc 	#16 						; allow for top area
-.c18b	8d 07 ff	sta $ff07			sta 	APIParams+3
-.c18e	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x 					; use Y to animate
-.c191	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; get direction.
-.c194	29 0f		and #$0f			and 	#15 						; if 0 do not animate at all.
-.c196	f0 0e		beq $c1a6			beq 	_ROUseSprite2
-.c198	29 03		and #$03			and 	#3  						; if a L/R component use X Pos
-.c19a	d0 03		bne $c19f			bne 	_ROHasHorizonMovement
-.c19c	bc d8 e0	ldy $e0d8,x			ldy 	OBYPos,x 					; otherwise use Y Pos
-.c19f					_ROHasHorizonMovement:
-.c19f	98		tya				tya 								; put bit 1 into carry.
-.c1a0	4a		lsr a				lsr 	a
-.c1a1	bd 44 e1	lda $e144,x			lda 	OBSprite1,x 				; set graphic according to carry.
-.c1a4	90 03		bcc $c1a9			bcc 	_ROUseSprite
-.c1a6					_ROUseSprite2:
-.c1a6	bd b0 e1	lda $e1b0,x			lda 	OBSprite2,x
-.c1a9					_ROUseSprite:
-.c1a9	8d 09 ff	sta $ff09			sta 	APIParams+5
-.c1ac	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check moving left
-.c1af	29 01		and #$01			and 	#1 							; bit 0 of direction sets xflip
-.c1b1	8d 0a ff	sta $ff0a			sta 	APIParams+6 				; set flip
-.c1b4					_RONotLeft:
-.c1b4	a9 02		lda #$02			lda 	#MSG_REPAINT
-.c1b6	20 15 c2	jsr $c215			jsr 	SendObjectMessage
-.c1b9	90 03		bcc $c1be			bcc 	_1
-.c1bb	20 36 c2	jsr $c236			jsr 	DefaultHandler
-.c1be					_1:
-.c1be	a9 02		lda #$02			lda 	#2  						; and draw it.
-.c1c0	8d 01 ff	sta $ff01			sta 	APIFunction
-.c1c3	a9 06		lda #$06			lda 	#6
-.c1c5	8d 00 ff	sta $ff00			sta 	APICommand
-.c1c8	60		rts				rts
-.c1c9					ChaseObject:
-.c1c9	b9 6c e0	lda $e06c,y			lda 	OBXPos,y
-.c1cc	dd 6c e0	cmp $e06c,x			cmp 	OBXPos,x
-.c1cf	20 e8 c1	jsr $c1e8			jsr 	_ChaseCalculate
-.c1d2	8d e7 c1	sta $c1e7			sta 	_ChaseTemp
-.c1d5	b9 d8 e0	lda $e0d8,y			lda 	OBYPos,y
-.c1d8	dd d8 e0	cmp $e0d8,x			cmp 	OBYPos,x
-.c1db	20 e8 c1	jsr $c1e8			jsr 	_ChaseCalculate
-.c1de	0a		asl a				asl 	a
-.c1df	0a		asl a				asl 	a
-.c1e0	0d e7 c1	ora $c1e7			ora 	_ChaseTemp
-.c1e3	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c1e6	60		rts				rts
-.c1e7					_ChaseTemp:
->c1e7	00						.byte 	0
-.c1e8					_ChaseCalculate:
-.c1e8	f0 08		beq $c1f2			beq 	_CCNoMove
-.c1ea	90 03		bcc $c1ef			bcc 	_CCMoveRight
-.c1ec	a9 02		lda #$02			lda 	#2
-.c1ee	60		rts				rts
-.c1ef					_CCMoveRight:
-.c1ef	a9 01		lda #$01			lda 	#1
-.c1f1	60		rts				rts
-.c1f2					_CCNoMove:
-.c1f2	a9 00		lda #$00			lda 	#0
-.c1f4	60		rts				rts
-.c1f5					ChasePlayer:
-.c1f5	5a		phy				phy
-.c1f6	a0 00		ldy #$00			ldy 	#0
-.c1f8	20 c9 c1	jsr $c1c9			jsr 	ChaseObject
-.c1fb	7a		ply				ply
-.c1fc	60		rts				rts
-.c1fd					Random8Bit:
-.c1fd	5a		phy				phy
-.c1fe	a0 08		ldy #$08			ldy 	#8
-.c200	ad 13 c2	lda $c213			lda 	_R8SeedValue+0
-.c203					_R8RandomLoop
-.c203	0a		asl a				asl     a
-.c204	2e 14 c2	rol $c214			rol 	_R8SeedValue+1
-.c207	90 02		bcc $c20b			bcc 	_R8NotSet
-.c209	49 39		eor #$39			eor 	#$39
-.c20b					_R8NotSet:
-.c20b	88		dey				dey
-.c20c	d0 f5		bne $c203			bne 	_R8RandomLoop
-.c20e	8d 13 c2	sta $c213			sta 	_R8SeedValue+0
-.c211	7a		ply				ply
-.c212	60		rts				rts
-.c213					_R8SeedValue
->c213	cd ab						.word 	$ABCD
-.c215					SendObjectMessage:
-.c215	48		pha				pha
-.c216	bd 60 e3	lda $e360,x			lda 	OBHandlerLow,x
-.c219	8d 24 c2	sta $c224			sta 	_SMCall+1
-.c21c	bd cc e3	lda $e3cc,x			lda 	OBHandlerHigh,x
-.c21f	8d 25 c2	sta $c225			sta 	_SMCall+2
-.c222	68		pla				pla
-.c223					_SMCall:
-.c223	4c 00 00	jmp $0000			jmp 	$0000
-.c226					SetObjectGraphic:
-.c226	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c229	1a		inc a				inc 	a
-.c22a	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c22d	60		rts				rts
-.c22e					CreateSingleObject:
-.c22e	da		phx				phx 								; create player missile object.
-.c22f	5a		phy				phy
-.c230	20 18 c0	jsr $c018			jsr 	CreateObject
-.c233	7a		ply				ply
-.c234	fa		plx				plx
-.c235	60		rts				rts
+.c13c					ResetObjects:
+.c13c	a2 00		ldx #$00			ldx 	#0
+.c13e					_RSLoop:
+.c13e	a9 ff		lda #$ff			lda 	#$FF
+.c140	9d 00 e0	sta $e000,x			sta 	OBFlags,x
+.c143	e8		inx				inx
+.c144	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
+.c146	d0 f6		bne $c13e			bne 	_RSLoop
+.c148	60		rts				rts
+.c149					KillObject:
+.c149	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
+.c14c	d0 fb		bne $c149			bne 	KillObject
+.c14e	a9 ff		lda #$ff			lda 	#$FF 						; mark not in use
+.c150	9d 00 e0	sta $e000,x			sta 	OBFlags,x
+.c153	8e 04 ff	stx $ff04			stx 	APIParams					; sprite ID
+.c156	a9 03		lda #$03			lda 	#3  						; and hide it.
+.c158	8d 01 ff	sta $ff01			sta 	APIFunction
+.c15b	a9 06		lda #$06			lda 	#6
+.c15d	8d 00 ff	sta $ff00			sta 	APICommand
+.c160	60		rts				rts
+.c161					RedrawObject:
+.c161	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
+.c164	d0 fb		bne $c161			bne 	RedrawObject
+.c166	8e 04 ff	stx $ff04			stx 	APIParams+0 				; sprite # same as object #
+.c169	9c 06 ff	stz $ff06			stz 	APIParams+2 				; shift X left into X position
+.c16c	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
+.c16f	0a		asl a				asl 	a
+.c170	8d 05 ff	sta $ff05			sta 	APIParams+1
+.c173	2e 06 ff	rol $ff06			rol 	APIParams+2
+.c176	9c 08 ff	stz $ff08			stz 	APIParams+4  				; shift Y left into Y position
+.c179	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
+.c17c	0a		asl a				asl 	a
+.c17d	69 10		adc #$10			adc 	#16 						; allow for top area
+.c17f	8d 07 ff	sta $ff07			sta 	APIParams+3
+.c182	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x 					; use Y to animate
+.c185	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; get direction.
+.c188	29 0f		and #$0f			and 	#15 						; if 0 do not animate at all.
+.c18a	f0 0e		beq $c19a			beq 	_ROUseSprite2
+.c18c	29 03		and #$03			and 	#3  						; if a L/R component use X Pos
+.c18e	d0 03		bne $c193			bne 	_ROHasHorizonMovement
+.c190	bc d8 e0	ldy $e0d8,x			ldy 	OBYPos,x 					; otherwise use Y Pos
+.c193					_ROHasHorizonMovement:
+.c193	98		tya				tya 								; put bit 1 into carry.
+.c194	4a		lsr a				lsr 	a
+.c195	bd 44 e1	lda $e144,x			lda 	OBSprite1,x 				; set graphic according to carry.
+.c198	90 03		bcc $c19d			bcc 	_ROUseSprite
+.c19a					_ROUseSprite2:
+.c19a	bd b0 e1	lda $e1b0,x			lda 	OBSprite2,x
+.c19d					_ROUseSprite:
+.c19d	8d 09 ff	sta $ff09			sta 	APIParams+5
+.c1a0	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check moving left
+.c1a3	29 01		and #$01			and 	#1 							; bit 0 of direction sets xflip
+.c1a5	8d 0a ff	sta $ff0a			sta 	APIParams+6 				; set flip
+.c1a8					_RONotLeft:
+.c1a8	a9 02		lda #$02			lda 	#MSG_REPAINT
+.c1aa	20 24 c2	jsr $c224			jsr 	SendObjectMessage
+.c1ad	90 03		bcc $c1b2			bcc 	_1
+.c1af	20 5a c2	jsr $c25a			jsr 	DefaultHandler
+.c1b2					_1:
+.c1b2	a9 02		lda #$02			lda 	#2  						; and draw it.
+.c1b4	8d 01 ff	sta $ff01			sta 	APIFunction
+.c1b7	a9 06		lda #$06			lda 	#6
+.c1b9	8d 00 ff	sta $ff00			sta 	APICommand
+.c1bc	60		rts				rts
+.c1bd					ChooseRandomDirection:
+.c1bd	20 0c c2	jsr $c20c			jsr 	Random8Bit 					; get valid random direction
+.c1c0	29 0f		and #$0f			and 	#15
+.c1c2	f0 f9		beq $c1bd			beq 	ChooseRandomDirection 		; stationary (0)
+.c1c4	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c1c7	29 03		and #$03			and 	#3 							; check LR not both on.
+.c1c9	c9 03		cmp #$03			cmp 	#3
+.c1cb	f0 f0		beq $c1bd			beq 	ChooseRandomDirection
+.c1cd	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check UD not both on
+.c1d0	29 0c		and #$0c			and 	#12
+.c1d2	c9 0c		cmp #$0c			cmp 	#12
+.c1d4	f0 e7		beq $c1bd			beq 	ChooseRandomDirection
+.c1d6	60		rts				rts
+.c1d7					NoControlEffect:
+.c1d7	60		rts				rts
+.c1d8					ChaseObject:
+.c1d8	b9 6c e0	lda $e06c,y			lda 	OBXPos,y
+.c1db	dd 6c e0	cmp $e06c,x			cmp 	OBXPos,x
+.c1de	20 f7 c1	jsr $c1f7			jsr 	_ChaseCalculate
+.c1e1	8d f6 c1	sta $c1f6			sta 	_ChaseTemp
+.c1e4	b9 d8 e0	lda $e0d8,y			lda 	OBYPos,y
+.c1e7	dd d8 e0	cmp $e0d8,x			cmp 	OBYPos,x
+.c1ea	20 f7 c1	jsr $c1f7			jsr 	_ChaseCalculate
+.c1ed	0a		asl a				asl 	a
+.c1ee	0a		asl a				asl 	a
+.c1ef	0d f6 c1	ora $c1f6			ora 	_ChaseTemp
+.c1f2	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c1f5	60		rts				rts
+.c1f6					_ChaseTemp:
+>c1f6	00						.byte 	0
+.c1f7					_ChaseCalculate:
+.c1f7	f0 08		beq $c201			beq 	_CCNoMove
+.c1f9	90 03		bcc $c1fe			bcc 	_CCMoveRight
+.c1fb	a9 02		lda #$02			lda 	#2
+.c1fd	60		rts				rts
+.c1fe					_CCMoveRight:
+.c1fe	a9 01		lda #$01			lda 	#1
+.c200	60		rts				rts
+.c201					_CCNoMove:
+.c201	a9 00		lda #$00			lda 	#0
+.c203	60		rts				rts
+.c204					ChasePlayer:
+.c204	5a		phy				phy
+.c205	a0 00		ldy #$00			ldy 	#0
+.c207	20 d8 c1	jsr $c1d8			jsr 	ChaseObject
+.c20a	7a		ply				ply
+.c20b	60		rts				rts
+.c20c					Random8Bit:
+.c20c	5a		phy				phy
+.c20d	a0 08		ldy #$08			ldy 	#8
+.c20f	ad 22 c2	lda $c222			lda 	_R8SeedValue+0
+.c212					_R8RandomLoop
+.c212	0a		asl a				asl     a
+.c213	2e 23 c2	rol $c223			rol 	_R8SeedValue+1
+.c216	90 02		bcc $c21a			bcc 	_R8NotSet
+.c218	49 39		eor #$39			eor 	#$39
+.c21a					_R8NotSet:
+.c21a	88		dey				dey
+.c21b	d0 f5		bne $c212			bne 	_R8RandomLoop
+.c21d	8d 22 c2	sta $c222			sta 	_R8SeedValue+0
+.c220	7a		ply				ply
+.c221	60		rts				rts
+.c222					_R8SeedValue
+>c222	cd ab						.word 	$ABCD
+.c224					SendObjectMessage:
+.c224	48		pha				pha
+.c225	bd 60 e3	lda $e360,x			lda 	OBHandlerLow,x
+.c228	8d 33 c2	sta $c233			sta 	_SMCall+1
+.c22b	bd cc e3	lda $e3cc,x			lda 	OBHandlerHigh,x
+.c22e	8d 34 c2	sta $c234			sta 	_SMCall+2
+.c231	68		pla				pla
+.c232					_SMCall:
+.c232	4c 00 00	jmp $0000			jmp 	$0000
+.c235					SetObjectGraphic:
+.c235	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c238	1a		inc a				inc 	a
+.c239	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c23c	60		rts				rts
+.c23d					CreateSingleObject:
+.c23d	da		phx				phx 								; create player missile object.
+.c23e	5a		phy				phy
+.c23f	20 18 c0	jsr $c018			jsr 	CreateObject
+.c242	7a		ply				ply
+.c243	fa		plx				plx
+.c244	60		rts				rts
+.c245					CopyStartPosition:
+.c245	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
+.c248	99 6c e0	sta $e06c,y			sta 	OBXPos,y
+.c24b	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
+.c24e	99 d8 e0	sta $e0d8,y			sta 	OBYPos,y
+.c251	60		rts				rts
+.c252					ChasePlayerY:
+.c252	da		phx				phx
+.c253	98		tya				tya
+.c254	aa		tax				tax
+.c255	20 04 c2	jsr $c204			jsr 	ChasePlayer
+.c258	fa		plx				plx
+.c259	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/default.asm
 
-.c236					DefaultHandler:
-.c236	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c238	d0 05		bne $c23f			bne 	_1
-.c23a	20 4a c2	jsr $c24a			jsr 	DefaultControl
-.c23d	18		clc				clc
-.c23e	60		rts				rts
-.c23f					_1:
-.c23f	c9 04		cmp #$04			cmp 	#MSG_HITWALL
-.c241	d0 05		bne $c248			bne 	_1
-.c243	20 4d c2	jsr $c24d			jsr 	DefaultHitWall
-.c246	18		clc				clc
-.c247	60		rts				rts
-.c248					_1:
-.c248	38		sec				sec
-.c249	60		rts				rts
-.c24a					DefaultControl:
-.c24a	4c bd c0	jmp $c0bd			jmp 	ChooseRandomDirection
-.c24d					DefaultHitWall:
-.c24d	4c bd c0	jmp $c0bd			jmp 	ChooseRandomDirection
+.c25a					DefaultHandler:
+.c25a	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c25c	d0 05		bne $c263			bne 	_1
+.c25e	20 6e c2	jsr $c26e			jsr 	DefaultControl
+.c261	18		clc				clc
+.c262	60		rts				rts
+.c263					_1:
+.c263	c9 04		cmp #$04			cmp 	#MSG_HITWALL
+.c265	d0 05		bne $c26c			bne 	_1
+.c267	20 71 c2	jsr $c271			jsr 	DefaultHitWall
+.c26a	18		clc				clc
+.c26b	60		rts				rts
+.c26c					_1:
+.c26c	38		sec				sec
+.c26d	60		rts				rts
+.c26e					DefaultControl:
+.c26e	4c bd c1	jmp $c1bd			jmp 	ChooseRandomDirection
+.c271					DefaultHitWall:
+.c271	4c bd c1	jmp $c1bd			jmp 	ChooseRandomDirection
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/player.asm
 
-.c250					OHPlayer:
-.c250	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c252	d0 05		bne $c259			bne 	_1
-.c254	20 6d c2	jsr $c26d			jsr 	OHPInitHandler
-.c257	18		clc				clc
-.c258	60		rts				rts
-.c259					_1:
-.c259	c9 02		cmp #$02			cmp 	#MSG_REPAINT
-.c25b	d0 05		bne $c262			bne 	_1
-.c25d	20 82 c2	jsr $c282			jsr 	OHPRepaintHandler
-.c260	18		clc				clc
-.c261	60		rts				rts
-.c262					_1:
-.c262	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c264	d0 05		bne $c26b			bne 	_1
-.c266	20 b1 c2	jsr $c2b1			jsr 	OHPControlHandler
-.c269	18		clc				clc
-.c26a	60		rts				rts
-.c26b					_1:
-.c26b	38		sec				sec
-.c26c	60		rts				rts
-.c26d					OHPInitHandler:
-.c26d	a9 50		lda #$50			lda 	#160/2
-.c26f	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
-.c272	a9 40		lda #$40			lda 	#128/2
-.c274	99 d8 e0	sta $e0d8,y			sta 	OBYPos,y
-.c277	a9 02		lda #$02			lda 	#2
-.c279	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c27c	a9 01		lda #$01			lda 	#1
-.c27e	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c281	60		rts				rts
-.c282					OHPRepaintHandler:
-.c282	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x
-.c285	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
-.c288	29 03		and #$03			and 	#3
-.c28a	d0 03		bne $c28f			bne 	_OHPUseVertical
-.c28c	bc d8 e0	ldy $e0d8,x			ldy		OBYPos,x
-.c28f					_OHPUseVertical:
-.c28f	5e 09 ff	lsr $ff09,x			lsr 	APIParams+5,x
-.c292	1e 09 ff	asl $ff09,x			asl 	APIParams+5,x
-.c295	98		tya				tya
-.c296	29 10		and #$10			and 	#16
-.c298	f0 03		beq $c29d			beq 	_OHPNoAlternate
-.c29a	fe 09 ff	inc $ff09,x			inc 	APIParams+5,x
-.c29d					_OHPNoAlternate:
-.c29d	60		rts				rts
-.c29e					OHPSetGraphic:
-.c29e	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; is movement purely vertical
-.c2a1	29 03		and #$03			and 	#3
-.c2a3	d0 06		bne $c2ab			bne 	_OHPRHorizontal
-.c2a5	a9 02		lda #$02			lda 	#GR_PLAYERV
-.c2a7	20 26 c2	jsr $c226			jsr 	SetObjectGraphic
-.c2aa	60		rts				rts
-.c2ab					_OHPRHorizontal:
-.c2ab	a9 00		lda #$00			lda 	#GR_PLAYERH
-.c2ad	20 26 c2	jsr $c226			jsr 	SetObjectGraphic
-.c2b0	60		rts				rts
-.c2b1					OHPControlHandler:
-.c2b1	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API
-.c2b4	d0 fb		bne $c2b1			bne 	OHPControlHandler
-.c2b6	a9 01		lda #$01			lda 	#1  						; and draw it.
-.c2b8	8d 01 ff	sta $ff01			sta 	APIFunction
-.c2bb	a9 07		lda #$07			lda 	#7
-.c2bd	8d 00 ff	sta $ff00			sta 	APICommand
-.c2c0					_OHPWait
-.c2c0	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for result
-.c2c3	d0 fb		bne $c2c0			bne 	_OHPWait
-.c2c5	ad 04 ff	lda $ff04			lda 	APIParams 					; put the controller dpad bits into the direction.
-.c2c8	29 0f		and #$0f			and 	#15  						; (made the same for this reason)
-.c2ca	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c2cd	f0 0d		beq $c2dc			beq 	_OHPNoSetLast 				; don't set last if no direction.
-.c2cf	ad 04 ff	lda $ff04			lda 	APIParams 					; any fire button pressed, if zero, set direction
-.c2d2	29 f0		and #$f0			and 	#$F0
-.c2d4	d0 06		bne $c2dc			bne 	_OHPNoSetLast 				; don't set last direction if non zero
-.c2d6	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
-.c2d9	8d ef c2	sta $c2ef			sta 	OHPLastDirection
-.c2dc					_OHPNoSetLast:
-.c2dc	ee f0 c2	inc $c2f0			inc 	OHPFireCount 				; fire one time in 15
-.c2df	ad f0 c2	lda $c2f0			lda 	OHPFireCount
-.c2e2	29 0f		and #$0f			and 	#15
-.c2e4	d0 05		bne $c2eb			bne 	_OHPNoFire
-.c2e6	a9 01		lda #$01			lda 	#1
-.c2e8	20 2e c2	jsr $c22e			jsr 	CreateSingleObject
-.c2eb					_OHPNoFire:
-.c2eb	20 9e c2	jsr $c29e			jsr 	OHPSetGraphic
-.c2ee	60		rts				rts
-.c2ef					OHPLastDirection:
->c2ef	02						.byte 	2
-.c2f0					OHPFireCount:
->c2f0	00						.byte 	0
+.c274					OHPlayer:
+.c274	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c276	d0 05		bne $c27d			bne 	_1
+.c278	20 91 c2	jsr $c291			jsr 	OHPInitHandler
+.c27b	18		clc				clc
+.c27c	60		rts				rts
+.c27d					_1:
+.c27d	c9 02		cmp #$02			cmp 	#MSG_REPAINT
+.c27f	d0 05		bne $c286			bne 	_1
+.c281	20 a6 c2	jsr $c2a6			jsr 	OHPRepaintHandler
+.c284	18		clc				clc
+.c285	60		rts				rts
+.c286					_1:
+.c286	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c288	d0 05		bne $c28f			bne 	_1
+.c28a	20 d5 c2	jsr $c2d5			jsr 	OHPControlHandler
+.c28d	18		clc				clc
+.c28e	60		rts				rts
+.c28f					_1:
+.c28f	38		sec				sec
+.c290	60		rts				rts
+.c291					OHPInitHandler:
+.c291	a9 50		lda #$50			lda 	#160/2
+.c293	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
+.c296	a9 40		lda #$40			lda 	#128/2
+.c298	99 d8 e0	sta $e0d8,y			sta 	OBYPos,y
+.c29b	a9 02		lda #$02			lda 	#2
+.c29d	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c2a0	a9 01		lda #$01			lda 	#1
+.c2a2	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c2a5	60		rts				rts
+.c2a6					OHPRepaintHandler:
+.c2a6	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x
+.c2a9	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
+.c2ac	29 03		and #$03			and 	#3
+.c2ae	d0 03		bne $c2b3			bne 	_OHPUseVertical
+.c2b0	bc d8 e0	ldy $e0d8,x			ldy		OBYPos,x
+.c2b3					_OHPUseVertical:
+.c2b3	5e 09 ff	lsr $ff09,x			lsr 	APIParams+5,x
+.c2b6	1e 09 ff	asl $ff09,x			asl 	APIParams+5,x
+.c2b9	98		tya				tya
+.c2ba	29 10		and #$10			and 	#16
+.c2bc	f0 03		beq $c2c1			beq 	_OHPNoAlternate
+.c2be	fe 09 ff	inc $ff09,x			inc 	APIParams+5,x
+.c2c1					_OHPNoAlternate:
+.c2c1	60		rts				rts
+.c2c2					OHPSetGraphic:
+.c2c2	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; is movement purely vertical
+.c2c5	29 03		and #$03			and 	#3
+.c2c7	d0 06		bne $c2cf			bne 	_OHPRHorizontal
+.c2c9	a9 02		lda #$02			lda 	#GR_PLAYERV
+.c2cb	20 35 c2	jsr $c235			jsr 	SetObjectGraphic
+.c2ce	60		rts				rts
+.c2cf					_OHPRHorizontal:
+.c2cf	a9 00		lda #$00			lda 	#GR_PLAYERH
+.c2d1	20 35 c2	jsr $c235			jsr 	SetObjectGraphic
+.c2d4	60		rts				rts
+.c2d5					OHPControlHandler:
+.c2d5	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API
+.c2d8	d0 fb		bne $c2d5			bne 	OHPControlHandler
+.c2da	a9 01		lda #$01			lda 	#1  						; and draw it.
+.c2dc	8d 01 ff	sta $ff01			sta 	APIFunction
+.c2df	a9 07		lda #$07			lda 	#7
+.c2e1	8d 00 ff	sta $ff00			sta 	APICommand
+.c2e4					_OHPWait
+.c2e4	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for result
+.c2e7	d0 fb		bne $c2e4			bne 	_OHPWait
+.c2e9	ad 04 ff	lda $ff04			lda 	APIParams 					; put the controller dpad bits into the direction.
+.c2ec	29 0f		and #$0f			and 	#15  						; (made the same for this reason)
+.c2ee	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c2f1	f0 0d		beq $c300			beq 	_OHPNoSetLast 				; don't set last if no direction.
+.c2f3	ad 04 ff	lda $ff04			lda 	APIParams 					; any fire button pressed, if zero, set direction
+.c2f6	29 f0		and #$f0			and 	#$F0
+.c2f8	d0 06		bne $c300			bne 	_OHPNoSetLast 				; don't set last direction if non zero
+.c2fa	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
+.c2fd	8d 13 c3	sta $c313			sta 	OHPLastDirection
+.c300					_OHPNoSetLast:
+.c300	ee 14 c3	inc $c314			inc 	OHPFireCount 				; fire one time in 15
+.c303	ad 14 c3	lda $c314			lda 	OHPFireCount
+.c306	29 0f		and #$0f			and 	#15
+.c308	d0 05		bne $c30f			bne 	_OHPNoFire
+.c30a	a9 01		lda #$01			lda 	#1
+.c30c	20 3d c2	jsr $c23d			jsr 	CreateSingleObject
+.c30f					_OHPNoFire:
+.c30f	20 c2 c2	jsr $c2c2			jsr 	OHPSetGraphic
+.c312	60		rts				rts
+.c313					OHPLastDirection:
+>c313	02						.byte 	2
+.c314					OHPFireCount:
+>c314	00						.byte 	0
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/pmissile.asm
 
-.c2f1					OHMissile:
-.c2f1	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c2f3	d0 05		bne $c2fa			bne 	_1
-.c2f5	20 17 c3	jsr $c317			jsr 	OHMInitHandler
-.c2f8	18		clc				clc
-.c2f9	60		rts				rts
-.c2fa					_1:
-.c2fa	c9 02		cmp #$02			cmp 	#MSG_REPAINT
-.c2fc	d0 05		bne $c303			bne 	_1
-.c2fe	20 2f c3	jsr $c32f			jsr 	OHMRepaintHandler
-.c301	18		clc				clc
-.c302	60		rts				rts
-.c303					_1:
-.c303	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c305	d0 05		bne $c30c			bne 	_1
-.c307	20 4f c3	jsr $c34f			jsr 	OHMControl
-.c30a	18		clc				clc
-.c30b	60		rts				rts
-.c30c					_1:
-.c30c	c9 04		cmp #$04			cmp 	#MSG_HITWALL
-.c30e	d0 05		bne $c315			bne 	_1
-.c310	20 50 c3	jsr $c350			jsr 	OHMHitWall
-.c313	18		clc				clc
-.c314	60		rts				rts
-.c315					_1:
-.c315	38		sec				sec
-.c316	60		rts				rts
-.c317					OHMInitHandler:
-.c317	a9 01		lda #$01			lda 	#1
-.c319	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c31c	ad 6c e0	lda $e06c			lda 	OBXPos 						; copy position
-.c31f	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
-.c322	ad d8 e0	lda $e0d8			lda 	OBYPos
-.c325	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
-.c328	ad ef c2	lda $c2ef			lda 	OHPLastDirection 			; copy direction
-.c32b	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c32e	60		rts				rts
-.c32f					OHMRepaintHandler:
-.c32f	bc 1c e2	ldy $e21c,x			ldy 	OBDirection,x
-.c332	b9 3f c3	lda $c33f,y			lda 	OHMGraphic,y 				; set graphic.
-.c335	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c338	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c33b	9c 0a ff	stz $ff0a			stz 	APIParams+6 				; disables the flip.
-.c33e	60		rts				rts
-.c33f					OHMGraphic:
->c33f	00 16 16 00					.byte 	0,GR1_HORIZFIRE,GR1_HORIZFIRE,0
->c343	17 19 18 00					.byte 	GR1_VERTFIRE,GR1_NWSEFIRE,GR1_SWNEFIRE,0
->c347	17 18 19 00					.byte 	GR1_VERTFIRE,GR1_SWNEFIRE,GR1_NWSEFIRE,0
->c34b	00 00 00 00					.byte 	0,0,0,0
-.c34f					OHMControl:
-.c34f	60		rts				rts
-.c350					OHMHitWall:
-.c350	20 55 c1	jsr $c155			jsr 	KillObject
-.c353	60		rts				rts
+.c315					OHMissile:
+.c315	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c317	d0 05		bne $c31e			bne 	_1
+.c319	20 3b c3	jsr $c33b			jsr 	OHMInitHandler
+.c31c	18		clc				clc
+.c31d	60		rts				rts
+.c31e					_1:
+.c31e	c9 02		cmp #$02			cmp 	#MSG_REPAINT
+.c320	d0 05		bne $c327			bne 	_1
+.c322	20 53 c3	jsr $c353			jsr 	OHMRepaintHandler
+.c325	18		clc				clc
+.c326	60		rts				rts
+.c327					_1:
+.c327	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c329	d0 05		bne $c330			bne 	_1
+.c32b	20 73 c3	jsr $c373			jsr 	OHMControl
+.c32e	18		clc				clc
+.c32f	60		rts				rts
+.c330					_1:
+.c330	c9 04		cmp #$04			cmp 	#MSG_HITWALL
+.c332	d0 05		bne $c339			bne 	_1
+.c334	20 74 c3	jsr $c374			jsr 	OHMHitWall
+.c337	18		clc				clc
+.c338	60		rts				rts
+.c339					_1:
+.c339	38		sec				sec
+.c33a	60		rts				rts
+.c33b					OHMInitHandler:
+.c33b	a9 01		lda #$01			lda 	#1
+.c33d	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c340	ad 6c e0	lda $e06c			lda 	OBXPos 						; copy position
+.c343	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
+.c346	ad d8 e0	lda $e0d8			lda 	OBYPos
+.c349	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
+.c34c	ad 13 c3	lda $c313			lda 	OHPLastDirection 			; copy direction
+.c34f	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c352	60		rts				rts
+.c353					OHMRepaintHandler:
+.c353	bc 1c e2	ldy $e21c,x			ldy 	OBDirection,x
+.c356	b9 63 c3	lda $c363,y			lda 	OHMGraphic,y 				; set graphic.
+.c359	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c35c	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c35f	9c 0a ff	stz $ff0a			stz 	APIParams+6 				; disables the flip.
+.c362	60		rts				rts
+.c363					OHMGraphic:
+>c363	00 16 16 00					.byte 	0,GR1_HORIZFIRE,GR1_HORIZFIRE,0
+>c367	17 19 18 00					.byte 	GR1_VERTFIRE,GR1_NWSEFIRE,GR1_SWNEFIRE,0
+>c36b	17 18 19 00					.byte 	GR1_VERTFIRE,GR1_SWNEFIRE,GR1_NWSEFIRE,0
+>c36f	00 00 00 00					.byte 	0,0,0,0
+.c373					OHMControl:
+.c373	60		rts				rts
+.c374					OHMHitWall:
+.c374	20 49 c1	jsr $c149			jsr 	KillObject
+.c377	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/human.asm
 
-.c354					OHHuman1:
-.c354	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c356	d0 05		bne $c35d			bne 	_1
-.c358	20 80 c3	jsr $c380			jsr 	OHHInitHandler1
-.c35b	18		clc				clc
-.c35c	60		rts				rts
-.c35d					_1:
-.c35d	38		sec				sec
-.c35e	60		rts				rts
-.c35f					OHHuman2:
-.c35f	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c361	d0 05		bne $c368			bne 	_1
-.c363	20 87 c3	jsr $c387			jsr 	OHHInitHandler2
-.c366	18		clc				clc
-.c367	60		rts				rts
-.c368					_1:
-.c368	38		sec				sec
-.c369	60		rts				rts
-.c36a					OHHuman3:
-.c36a	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c36c	d0 05		bne $c373			bne 	_1
-.c36e	20 8e c3	jsr $c38e			jsr 	OHHInitHandler3
-.c371	18		clc				clc
-.c372	60		rts				rts
-.c373					_1:
-.c373	38		sec				sec
-.c374	60		rts				rts
-.c375					OHHInitHandlerMain:
-.c375	a9 1e		lda #$1e			lda 	#30
-.c377	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c37a	a9 0f		lda #$0f			lda 	#15
-.c37c	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c37f	60		rts				rts
-.c380					OHHInitHandler1:
-.c380	a9 04		lda #$04			lda 	#GR_HUMANS+0
-.c382	20 26 c2	jsr $c226			jsr 	SetObjectGraphic
-.c385	80 ee		bra $c375			bra 	OHHInitHandlerMain
-.c387					OHHInitHandler2:
-.c387	a9 06		lda #$06			lda 	#GR_HUMANS+2
-.c389	20 26 c2	jsr $c226			jsr 	SetObjectGraphic
-.c38c	80 e7		bra $c375			bra 	OHHInitHandlerMain
-.c38e					OHHInitHandler3:
-.c38e	a9 08		lda #$08			lda 	#GR_HUMANS+4
-.c390	20 26 c2	jsr $c226			jsr 	SetObjectGraphic
-.c393	80 e0		bra $c375			bra 	OHHInitHandlerMain
+.c378					OHHuman1:
+.c378	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c37a	d0 05		bne $c381			bne 	_1
+.c37c	20 a4 c3	jsr $c3a4			jsr 	OHHInitHandler1
+.c37f	18		clc				clc
+.c380	60		rts				rts
+.c381					_1:
+.c381	38		sec				sec
+.c382	60		rts				rts
+.c383					OHHuman2:
+.c383	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c385	d0 05		bne $c38c			bne 	_1
+.c387	20 ab c3	jsr $c3ab			jsr 	OHHInitHandler2
+.c38a	18		clc				clc
+.c38b	60		rts				rts
+.c38c					_1:
+.c38c	38		sec				sec
+.c38d	60		rts				rts
+.c38e					OHHuman3:
+.c38e	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c390	d0 05		bne $c397			bne 	_1
+.c392	20 b2 c3	jsr $c3b2			jsr 	OHHInitHandler3
+.c395	18		clc				clc
+.c396	60		rts				rts
+.c397					_1:
+.c397	38		sec				sec
+.c398	60		rts				rts
+.c399					OHHInitHandlerMain:
+.c399	a9 1e		lda #$1e			lda 	#30
+.c39b	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c39e	a9 0f		lda #$0f			lda 	#15
+.c3a0	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c3a3	60		rts				rts
+.c3a4					OHHInitHandler1:
+.c3a4	a9 04		lda #$04			lda 	#GR_HUMANS+0
+.c3a6	20 35 c2	jsr $c235			jsr 	SetObjectGraphic
+.c3a9	80 ee		bra $c399			bra 	OHHInitHandlerMain
+.c3ab					OHHInitHandler2:
+.c3ab	a9 06		lda #$06			lda 	#GR_HUMANS+2
+.c3ad	20 35 c2	jsr $c235			jsr 	SetObjectGraphic
+.c3b0	80 e7		bra $c399			bra 	OHHInitHandlerMain
+.c3b2					OHHInitHandler3:
+.c3b2	a9 08		lda #$08			lda 	#GR_HUMANS+4
+.c3b4	20 35 c2	jsr $c235			jsr 	SetObjectGraphic
+.c3b7	80 e0		bra $c399			bra 	OHHInitHandlerMain
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/grunt.asm
 
-.c395					OHGrunt:
-.c395	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c397	d0 05		bne $c39e			bne 	_1
-.c399	20 a9 c3	jsr $c3a9			jsr 	OHGInitHandler
-.c39c	18		clc				clc
-.c39d	60		rts				rts
-.c39e					_1:
-.c39e	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c3a0	d0 05		bne $c3a7			bne 	_1
-.c3a2	20 f5 c1	jsr $c1f5			jsr 	ChasePlayer
-.c3a5	18		clc				clc
-.c3a6	60		rts				rts
-.c3a7					_1:
-.c3a7	38		sec				sec
-.c3a8	60		rts				rts
-.c3a9					OHGInitHandler:
-.c3a9	a9 0c		lda #$0c			lda 	#GR_GRUNT
-.c3ab	20 26 c2	jsr $c226			jsr 	SetObjectGraphic
-.c3ae	a9 20		lda #$20			lda 	#32
-.c3b0	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c3b3	a9 01		lda #$01			lda 	#1
-.c3b5	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c3b8	a9 00		lda #$00			lda 	#($100 & 255)
-.c3ba	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c3bd	a9 01		lda #$01			lda 	#($100 >> 8)
-.c3bf	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c3c2	60		rts				rts
+.c3b9					OHGrunt:
+.c3b9	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c3bb	d0 05		bne $c3c2			bne 	_1
+.c3bd	20 cd c3	jsr $c3cd			jsr 	OHGInitHandler
+.c3c0	18		clc				clc
+.c3c1	60		rts				rts
+.c3c2					_1:
+.c3c2	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c3c4	d0 05		bne $c3cb			bne 	_1
+.c3c6	20 04 c2	jsr $c204			jsr 	ChasePlayer
+.c3c9	18		clc				clc
+.c3ca	60		rts				rts
+.c3cb					_1:
+.c3cb	38		sec				sec
+.c3cc	60		rts				rts
+.c3cd					OHGInitHandler:
+.c3cd	a9 0c		lda #$0c			lda 	#GR_GRUNT
+.c3cf	20 35 c2	jsr $c235			jsr 	SetObjectGraphic
+.c3d2	a9 20		lda #$20			lda 	#32
+.c3d4	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c3d7	a9 01		lda #$01			lda 	#1
+.c3d9	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c3dc	a9 00		lda #$00			lda 	#($100 & 255)
+.c3de	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c3e1	a9 01		lda #$01			lda 	#($100 >> 8)
+.c3e3	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c3e6	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/hulk.asm
 
-.c3c3					OHHulk:
-.c3c3	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c3c5	d0 05		bne $c3cc			bne 	_1
-.c3c7	20 d7 c3	jsr $c3d7			jsr 	OHHUInitHandler
-.c3ca	18		clc				clc
-.c3cb	60		rts				rts
-.c3cc					_1:
-.c3cc	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c3ce	d0 05		bne $c3d5			bne 	_1
-.c3d0	20 f5 c1	jsr $c1f5			jsr 	ChasePlayer
-.c3d3	18		clc				clc
-.c3d4	60		rts				rts
-.c3d5					_1:
-.c3d5	38		sec				sec
-.c3d6	60		rts				rts
-.c3d7					OHHUInitHandler:
-.c3d7	a9 0a		lda #$0a			lda 	#GR_HULK
-.c3d9	20 26 c2	jsr $c226			jsr 	SetObjectGraphic
-.c3dc	a9 40		lda #$40			lda 	#64
-.c3de	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c3e1	a9 01		lda #$01			lda 	#1
-.c3e3	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c3e6	60		rts				rts
+.c3e7					OHHulk:
+.c3e7	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c3e9	d0 05		bne $c3f0			bne 	_1
+.c3eb	20 fb c3	jsr $c3fb			jsr 	OHHUInitHandler
+.c3ee	18		clc				clc
+.c3ef	60		rts				rts
+.c3f0					_1:
+.c3f0	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c3f2	d0 05		bne $c3f9			bne 	_1
+.c3f4	20 04 c2	jsr $c204			jsr 	ChasePlayer
+.c3f7	18		clc				clc
+.c3f8	60		rts				rts
+.c3f9					_1:
+.c3f9	38		sec				sec
+.c3fa	60		rts				rts
+.c3fb					OHHUInitHandler:
+.c3fb	a9 0a		lda #$0a			lda 	#GR_HULK
+.c3fd	20 35 c2	jsr $c235			jsr 	SetObjectGraphic
+.c400	a9 40		lda #$40			lda 	#64
+.c402	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c405	a9 01		lda #$01			lda 	#1
+.c407	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c40a	60		rts				rts
 
 ;******  Return to file: main.asm
 
-.c3e7					HandlerTable:
->c3e7	50 c2						.word 		OHPlayer 				; type 0, player object
->c3e9	f1 c2						.word 		OHMissile 				; type 1, player missile object
->c3eb	54 c3						.word 		OHHuman1 				; type 2-4 humans
->c3ed	5f c3						.word 		OHHuman2
->c3ef	6a c3						.word 		OHHuman3
->c3f1	95 c3						.word 		OHGrunt 				; type 5 grunt
->c3f3	c3 c3						.word 		OHHulk 					; type 6 hulk
+
+;******  Processing file: classes/sphere.asm
+
+.c40b					OHESpark:
+.c40b	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c40d	d0 05		bne $c414			bne 	_1
+.c40f	20 28 c4	jsr $c428			jsr 	OHESInitHandler
+.c412	18		clc				clc
+.c413	60		rts				rts
+.c414					_1:
+.c414	c9 04		cmp #$04			cmp 	#MSG_HITWALL
+.c416	d0 05		bne $c41d			bne 	_1
+.c418	20 49 c1	jsr $c149			jsr 	KillObject
+.c41b	18		clc				clc
+.c41c	60		rts				rts
+.c41d					_1:
+.c41d	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c41f	d0 05		bne $c426			bne 	_1
+.c421	20 d7 c1	jsr $c1d7			jsr 	NoControlEffect
+.c424	18		clc				clc
+.c425	60		rts				rts
+.c426					_1:
+.c426	38		sec				sec
+.c427	60		rts				rts
+.c428					OHESInitHandler:
+.c428	20 04 c2	jsr $c204			jsr 	ChasePlayer
+.c42b	a9 1f		lda #$1f			lda 	#GR1_MISSILE2
+.c42d	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c430	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c433	a9 07		lda #$07			lda 	#7
+.c435	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c438	a9 ff		lda #$ff			lda 	#255
+.c43a	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c43d	a9 25		lda #$25			lda 	#($25 & 255)
+.c43f	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c442	a9 00		lda #$00			lda 	#($25 >> 8)
+.c444	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c447	60		rts				rts
+.c448					OHEnforcer:
+.c448	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c44a	d0 05		bne $c451			bne 	_1
+.c44c	20 65 c4	jsr $c465			jsr 	OHENInitHandler
+.c44f	18		clc				clc
+.c450	60		rts				rts
+.c451					_1:
+.c451	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c453	d0 05		bne $c45a			bne 	_1
+.c455	20 04 c2	jsr $c204			jsr 	ChasePlayer
+.c458	18		clc				clc
+.c459	60		rts				rts
+.c45a					_1:
+.c45a	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
+.c45c	d0 05		bne $c463			bne 	_1
+.c45e	20 82 c4	jsr $c482			jsr 	OHENCheckFire
+.c461	18		clc				clc
+.c462	60		rts				rts
+.c463					_1:
+.c463	38		sec				sec
+.c464	60		rts				rts
+.c465					OHENInitHandler:
+.c465	a9 10		lda #$10			lda 	#GR1_ENFORCER
+.c467	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c46a	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c46d	a9 0f		lda #$0f			lda 	#15
+.c46f	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c472	a9 1e		lda #$1e			lda 	#30
+.c474	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c477	a9 50		lda #$50			lda 	#($150 & 255)
+.c479	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c47c	a9 01		lda #$01			lda 	#($150 >> 8)
+.c47e	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c481	60		rts				rts
+.c482					OHENCheckFire:
+.c482	20 0c c2	jsr $c20c			jsr 	Random8Bit
+.c485	29 1f		and #$1f			and 	#31
+.c487	d0 0f		bne $c498			bne 	_OHENCFExit
+.c489	a9 07		lda #$07			lda 	#TP_ESPARK
+.c48b	20 3d c2	jsr $c23d			jsr 	CreateSingleObject
+.c48e	ac c0 c0	ldy $c0c0			ldy 	NewObject
+.c491	20 45 c2	jsr $c245			jsr 	CopyStartPosition
+.c494	20 52 c2	jsr $c252			jsr 	ChasePlayerY
+.c497	60		rts				rts
+.c498					_OHENCFExit:
+.c498	60		rts				rts
+
+;******  Return to file: main.asm
+
+.c499					HandlerTable:
+>c499	74 c2						.word 		OHPlayer 				; type 0, player object
+>c49b	15 c3						.word 		OHMissile 				; type 1, player missile object
+>c49d	78 c3						.word 		OHHuman1 				; type 2-4 humans
+>c49f	83 c3						.word 		OHHuman2
+>c4a1	8e c3						.word 		OHHuman3
+>c4a3	b9 c3						.word 		OHGrunt 				; type 5 grunt
+>c4a5	e7 c3						.word 		OHHulk 					; type 6 hulk
+>c4a7	0b c4						.word 		OHESpark 				; type 7 Enforcer Sparks.
+>c4a9	48 c4						.word 		OHEnforcer 				; type 8 Enforcer
 
 ;******  Processing file: data.asm
 
