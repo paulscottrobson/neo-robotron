@@ -73,13 +73,14 @@ GR1_ENFORCER= 16  							; Enforcer graphic (1 only)
 GR1_QUARK = 17   							; Quark graphic (1 only)
 GR_TANK = 18  								; Tank graphic
 GR_BRAIN = 20  								; Brain graphic
-GR1_HORIZFIRE = 22  						; Horizontal fire
-GR1_VERTFIRE = 23  							; Vertical fire 
-GR1_SWNEFIRE = 24   						; / fire  
-GR1_NWSEFIRE = 25  							; \ fire 
-GR4_ELECTRODES = 26  						; Set of 3 electrode graphics
-GR1_MISSILE1 = 30  							; Robotron missiles
-GR1_MISSILE2 = 31
+GR1_ROBOT = 22 								; Robot (mutated human)
+GR1_HORIZFIRE = 23  						; Horizontal fire
+GR1_VERTFIRE = 24  							; Vertical fire 
+GR1_SWNEFIRE = 25   						; / fire  
+GR1_NWSEFIRE = 26  							; \ fire 
+GR4_ELECTRODES = 27  						; Set of 3 electrode graphics
+GR1_MISSILE1 = 31  							; Robotron missiles
+GR1_MISSILE2 = 32
 
 GR_HIDE = 63 								; stops drawing
 

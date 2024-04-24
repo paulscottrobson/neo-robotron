@@ -15,10 +15,11 @@
 		* = $C000
 		jmp 	ResetObjects 				; $C000 reset all sprites.
 		jmp 	CreateObjects 				; $C003 create X objects of type A.
-		jmp 	MoveObjects 				; $C006 move all objects
+		jmp 	MainLoop 					; $C006 main loop code.
 		
 		.include 	"create.asm"
 		.include 	"move.asm"
+		.include 	"palette.asm"
 		.include 	"utility.asm"
 		.include 	"classes/default.asm"
 		.include 	"classes/player.asm"
@@ -29,6 +30,11 @@
 		.include 	"classes/sphere.asm"
 		.include 	"classes/quarks.asm"
 		.include 	"classes/electrode.asm"
+
+MainLoop:
+		jsr 	AnimatePalette
+		jsr 	MoveObjects
+		rts
 
 HandlerTable:
 		.word 		OHPlayer 				; type 0, player object
