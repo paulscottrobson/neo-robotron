@@ -22,6 +22,34 @@ SetWave:
 
 ; ***************************************************************************************
 ;
+;									 Add YA to Score
+;
+; ***************************************************************************************
+
+AddYAToScore:
+		clc
+		sed
+		adc 	DScore+0
+		sta 	DScore+0
+		tya
+		adc 	DScore+1
+		sta 	DScore+1
+		lda 	#0
+		adc 	DScore+2
+		sta 	DScore+2
+		cld
+
+		lsr 	a 							; every 20k it's easier. So sue me.
+		cmp 	LastScore20k
+		sta 	LastScore20k
+		beq 	_NoExtraLife
+		inc 	Lives
+_NoExtraLife:		
+		jsr 	DrawScore
+		rts
+
+; ***************************************************************************************
+;
 ;										Reset Score
 ;
 ; ***************************************************************************************
@@ -30,6 +58,7 @@ ResetScore:
 		stz 	DScore+0
 		stz 	DScore+1
 		stz 	DScore+2
+		stz 	LastScore20k
 		lda 	#3
 		sta 	Lives
 		jsr 	DrawScore
@@ -126,8 +155,10 @@ PrintCharacter:
 		rts
 
 DScore:
-		.byte 	0,0,0,0
+		.byte 	0,0,0
 Lives:	
 		.byte 	3		
 Wave:	
-		.byte 	$12		
+		.byte 	0
+LastScore20k:
+		.byte 	0		

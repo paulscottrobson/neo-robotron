@@ -13,6 +13,7 @@
 		.include 	"constants.inc"
 
 		* = $C000
+
 		jmp 	ResetObjects 				; $C000 reset all sprites.
 		jmp 	CreateObjects 				; $C003 create X objects of type A.
 		jmp 	MainLoop 					; $C006 main loop code.
@@ -64,4 +65,5 @@ HandlerTable:
 		.word 		OHTank 					; type 15 Tank
 
 		* = $E000
+		
 		.include "data.asm"
