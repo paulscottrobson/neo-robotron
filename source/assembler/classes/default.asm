@@ -19,6 +19,7 @@
 DefaultHandler:
 		.method MSG_CONTROL,DefaultControl
 		.method MSG_HITWALL,DefaultHitWall
+		.method MSG_SHOT,DefaultShot
 		.superclass
 
 ;
@@ -31,3 +32,13 @@ DefaultControl:
 ;
 DefaultHitWall:
 		jmp 	ChooseRandomDirection		
+;
+;		Robot has been shot. Y missile, X object hit.
+;
+DefaultShot:
+		lda 	OBScoreLow,x 				; get score into YA
+		ldy 	OBScoreHigh,x
+		phx		
+		jsr 	AddYAToScore 				; add to score
+		plx
+		jmp 	KillObject 					; delete the object

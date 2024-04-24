@@ -36,15 +36,21 @@
 		.include 	"classes/electrode.asm"
 		.include 	"classes/brains.asm"
 		.include 	"checks/human.asm"
+		.include 	"checks/missiles.asm"
 
 MainLoop:
 		inc 	FrameCount
+		; check robot collision, exit if dead
 		jsr 	AnimatePalette 				; causes flashing effects
 		jsr 	MoveObjects 				; move all objects
 		jsr 	ClockDelay 					; delay to stop it being insanely fast.
 		jsr 	CheckPlayerHuman 			; collect ?
-		; check robot collision
-		; check missile collision if not dead
+		jsr 	CheckHitRobots 				; check if hit robot.
+		lda 	FrameCount
+		and 	#7
+		bne 	_MainNoScore
+		jsr 	DrawScore
+_MainNoScore:		
 		rts
 
 FrameCount:

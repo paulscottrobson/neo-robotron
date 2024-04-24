@@ -46,7 +46,6 @@ AddYAToScore:
 		beq 	_NoExtraLife
 		inc 	Lives
 _NoExtraLife:		
-		jsr 	DrawScore
 		plx
 		rts
 

@@ -113,6 +113,7 @@ MSG_REPAINT = $02 							; About to repaint
 MSG_CONTROL = $03 							; Time for a rethink
 MSG_HITWALL = $04 							; Hit wall.
 MSG_ONMOVE = $05 							; On movement.
+MSG_SHOT = $06 								; What to do when shot
 
 sendmsg	.macro
 		lda 	#\1

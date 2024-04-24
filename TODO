@@ -1,6 +1,10 @@
 TODO
 
-	- then shooting the bad guys, default handler.
-	- then human collision.
+	- bug - shooting a block removes the player.
+	- check end of level.
+	- hulk shooting
+	- object management
+		- copy to registers on initialise level
+		- copy from registers
 	
 	

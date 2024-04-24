@@ -5,7 +5,7 @@
 ;		Author :	Paul Robson (paul@robsons.org.uk)
 ;		Date : 		22nd April 2024
 ;		Reviewed :	No
-;		Purpose :	Human Class
+;		Purpose :	Check collect humans
 ;
 ; ***************************************************************************************
 ; ***************************************************************************************
