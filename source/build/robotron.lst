@@ -1,7 +1,7 @@
 
 ; 64tass Turbo Assembler Macro V1.59. listing file
 ; 64tass -b -c -Wall -o ../storage/robotron.bin -L ../build/robotron.lst main.asm
-; Wed Apr 24 13:43:46 2024
+; Wed Apr 24 14:22:33 2024
 
 ;Offset	;Hex		;Monitor	;Source
 
@@ -71,9 +71,9 @@
 
 .c000	4c 91 c1	jmp $c191			jmp 	ResetObjects 				; $C000 reset all sprites.
 .c003	4c 0f c0	jmp $c00f			jmp 	CreateObjects 				; $C003 create X objects of type A.
-.c006	4c 70 c8	jmp $c870			jmp 	MainLoop 					; $C006 main loop code.
-.c009	4c fe c2	jmp $c2fe			jmp 	ResetScore 					; $C009 reset the score.
-.c00c	4c d2 c2	jmp $c2d2			jmp 	SetWave 					; $C00C New Wave A
+.c006	4c a4 c8	jmp $c8a4			jmp 	MainLoop 					; $C006 main loop code.
+.c009	4c 03 c3	jmp $c303			jmp 	ResetScore 					; $C009 reset the score.
+.c00c	4c d5 c2	jmp $c2d5			jmp 	SetWave 					; $C00C New Wave A
 
 ;******  Processing file: create.asm
 
@@ -120,18 +120,18 @@
 .c04e	9d 00 e0	sta $e000,x			sta 	OBFlags,x 					; clear unused flag, set type.
 .c051	0a		asl a				asl 	a 							; double -> Y
 .c052	a8		tay				tay
-.c053	b9 7e c8	lda $c87e,y			lda 	HandlerTable,y  			; put the handler address in.
+.c053	b9 b5 c8	lda $c8b5,y			lda 	HandlerTable,y  			; put the handler address in.
 .c056	9d 60 e3	sta $e360,x			sta 	OBHandlerLow,x
-.c059	b9 7f c8	lda $c87f,y			lda 	HandlerTable+1,y
+.c059	b9 b6 c8	lda $c8b6,y			lda 	HandlerTable+1,y
 .c05c	9d cc e3	sta $e3cc,x			sta 	OBHandlerHigh,x
 .c05f					_COPos1:
-.c05f	20 61 c2	jsr $c261			jsr 	Random8Bit  				; value is 0-151
+.c05f	20 64 c2	jsr $c264			jsr 	Random8Bit  				; value is 0-151
 .c062	c9 98		cmp #$98			cmp 	#PF_RIGHT-PF_LEFT
 .c064	b0 f9		bcs $c05f			bcs 	_COPos1
 .c066	69 04		adc #$04			adc 	#PF_LEFT
 .c068	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
 .c06b					_COPos2:
-.c06b	20 61 c2	jsr $c261			jsr 	Random8Bit 					; value is 0-103
+.c06b	20 64 c2	jsr $c264			jsr 	Random8Bit 					; value is 0-103
 .c06e	29 7f		and #$7f			and 	#$7F
 .c070	c9 68		cmp #$68			cmp 	#PF_BOTTOM-PF_TOP
 .c072	b0 f7		bcs $c06b			bcs 	_COPos2
@@ -164,13 +164,13 @@
 .c0ac	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
 .c0af	a9 0a		lda #$0a			lda 	#10
 .c0b1	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c0b4	20 12 c2	jsr $c212			jsr 	ChooseRandomDirection
+.c0b4	20 15 c2	jsr $c215			jsr 	ChooseRandomDirection
 .c0b7	a9 01		lda #$01			lda 	#MSG_INIT
-.c0b9	20 79 c2	jsr $c279			jsr 	SendObjectMessage
+.c0b9	20 7c c2	jsr $c27c			jsr 	SendObjectMessage
 .c0bc	90 03		bcc $c0c1			bcc 	_1
-.c0be	20 b5 c3	jsr $c3b5			jsr 	DefaultHandler
+.c0be	20 ba c3	jsr $c3ba			jsr 	DefaultHandler
 .c0c1					_1:
-.c0c1	20 b6 c1	jsr $c1b6			jsr 	RedrawObject
+.c0c1	20 b9 c1	jsr $c1b9			jsr 	RedrawObject
 .c0c4	60		rts				rts
 .c0c5					_COAbsolute:
 .c0c5	c9 00		cmp #$00			cmp 	#0
@@ -208,9 +208,9 @@
 .c0ee	bd 38 e4	lda $e438,x			lda 	OBIntelligence,x 			; reset the counter
 .c0f1	9d a4 e4	sta $e4a4,x			sta 	OBIntelligenceCount,x
 .c0f4	a9 03		lda #$03			lda 	#MSG_CONTROL
-.c0f6	20 79 c2	jsr $c279			jsr 	SendObjectMessage
+.c0f6	20 7c c2	jsr $c27c			jsr 	SendObjectMessage
 .c0f9	90 03		bcc $c0fe			bcc 	_1
-.c0fb	20 b5 c3	jsr $c3b5			jsr 	DefaultHandler
+.c0fb	20 ba c3	jsr $c3ba			jsr 	DefaultHandler
 .c0fe					_1:
 .c0fe					_MONoProcess:
 .c0fe	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; current direction.
@@ -246,20 +246,20 @@
 .c12c	98		tya				tya
 .c12d	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
 .c130	a9 05		lda #$05			lda 	#MSG_ONMOVE
-.c132	20 79 c2	jsr $c279			jsr 	SendObjectMessage
+.c132	20 7c c2	jsr $c27c			jsr 	SendObjectMessage
 .c135	90 03		bcc $c13a			bcc 	_1
-.c137	20 b5 c3	jsr $c3b5			jsr 	DefaultHandler
+.c137	20 ba c3	jsr $c3ba			jsr 	DefaultHandler
 .c13a					_1:
 .c13a	3c 00 e0	bit $e000,x			bit 	OBFlags,x 					; killed.
 .c13d	30 03		bmi $c142			bmi 	_MONotMove
-.c13f	20 b6 c1	jsr $c1b6			jsr 	RedrawObject 				; repaint.
+.c13f	20 b9 c1	jsr $c1b9			jsr 	RedrawObject 				; repaint.
 .c142					_MONotMove:
 .c142	60		rts				rts
 .c143					_MOHitWall:
 .c143	a9 04		lda #$04			lda 	#MSG_HITWALL
-.c145	20 79 c2	jsr $c279			jsr 	SendObjectMessage
+.c145	20 7c c2	jsr $c27c			jsr 	SendObjectMessage
 .c148	90 03		bcc $c14d			bcc 	_1
-.c14a	20 b5 c3	jsr $c3b5			jsr 	DefaultHandler
+.c14a	20 ba c3	jsr $c3ba			jsr 	DefaultHandler
 .c14d					_1:
 .c14d	60		rts				rts
 .c14e					ClockDelay:
@@ -324,1094 +324,1134 @@
 .c198	e8		inx				inx
 .c199	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
 .c19b	d0 f6		bne $c193			bne 	_RSLoop
-.c19d	60		rts				rts
-.c19e					KillObject:
-.c19e	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
-.c1a1	d0 fb		bne $c19e			bne 	KillObject
-.c1a3	a9 ff		lda #$ff			lda 	#$FF 						; mark not in use
-.c1a5	9d 00 e0	sta $e000,x			sta 	OBFlags,x
-.c1a8	8e 04 ff	stx $ff04			stx 	APIParams					; sprite ID
-.c1ab	a9 03		lda #$03			lda 	#3  						; and hide it.
-.c1ad	8d 01 ff	sta $ff01			sta 	APIFunction
-.c1b0	a9 06		lda #$06			lda 	#6
-.c1b2	8d 00 ff	sta $ff00			sta 	APICommand
-.c1b5	60		rts				rts
-.c1b6					RedrawObject:
-.c1b6	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
-.c1b9	d0 fb		bne $c1b6			bne 	RedrawObject
-.c1bb	8e 04 ff	stx $ff04			stx 	APIParams+0 				; sprite # same as object #
-.c1be	9c 06 ff	stz $ff06			stz 	APIParams+2 				; shift X left into X position
-.c1c1	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
-.c1c4	0a		asl a				asl 	a
-.c1c5	8d 05 ff	sta $ff05			sta 	APIParams+1
-.c1c8	2e 06 ff	rol $ff06			rol 	APIParams+2
-.c1cb	9c 08 ff	stz $ff08			stz 	APIParams+4  				; shift Y left into Y position
-.c1ce	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
-.c1d1	0a		asl a				asl 	a
-.c1d2	69 08		adc #$08			adc 	#8 							; allow for top area
-.c1d4	8d 07 ff	sta $ff07			sta 	APIParams+3
-.c1d7	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x 					; use Y to animate
-.c1da	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; get direction.
-.c1dd	29 0f		and #$0f			and 	#15 						; if 0 do not animate at all.
-.c1df	f0 0e		beq $c1ef			beq 	_ROUseSprite2
-.c1e1	29 03		and #$03			and 	#3  						; if a L/R component use X Pos
-.c1e3	d0 03		bne $c1e8			bne 	_ROHasHorizonMovement
-.c1e5	bc d8 e0	ldy $e0d8,x			ldy 	OBYPos,x 					; otherwise use Y Pos
-.c1e8					_ROHasHorizonMovement:
-.c1e8	98		tya				tya 								; put bit 1 into carry.
-.c1e9	4a		lsr a				lsr 	a
-.c1ea	bd 44 e1	lda $e144,x			lda 	OBSprite1,x 				; set graphic according to carry.
-.c1ed	90 03		bcc $c1f2			bcc 	_ROUseSprite
-.c1ef					_ROUseSprite2:
-.c1ef	bd b0 e1	lda $e1b0,x			lda 	OBSprite2,x
-.c1f2					_ROUseSprite:
-.c1f2	8d 09 ff	sta $ff09			sta 	APIParams+5
-.c1f5	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check moving left
-.c1f8	29 01		and #$01			and 	#1 							; bit 0 of direction sets xflip
-.c1fa	8d 0a ff	sta $ff0a			sta 	APIParams+6 				; set flip
-.c1fd					_RONotLeft:
-.c1fd	a9 02		lda #$02			lda 	#MSG_REPAINT
-.c1ff	20 79 c2	jsr $c279			jsr 	SendObjectMessage
-.c202	90 03		bcc $c207			bcc 	_1
-.c204	20 b5 c3	jsr $c3b5			jsr 	DefaultHandler
-.c207					_1:
-.c207	a9 02		lda #$02			lda 	#2  						; and draw it.
-.c209	8d 01 ff	sta $ff01			sta 	APIFunction
-.c20c	a9 06		lda #$06			lda 	#6
-.c20e	8d 00 ff	sta $ff00			sta 	APICommand
-.c211	60		rts				rts
-.c212					ChooseRandomDirection:
-.c212	20 61 c2	jsr $c261			jsr 	Random8Bit 					; get valid random direction
-.c215	29 0f		and #$0f			and 	#15
-.c217	f0 f9		beq $c212			beq 	ChooseRandomDirection 		; stationary (0)
-.c219	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c21c	29 03		and #$03			and 	#3 							; check LR not both on.
-.c21e	c9 03		cmp #$03			cmp 	#3
-.c220	f0 f0		beq $c212			beq 	ChooseRandomDirection
-.c222	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check UD not both on
-.c225	29 0c		and #$0c			and 	#12
-.c227	c9 0c		cmp #$0c			cmp 	#12
-.c229	f0 e7		beq $c212			beq 	ChooseRandomDirection
-.c22b	60		rts				rts
-.c22c					NoControlEffect:
-.c22c	60		rts				rts
-.c22d					ChaseObject:
-.c22d	b9 6c e0	lda $e06c,y			lda 	OBXPos,y
-.c230	dd 6c e0	cmp $e06c,x			cmp 	OBXPos,x
-.c233	20 4c c2	jsr $c24c			jsr 	_ChaseCalculate
-.c236	8d 4b c2	sta $c24b			sta 	_ChaseTemp
-.c239	b9 d8 e0	lda $e0d8,y			lda 	OBYPos,y
-.c23c	dd d8 e0	cmp $e0d8,x			cmp 	OBYPos,x
-.c23f	20 4c c2	jsr $c24c			jsr 	_ChaseCalculate
-.c242	0a		asl a				asl 	a
-.c243	0a		asl a				asl 	a
-.c244	0d 4b c2	ora $c24b			ora 	_ChaseTemp
-.c247	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c24a	60		rts				rts
-.c24b					_ChaseTemp:
->c24b	00						.byte 	0
-.c24c					_ChaseCalculate:
-.c24c	f0 08		beq $c256			beq 	_CCNoMove
-.c24e	90 03		bcc $c253			bcc 	_CCMoveRight
-.c250	a9 02		lda #$02			lda 	#2
-.c252	60		rts				rts
-.c253					_CCMoveRight:
-.c253	a9 01		lda #$01			lda 	#1
+.c19d	9c a3 c8	stz $c8a3			stz 	CollectCount
+.c1a0	60		rts				rts
+.c1a1					KillObject:
+.c1a1	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
+.c1a4	d0 fb		bne $c1a1			bne 	KillObject
+.c1a6	a9 ff		lda #$ff			lda 	#$FF 						; mark not in use
+.c1a8	9d 00 e0	sta $e000,x			sta 	OBFlags,x
+.c1ab	8e 04 ff	stx $ff04			stx 	APIParams					; sprite ID
+.c1ae	a9 03		lda #$03			lda 	#3  						; and hide it.
+.c1b0	8d 01 ff	sta $ff01			sta 	APIFunction
+.c1b3	a9 06		lda #$06			lda 	#6
+.c1b5	8d 00 ff	sta $ff00			sta 	APICommand
+.c1b8	60		rts				rts
+.c1b9					RedrawObject:
+.c1b9	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API to be available
+.c1bc	d0 fb		bne $c1b9			bne 	RedrawObject
+.c1be	8e 04 ff	stx $ff04			stx 	APIParams+0 				; sprite # same as object #
+.c1c1	9c 06 ff	stz $ff06			stz 	APIParams+2 				; shift X left into X position
+.c1c4	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
+.c1c7	0a		asl a				asl 	a
+.c1c8	8d 05 ff	sta $ff05			sta 	APIParams+1
+.c1cb	2e 06 ff	rol $ff06			rol 	APIParams+2
+.c1ce	9c 08 ff	stz $ff08			stz 	APIParams+4  				; shift Y left into Y position
+.c1d1	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
+.c1d4	0a		asl a				asl 	a
+.c1d5	69 08		adc #$08			adc 	#8 							; allow for top area
+.c1d7	8d 07 ff	sta $ff07			sta 	APIParams+3
+.c1da	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x 					; use Y to animate
+.c1dd	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; get direction.
+.c1e0	29 0f		and #$0f			and 	#15 						; if 0 do not animate at all.
+.c1e2	f0 0e		beq $c1f2			beq 	_ROUseSprite2
+.c1e4	29 03		and #$03			and 	#3  						; if a L/R component use X Pos
+.c1e6	d0 03		bne $c1eb			bne 	_ROHasHorizonMovement
+.c1e8	bc d8 e0	ldy $e0d8,x			ldy 	OBYPos,x 					; otherwise use Y Pos
+.c1eb					_ROHasHorizonMovement:
+.c1eb	98		tya				tya 								; put bit 1 into carry.
+.c1ec	4a		lsr a				lsr 	a
+.c1ed	bd 44 e1	lda $e144,x			lda 	OBSprite1,x 				; set graphic according to carry.
+.c1f0	90 03		bcc $c1f5			bcc 	_ROUseSprite
+.c1f2					_ROUseSprite2:
+.c1f2	bd b0 e1	lda $e1b0,x			lda 	OBSprite2,x
+.c1f5					_ROUseSprite:
+.c1f5	8d 09 ff	sta $ff09			sta 	APIParams+5
+.c1f8	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check moving left
+.c1fb	29 01		and #$01			and 	#1 							; bit 0 of direction sets xflip
+.c1fd	8d 0a ff	sta $ff0a			sta 	APIParams+6 				; set flip
+.c200					_RONotLeft:
+.c200	a9 02		lda #$02			lda 	#MSG_REPAINT
+.c202	20 7c c2	jsr $c27c			jsr 	SendObjectMessage
+.c205	90 03		bcc $c20a			bcc 	_1
+.c207	20 ba c3	jsr $c3ba			jsr 	DefaultHandler
+.c20a					_1:
+.c20a	a9 02		lda #$02			lda 	#2  						; and draw it.
+.c20c	8d 01 ff	sta $ff01			sta 	APIFunction
+.c20f	a9 06		lda #$06			lda 	#6
+.c211	8d 00 ff	sta $ff00			sta 	APICommand
+.c214	60		rts				rts
+.c215					ChooseRandomDirection:
+.c215	20 64 c2	jsr $c264			jsr 	Random8Bit 					; get valid random direction
+.c218	29 0f		and #$0f			and 	#15
+.c21a	f0 f9		beq $c215			beq 	ChooseRandomDirection 		; stationary (0)
+.c21c	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c21f	29 03		and #$03			and 	#3 							; check LR not both on.
+.c221	c9 03		cmp #$03			cmp 	#3
+.c223	f0 f0		beq $c215			beq 	ChooseRandomDirection
+.c225	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; check UD not both on
+.c228	29 0c		and #$0c			and 	#12
+.c22a	c9 0c		cmp #$0c			cmp 	#12
+.c22c	f0 e7		beq $c215			beq 	ChooseRandomDirection
+.c22e	60		rts				rts
+.c22f					NoControlEffect:
+.c22f	60		rts				rts
+.c230					ChaseObject:
+.c230	b9 6c e0	lda $e06c,y			lda 	OBXPos,y
+.c233	dd 6c e0	cmp $e06c,x			cmp 	OBXPos,x
+.c236	20 4f c2	jsr $c24f			jsr 	_ChaseCalculate
+.c239	8d 4e c2	sta $c24e			sta 	_ChaseTemp
+.c23c	b9 d8 e0	lda $e0d8,y			lda 	OBYPos,y
+.c23f	dd d8 e0	cmp $e0d8,x			cmp 	OBYPos,x
+.c242	20 4f c2	jsr $c24f			jsr 	_ChaseCalculate
+.c245	0a		asl a				asl 	a
+.c246	0a		asl a				asl 	a
+.c247	0d 4e c2	ora $c24e			ora 	_ChaseTemp
+.c24a	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c24d	60		rts				rts
+.c24e					_ChaseTemp:
+>c24e	00						.byte 	0
+.c24f					_ChaseCalculate:
+.c24f	f0 08		beq $c259			beq 	_CCNoMove
+.c251	90 03		bcc $c256			bcc 	_CCMoveRight
+.c253	a9 02		lda #$02			lda 	#2
 .c255	60		rts				rts
-.c256					_CCNoMove:
-.c256	a9 00		lda #$00			lda 	#0
+.c256					_CCMoveRight:
+.c256	a9 01		lda #$01			lda 	#1
 .c258	60		rts				rts
-.c259					ChasePlayer:
-.c259	5a		phy				phy
-.c25a	a0 00		ldy #$00			ldy 	#0
-.c25c	20 2d c2	jsr $c22d			jsr 	ChaseObject
-.c25f	7a		ply				ply
-.c260	60		rts				rts
-.c261					Random8Bit:
-.c261	5a		phy				phy
-.c262	a0 08		ldy #$08			ldy 	#8
-.c264	ad 77 c2	lda $c277			lda 	_R8SeedValue+0
-.c267					_R8RandomLoop
-.c267	0a		asl a				asl     a
-.c268	2e 78 c2	rol $c278			rol 	_R8SeedValue+1
-.c26b	90 02		bcc $c26f			bcc 	_R8NotSet
-.c26d	49 39		eor #$39			eor 	#$39
-.c26f					_R8NotSet:
-.c26f	88		dey				dey
-.c270	d0 f5		bne $c267			bne 	_R8RandomLoop
-.c272	8d 77 c2	sta $c277			sta 	_R8SeedValue+0
-.c275	7a		ply				ply
-.c276	60		rts				rts
-.c277					_R8SeedValue
->c277	cd ab						.word 	$ABCD
-.c279					SendObjectMessage:
-.c279	48		pha				pha
-.c27a	bd 60 e3	lda $e360,x			lda 	OBHandlerLow,x
-.c27d	8d 88 c2	sta $c288			sta 	_SMCall+1
-.c280	bd cc e3	lda $e3cc,x			lda 	OBHandlerHigh,x
-.c283	8d 89 c2	sta $c289			sta 	_SMCall+2
-.c286	68		pla				pla
-.c287					_SMCall:
-.c287	4c 00 00	jmp $0000			jmp 	$0000
-.c28a					SetObjectGraphic:
-.c28a	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c28d	1a		inc a				inc 	a
-.c28e	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c291	60		rts				rts
-.c292					CreateSingleObject:
-.c292	da		phx				phx 								; create player missile object.
-.c293	5a		phy				phy
-.c294	20 1e c0	jsr $c01e			jsr 	CreateObject
-.c297	7a		ply				ply
-.c298	fa		plx				plx
-.c299	60		rts				rts
-.c29a					CopyStartPosition:
-.c29a	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
-.c29d	99 6c e0	sta $e06c,y			sta 	OBXPos,y
-.c2a0	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
-.c2a3	99 d8 e0	sta $e0d8,y			sta 	OBYPos,y
-.c2a6	60		rts				rts
-.c2a7					ChasePlayerY:
-.c2a7	da		phx				phx
-.c2a8	98		tya				tya
-.c2a9	aa		tax				tax
-.c2aa	20 59 c2	jsr $c259			jsr 	ChasePlayer
-.c2ad	fa		plx				plx
-.c2ae	60		rts				rts
-.c2af					CheckCollision:
-.c2af	38		sec				sec
-.c2b0	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
-.c2b3	f9 6c e0	sbc $e06c,y			sbc 	OBXPos,y
-.c2b6	10 03		bpl $c2bb			bpl 	_1
-.c2b8	49 ff		eor #$ff			eor 	#$FF
-.c2ba	1a		inc a				inc 	a
-.c2bb					_1
-.c2bb	c9 04		cmp #$04			cmp 	#4
-.c2bd	b0 11		bcs $c2d0			bcs 	_CCFail
-.c2bf	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
-.c2c2	f9 d8 e0	sbc $e0d8,y			sbc 	OBYPos,y
-.c2c5	10 03		bpl $c2ca			bpl 	_1
-.c2c7	49 ff		eor #$ff			eor 	#$FF
-.c2c9	1a		inc a				inc 	a
-.c2ca					_1
-.c2ca	c9 04		cmp #$04			cmp 	#4
-.c2cc	b0 02		bcs $c2d0			bcs 	_CCFail
-.c2ce	38		sec				sec
-.c2cf	60		rts				rts
-.c2d0					_CCFail:
-.c2d0	18		clc				clc
-.c2d1	60		rts				rts
+.c259					_CCNoMove:
+.c259	a9 00		lda #$00			lda 	#0
+.c25b	60		rts				rts
+.c25c					ChasePlayer:
+.c25c	5a		phy				phy
+.c25d	a0 00		ldy #$00			ldy 	#0
+.c25f	20 30 c2	jsr $c230			jsr 	ChaseObject
+.c262	7a		ply				ply
+.c263	60		rts				rts
+.c264					Random8Bit:
+.c264	5a		phy				phy
+.c265	a0 08		ldy #$08			ldy 	#8
+.c267	ad 7a c2	lda $c27a			lda 	_R8SeedValue+0
+.c26a					_R8RandomLoop
+.c26a	0a		asl a				asl     a
+.c26b	2e 7b c2	rol $c27b			rol 	_R8SeedValue+1
+.c26e	90 02		bcc $c272			bcc 	_R8NotSet
+.c270	49 39		eor #$39			eor 	#$39
+.c272					_R8NotSet:
+.c272	88		dey				dey
+.c273	d0 f5		bne $c26a			bne 	_R8RandomLoop
+.c275	8d 7a c2	sta $c27a			sta 	_R8SeedValue+0
+.c278	7a		ply				ply
+.c279	60		rts				rts
+.c27a					_R8SeedValue
+>c27a	cd ab						.word 	$ABCD
+.c27c					SendObjectMessage:
+.c27c	48		pha				pha
+.c27d	bd 60 e3	lda $e360,x			lda 	OBHandlerLow,x
+.c280	8d 8b c2	sta $c28b			sta 	_SMCall+1
+.c283	bd cc e3	lda $e3cc,x			lda 	OBHandlerHigh,x
+.c286	8d 8c c2	sta $c28c			sta 	_SMCall+2
+.c289	68		pla				pla
+.c28a					_SMCall:
+.c28a	4c 00 00	jmp $0000			jmp 	$0000
+.c28d					SetObjectGraphic:
+.c28d	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c290	1a		inc a				inc 	a
+.c291	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c294	60		rts				rts
+.c295					CreateSingleObject:
+.c295	da		phx				phx 								; create player missile object.
+.c296	5a		phy				phy
+.c297	20 1e c0	jsr $c01e			jsr 	CreateObject
+.c29a	7a		ply				ply
+.c29b	fa		plx				plx
+.c29c	60		rts				rts
+.c29d					CopyStartPosition:
+.c29d	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
+.c2a0	99 6c e0	sta $e06c,y			sta 	OBXPos,y
+.c2a3	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
+.c2a6	99 d8 e0	sta $e0d8,y			sta 	OBYPos,y
+.c2a9	60		rts				rts
+.c2aa					ChasePlayerY:
+.c2aa	da		phx				phx
+.c2ab	98		tya				tya
+.c2ac	aa		tax				tax
+.c2ad	20 5c c2	jsr $c25c			jsr 	ChasePlayer
+.c2b0	fa		plx				plx
+.c2b1	60		rts				rts
+.c2b2					CheckCollision:
+.c2b2	38		sec				sec
+.c2b3	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
+.c2b6	f9 6c e0	sbc $e06c,y			sbc 	OBXPos,y
+.c2b9	10 03		bpl $c2be			bpl 	_1
+.c2bb	49 ff		eor #$ff			eor 	#$FF
+.c2bd	1a		inc a				inc 	a
+.c2be					_1
+.c2be	c9 04		cmp #$04			cmp 	#4
+.c2c0	b0 11		bcs $c2d3			bcs 	_CCFail
+.c2c2	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
+.c2c5	f9 d8 e0	sbc $e0d8,y			sbc 	OBYPos,y
+.c2c8	10 03		bpl $c2cd			bpl 	_1
+.c2ca	49 ff		eor #$ff			eor 	#$FF
+.c2cc	1a		inc a				inc 	a
+.c2cd					_1
+.c2cd	c9 04		cmp #$04			cmp 	#4
+.c2cf	b0 02		bcs $c2d3			bcs 	_CCFail
+.c2d1	38		sec				sec
+.c2d2	60		rts				rts
+.c2d3					_CCFail:
+.c2d3	18		clc				clc
+.c2d4	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: score.asm
 
-.c2d2					SetWave:
-.c2d2	8d b3 c3	sta $c3b3			sta 	Wave
-.c2d5	60		rts				rts
-.c2d6					AddYAToScore:
-.c2d6	18		clc				clc
-.c2d7	f8		sed				sed
-.c2d8	6d af c3	adc $c3af			adc 	DScore+0
-.c2db	8d af c3	sta $c3af			sta 	DScore+0
-.c2de	98		tya				tya
-.c2df	6d b0 c3	adc $c3b0			adc 	DScore+1
-.c2e2	8d b0 c3	sta $c3b0			sta 	DScore+1
-.c2e5	a9 00		lda #$00			lda 	#0
-.c2e7	6d b1 c3	adc $c3b1			adc 	DScore+2
-.c2ea	8d b1 c3	sta $c3b1			sta 	DScore+2
-.c2ed	d8		cld				cld
-.c2ee	4a		lsr a				lsr 	a 							; every 20k it's easier. So sue me.
-.c2ef	cd b4 c3	cmp $c3b4			cmp 	LastScore20k
-.c2f2	8d b4 c3	sta $c3b4			sta 	LastScore20k
-.c2f5	f0 03		beq $c2fa			beq 	_NoExtraLife
-.c2f7	ee b2 c3	inc $c3b2			inc 	Lives
-.c2fa					_NoExtraLife:
-.c2fa	20 43 c3	jsr $c343			jsr 	DrawScore
-.c2fd	60		rts				rts
-.c2fe					ResetScore:
-.c2fe	9c af c3	stz $c3af			stz 	DScore+0
-.c301	9c b0 c3	stz $c3b0			stz 	DScore+1
-.c304	9c b1 c3	stz $c3b1			stz 	DScore+2
-.c307	9c b4 c3	stz $c3b4			stz 	LastScore20k
-.c30a	a9 03		lda #$03			lda 	#3
-.c30c	8d b2 c3	sta $c3b2			sta 	Lives
-.c30f	20 43 c3	jsr $c343			jsr 	DrawScore
-.c312	a2 18		ldx #$18			ldx 	#24
-.c314	a0 1d		ldy #$1d			ldy 	#29
-.c316	20 79 c3	jsr $c379			jsr 	MoveCursor
-.c319	a9 81		lda #$81			lda 	#$81
-.c31b	20 9c c3	jsr $c39c			jsr 	PrintCharacter
-.c31e	20 37 c3	jsr $c337			jsr 	RSPrintWave
-.c321	a9 82		lda #$82			lda 	#$82
-.c323	20 9c c3	jsr $c39c			jsr 	PrintCharacter
-.c326	a9 20		lda #$20			lda 	#32
-.c328	20 9c c3	jsr $c39c			jsr 	PrintCharacter
-.c32b	a2 eb		ldx #$eb			ldx 	#235
-.c32d					_RSPrintWave:
-.c32d	8a		txa				txa
-.c32e	20 9c c3	jsr $c39c			jsr 	PrintCharacter
-.c331	e8		inx				inx
-.c332	e0 ef		cpx #$ef			cpx 	#239
-.c334	d0 f7		bne $c32d			bne 	_RSPrintWave
-.c336	60		rts				rts
-.c337					RSPrintWave:
-.c337	ad b3 c3	lda $c3b3			lda 	Wave
-.c33a	c9 10		cmp #$10			cmp 	#$10
-.c33c	b0 51		bcs $c38f			bcs 	PrintByte
-.c33e	80 58		bra $c398			bra 	PrintNibble
-.c340	ad b3 c3	lda $c3b3			lda 	Wave
-.c343					DrawScore:
-.c343	a2 04		ldx #$04			ldx 	#4
-.c345	a0 00		ldy #$00			ldy 	#0
-.c347	20 79 c3	jsr $c379			jsr 	MoveCursor
-.c34a	a9 86		lda #$86			lda 	#$86
-.c34c	20 9c c3	jsr $c39c			jsr 	PrintCharacter
-.c34f	ad b1 c3	lda $c3b1			lda 	DScore+2
-.c352	20 8f c3	jsr $c38f			jsr 	PrintByte
-.c355	ad b0 c3	lda $c3b0			lda 	DScore+1
-.c358	20 8f c3	jsr $c38f			jsr 	PrintByte
-.c35b	ad af c3	lda $c3af			lda 	DScore+0
-.c35e	20 8f c3	jsr $c38f			jsr 	PrintByte
-.c361	a9 20		lda #$20			lda 	#32
-.c363	20 9c c3	jsr $c39c			jsr 	PrintCharacter
-.c366	a9 83		lda #$83			lda		#$83
-.c368	ae b2 c3	ldx $c3b2			ldx 	Lives
-.c36b	20 9c c3	jsr $c39c			jsr 	PrintCharacter
-.c36e	ca		dex		_DSLoop:dex
-.c36f	f0 07		beq $c378			beq 	_DSExit
-.c371	a9 ea		lda #$ea			lda 	#234
-.c373	20 9c c3	jsr $c39c			jsr 	PrintCharacter
-.c376	80 f6		bra $c36e			bra 	_DSLoop
-.c378					_DSExit:
-.c378	60		rts				rts
-.c379					MoveCursor:
-.c379	ad 00 ff	lda $ff00			lda 	APICommand
-.c37c	d0 c5		bne $c343			bne 	DrawScore
-.c37e	8c 05 ff	sty $ff05			sty 	APIParams+1
-.c381	8e 04 ff	stx $ff04			stx 	APIParams+0
-.c384	a9 07		lda #$07			lda 	#7
-.c386	8d 01 ff	sta $ff01			sta 	APIFunction
-.c389	a9 02		lda #$02			lda 	#2
-.c38b	8d 00 ff	sta $ff00			sta 	APICommand
-.c38e	60		rts				rts
-.c38f					PrintByte:
-.c38f	48		pha				pha
-.c390	4a		lsr a				lsr 	a
-.c391	4a		lsr a				lsr 	a
-.c392	4a		lsr a				lsr 	a
-.c393	4a		lsr a				lsr 	a
-.c394	20 98 c3	jsr $c398			jsr 	PrintNibble
-.c397	68		pla				pla
-.c398					PrintNibble:
-.c398	29 0f		and #$0f			and 	#15
-.c39a	09 e0		ora #$e0			ora 	#224
-.c39c					PrintCharacter:
-.c39c	ac 00 ff	ldy $ff00			ldy 	APICommand
-.c39f	d0 fb		bne $c39c			bne 	PrintCharacter
-.c3a1	8d 04 ff	sta $ff04			sta 	APIParams+0
-.c3a4	a9 06		lda #$06			lda 	#6
-.c3a6	8d 01 ff	sta $ff01			sta 	APIFunction
-.c3a9	a9 02		lda #$02			lda 	#2
-.c3ab	8d 00 ff	sta $ff00			sta 	APICommand
-.c3ae	60		rts				rts
-.c3af					DScore:
->c3af	00 00 00					.byte 	0,0,0
-.c3b2					Lives:
->c3b2	03						.byte 	3
-.c3b3					Wave:
->c3b3	00						.byte 	0
-.c3b4					LastScore20k:
->c3b4	00						.byte 	0
+.c2d5					SetWave:
+.c2d5	8d b8 c3	sta $c3b8			sta 	Wave
+.c2d8	60		rts				rts
+.c2d9					AddYAToScore:
+.c2d9	da		phx				phx
+.c2da	18		clc				clc
+.c2db	f8		sed				sed
+.c2dc	6d b4 c3	adc $c3b4			adc 	DScore+0
+.c2df	8d b4 c3	sta $c3b4			sta 	DScore+0
+.c2e2	98		tya				tya
+.c2e3	6d b5 c3	adc $c3b5			adc 	DScore+1
+.c2e6	8d b5 c3	sta $c3b5			sta 	DScore+1
+.c2e9	a9 00		lda #$00			lda 	#0
+.c2eb	6d b6 c3	adc $c3b6			adc 	DScore+2
+.c2ee	8d b6 c3	sta $c3b6			sta 	DScore+2
+.c2f1	d8		cld				cld
+.c2f2	4a		lsr a				lsr 	a 							; every 20k it's easier. So sue me.
+.c2f3	cd b9 c3	cmp $c3b9			cmp 	LastScore20k
+.c2f6	8d b9 c3	sta $c3b9			sta 	LastScore20k
+.c2f9	f0 03		beq $c2fe			beq 	_NoExtraLife
+.c2fb	ee b7 c3	inc $c3b7			inc 	Lives
+.c2fe					_NoExtraLife:
+.c2fe	20 48 c3	jsr $c348			jsr 	DrawScore
+.c301	fa		plx				plx
+.c302	60		rts				rts
+.c303					ResetScore:
+.c303	9c b4 c3	stz $c3b4			stz 	DScore+0
+.c306	9c b5 c3	stz $c3b5			stz 	DScore+1
+.c309	9c b6 c3	stz $c3b6			stz 	DScore+2
+.c30c	9c b9 c3	stz $c3b9			stz 	LastScore20k
+.c30f	a9 03		lda #$03			lda 	#3
+.c311	8d b7 c3	sta $c3b7			sta 	Lives
+.c314	20 48 c3	jsr $c348			jsr 	DrawScore
+.c317	a2 18		ldx #$18			ldx 	#24
+.c319	a0 1d		ldy #$1d			ldy 	#29
+.c31b	20 7e c3	jsr $c37e			jsr 	MoveCursor
+.c31e	a9 81		lda #$81			lda 	#$81
+.c320	20 a1 c3	jsr $c3a1			jsr 	PrintCharacter
+.c323	20 3c c3	jsr $c33c			jsr 	RSPrintWave
+.c326	a9 82		lda #$82			lda 	#$82
+.c328	20 a1 c3	jsr $c3a1			jsr 	PrintCharacter
+.c32b	a9 20		lda #$20			lda 	#32
+.c32d	20 a1 c3	jsr $c3a1			jsr 	PrintCharacter
+.c330	a2 eb		ldx #$eb			ldx 	#235
+.c332					_RSPrintWave:
+.c332	8a		txa				txa
+.c333	20 a1 c3	jsr $c3a1			jsr 	PrintCharacter
+.c336	e8		inx				inx
+.c337	e0 ef		cpx #$ef			cpx 	#239
+.c339	d0 f7		bne $c332			bne 	_RSPrintWave
+.c33b	60		rts				rts
+.c33c					RSPrintWave:
+.c33c	ad b8 c3	lda $c3b8			lda 	Wave
+.c33f	c9 10		cmp #$10			cmp 	#$10
+.c341	b0 51		bcs $c394			bcs 	PrintByte
+.c343	80 58		bra $c39d			bra 	PrintNibble
+.c345	ad b8 c3	lda $c3b8			lda 	Wave
+.c348					DrawScore:
+.c348	a2 04		ldx #$04			ldx 	#4
+.c34a	a0 00		ldy #$00			ldy 	#0
+.c34c	20 7e c3	jsr $c37e			jsr 	MoveCursor
+.c34f	a9 86		lda #$86			lda 	#$86
+.c351	20 a1 c3	jsr $c3a1			jsr 	PrintCharacter
+.c354	ad b6 c3	lda $c3b6			lda 	DScore+2
+.c357	20 94 c3	jsr $c394			jsr 	PrintByte
+.c35a	ad b5 c3	lda $c3b5			lda 	DScore+1
+.c35d	20 94 c3	jsr $c394			jsr 	PrintByte
+.c360	ad b4 c3	lda $c3b4			lda 	DScore+0
+.c363	20 94 c3	jsr $c394			jsr 	PrintByte
+.c366	a9 20		lda #$20			lda 	#32
+.c368	20 a1 c3	jsr $c3a1			jsr 	PrintCharacter
+.c36b	a9 83		lda #$83			lda		#$83
+.c36d	ae b7 c3	ldx $c3b7			ldx 	Lives
+.c370	20 a1 c3	jsr $c3a1			jsr 	PrintCharacter
+.c373	ca		dex		_DSLoop:dex
+.c374	f0 07		beq $c37d			beq 	_DSExit
+.c376	a9 ea		lda #$ea			lda 	#234
+.c378	20 a1 c3	jsr $c3a1			jsr 	PrintCharacter
+.c37b	80 f6		bra $c373			bra 	_DSLoop
+.c37d					_DSExit:
+.c37d	60		rts				rts
+.c37e					MoveCursor:
+.c37e	ad 00 ff	lda $ff00			lda 	APICommand
+.c381	d0 c5		bne $c348			bne 	DrawScore
+.c383	8c 05 ff	sty $ff05			sty 	APIParams+1
+.c386	8e 04 ff	stx $ff04			stx 	APIParams+0
+.c389	a9 07		lda #$07			lda 	#7
+.c38b	8d 01 ff	sta $ff01			sta 	APIFunction
+.c38e	a9 02		lda #$02			lda 	#2
+.c390	8d 00 ff	sta $ff00			sta 	APICommand
+.c393	60		rts				rts
+.c394					PrintByte:
+.c394	48		pha				pha
+.c395	4a		lsr a				lsr 	a
+.c396	4a		lsr a				lsr 	a
+.c397	4a		lsr a				lsr 	a
+.c398	4a		lsr a				lsr 	a
+.c399	20 9d c3	jsr $c39d			jsr 	PrintNibble
+.c39c	68		pla				pla
+.c39d					PrintNibble:
+.c39d	29 0f		and #$0f			and 	#15
+.c39f	09 e0		ora #$e0			ora 	#224
+.c3a1					PrintCharacter:
+.c3a1	ac 00 ff	ldy $ff00			ldy 	APICommand
+.c3a4	d0 fb		bne $c3a1			bne 	PrintCharacter
+.c3a6	8d 04 ff	sta $ff04			sta 	APIParams+0
+.c3a9	a9 06		lda #$06			lda 	#6
+.c3ab	8d 01 ff	sta $ff01			sta 	APIFunction
+.c3ae	a9 02		lda #$02			lda 	#2
+.c3b0	8d 00 ff	sta $ff00			sta 	APICommand
+.c3b3	60		rts				rts
+.c3b4					DScore:
+>c3b4	00 00 00					.byte 	0,0,0
+.c3b7					Lives:
+>c3b7	03						.byte 	3
+.c3b8					Wave:
+>c3b8	00						.byte 	0
+.c3b9					LastScore20k:
+>c3b9	00						.byte 	0
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/default.asm
 
-.c3b5					DefaultHandler:
-.c3b5	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c3b7	d0 05		bne $c3be			bne 	_1
-.c3b9	20 c9 c3	jsr $c3c9			jsr 	DefaultControl
-.c3bc	18		clc				clc
-.c3bd	60		rts				rts
-.c3be					_1:
-.c3be	c9 04		cmp #$04			cmp 	#MSG_HITWALL
-.c3c0	d0 05		bne $c3c7			bne 	_1
-.c3c2	20 cc c3	jsr $c3cc			jsr 	DefaultHitWall
-.c3c5	18		clc				clc
-.c3c6	60		rts				rts
-.c3c7					_1:
-.c3c7	38		sec				sec
-.c3c8	60		rts				rts
-.c3c9					DefaultControl:
-.c3c9	4c 12 c2	jmp $c212			jmp 	ChooseRandomDirection
-.c3cc					DefaultHitWall:
-.c3cc	4c 12 c2	jmp $c212			jmp 	ChooseRandomDirection
+.c3ba					DefaultHandler:
+.c3ba	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c3bc	d0 05		bne $c3c3			bne 	_1
+.c3be	20 ce c3	jsr $c3ce			jsr 	DefaultControl
+.c3c1	18		clc				clc
+.c3c2	60		rts				rts
+.c3c3					_1:
+.c3c3	c9 04		cmp #$04			cmp 	#MSG_HITWALL
+.c3c5	d0 05		bne $c3cc			bne 	_1
+.c3c7	20 d1 c3	jsr $c3d1			jsr 	DefaultHitWall
+.c3ca	18		clc				clc
+.c3cb	60		rts				rts
+.c3cc					_1:
+.c3cc	38		sec				sec
+.c3cd	60		rts				rts
+.c3ce					DefaultControl:
+.c3ce	4c 15 c2	jmp $c215			jmp 	ChooseRandomDirection
+.c3d1					DefaultHitWall:
+.c3d1	4c 15 c2	jmp $c215			jmp 	ChooseRandomDirection
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/player.asm
 
-.c3cf					OHPlayer:
-.c3cf	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c3d1	d0 05		bne $c3d8			bne 	_1
-.c3d3	20 ec c3	jsr $c3ec			jsr 	OHPInitHandler
-.c3d6	18		clc				clc
-.c3d7	60		rts				rts
-.c3d8					_1:
-.c3d8	c9 02		cmp #$02			cmp 	#MSG_REPAINT
-.c3da	d0 05		bne $c3e1			bne 	_1
-.c3dc	20 01 c4	jsr $c401			jsr 	OHPRepaintHandler
-.c3df	18		clc				clc
-.c3e0	60		rts				rts
-.c3e1					_1:
-.c3e1	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c3e3	d0 05		bne $c3ea			bne 	_1
-.c3e5	20 30 c4	jsr $c430			jsr 	OHPControlHandler
-.c3e8	18		clc				clc
-.c3e9	60		rts				rts
-.c3ea					_1:
-.c3ea	38		sec				sec
-.c3eb	60		rts				rts
-.c3ec					OHPInitHandler:
-.c3ec	a9 50		lda #$50			lda 	#160/2
-.c3ee	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
-.c3f1	a9 40		lda #$40			lda 	#128/2
-.c3f3	99 d8 e0	sta $e0d8,y			sta 	OBYPos,y
-.c3f6	a9 02		lda #$02			lda 	#2
-.c3f8	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c3fb	a9 01		lda #$01			lda 	#1
-.c3fd	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c400	60		rts				rts
-.c401					OHPRepaintHandler:
-.c401	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x
-.c404	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
-.c407	29 03		and #$03			and 	#3
-.c409	d0 03		bne $c40e			bne 	_OHPUseVertical
-.c40b	bc d8 e0	ldy $e0d8,x			ldy		OBYPos,x
-.c40e					_OHPUseVertical:
-.c40e	5e 09 ff	lsr $ff09,x			lsr 	APIParams+5,x
-.c411	1e 09 ff	asl $ff09,x			asl 	APIParams+5,x
-.c414	98		tya				tya
-.c415	29 10		and #$10			and 	#16
-.c417	f0 03		beq $c41c			beq 	_OHPNoAlternate
-.c419	fe 09 ff	inc $ff09,x			inc 	APIParams+5,x
-.c41c					_OHPNoAlternate:
-.c41c	60		rts				rts
-.c41d					OHPSetGraphic:
-.c41d	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; is movement purely vertical
-.c420	29 03		and #$03			and 	#3
-.c422	d0 06		bne $c42a			bne 	_OHPRHorizontal
-.c424	a9 02		lda #$02			lda 	#GR_PLAYERV
-.c426	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c429	60		rts				rts
-.c42a					_OHPRHorizontal:
-.c42a	a9 00		lda #$00			lda 	#GR_PLAYERH
-.c42c	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c42f	60		rts				rts
-.c430					OHPControlHandler:
-.c430	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API
-.c433	d0 fb		bne $c430			bne 	OHPControlHandler
-.c435	a9 01		lda #$01			lda 	#1  						; and draw it.
-.c437	8d 01 ff	sta $ff01			sta 	APIFunction
-.c43a	a9 07		lda #$07			lda 	#7
-.c43c	8d 00 ff	sta $ff00			sta 	APICommand
-.c43f					_OHPWait
-.c43f	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for result
-.c442	d0 fb		bne $c43f			bne 	_OHPWait
-.c444	ad 04 ff	lda $ff04			lda 	APIParams 					; put the controller dpad bits into the direction.
-.c447	29 0f		and #$0f			and 	#15  						; (made the same for this reason)
-.c449	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c44c	f0 0d		beq $c45b			beq 	_OHPNoSetLast 				; don't set last if no direction.
-.c44e	ad 04 ff	lda $ff04			lda 	APIParams 					; any fire button pressed, if zero, set direction
-.c451	29 f0		and #$f0			and 	#$F0
-.c453	d0 06		bne $c45b			bne 	_OHPNoSetLast 				; don't set last direction if non zero
-.c455	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
-.c458	8d 6e c4	sta $c46e			sta 	OHPLastDirection
-.c45b					_OHPNoSetLast:
-.c45b	ee 6f c4	inc $c46f			inc 	OHPFireCount 				; fire one time in 15
-.c45e	ad 6f c4	lda $c46f			lda 	OHPFireCount
-.c461	29 0f		and #$0f			and 	#15
-.c463	d0 05		bne $c46a			bne 	_OHPNoFire
-.c465	a9 01		lda #$01			lda 	#1
-.c467	20 92 c2	jsr $c292			jsr 	CreateSingleObject
-.c46a					_OHPNoFire:
-.c46a	20 1d c4	jsr $c41d			jsr 	OHPSetGraphic
-.c46d	60		rts				rts
-.c46e					OHPLastDirection:
->c46e	02						.byte 	2
-.c46f					OHPFireCount:
->c46f	00						.byte 	0
+.c3d4					OHPlayer:
+.c3d4	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c3d6	d0 05		bne $c3dd			bne 	_1
+.c3d8	20 f1 c3	jsr $c3f1			jsr 	OHPInitHandler
+.c3db	18		clc				clc
+.c3dc	60		rts				rts
+.c3dd					_1:
+.c3dd	c9 02		cmp #$02			cmp 	#MSG_REPAINT
+.c3df	d0 05		bne $c3e6			bne 	_1
+.c3e1	20 06 c4	jsr $c406			jsr 	OHPRepaintHandler
+.c3e4	18		clc				clc
+.c3e5	60		rts				rts
+.c3e6					_1:
+.c3e6	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c3e8	d0 05		bne $c3ef			bne 	_1
+.c3ea	20 35 c4	jsr $c435			jsr 	OHPControlHandler
+.c3ed	18		clc				clc
+.c3ee	60		rts				rts
+.c3ef					_1:
+.c3ef	38		sec				sec
+.c3f0	60		rts				rts
+.c3f1					OHPInitHandler:
+.c3f1	a9 50		lda #$50			lda 	#160/2
+.c3f3	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
+.c3f6	a9 40		lda #$40			lda 	#128/2
+.c3f8	99 d8 e0	sta $e0d8,y			sta 	OBYPos,y
+.c3fb	a9 02		lda #$02			lda 	#2
+.c3fd	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c400	a9 01		lda #$01			lda 	#1
+.c402	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c405	60		rts				rts
+.c406					OHPRepaintHandler:
+.c406	bc 6c e0	ldy $e06c,x			ldy 	OBXPos,x
+.c409	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
+.c40c	29 03		and #$03			and 	#3
+.c40e	d0 03		bne $c413			bne 	_OHPUseVertical
+.c410	bc d8 e0	ldy $e0d8,x			ldy		OBYPos,x
+.c413					_OHPUseVertical:
+.c413	5e 09 ff	lsr $ff09,x			lsr 	APIParams+5,x
+.c416	1e 09 ff	asl $ff09,x			asl 	APIParams+5,x
+.c419	98		tya				tya
+.c41a	29 10		and #$10			and 	#16
+.c41c	f0 03		beq $c421			beq 	_OHPNoAlternate
+.c41e	fe 09 ff	inc $ff09,x			inc 	APIParams+5,x
+.c421					_OHPNoAlternate:
+.c421	60		rts				rts
+.c422					OHPSetGraphic:
+.c422	bd 1c e2	lda $e21c,x			lda 	OBDirection,x 				; is movement purely vertical
+.c425	29 03		and #$03			and 	#3
+.c427	d0 06		bne $c42f			bne 	_OHPRHorizontal
+.c429	a9 02		lda #$02			lda 	#GR_PLAYERV
+.c42b	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c42e	60		rts				rts
+.c42f					_OHPRHorizontal:
+.c42f	a9 00		lda #$00			lda 	#GR_PLAYERH
+.c431	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c434	60		rts				rts
+.c435					OHPControlHandler:
+.c435	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for API
+.c438	d0 fb		bne $c435			bne 	OHPControlHandler
+.c43a	a9 01		lda #$01			lda 	#1  						; and draw it.
+.c43c	8d 01 ff	sta $ff01			sta 	APIFunction
+.c43f	a9 07		lda #$07			lda 	#7
+.c441	8d 00 ff	sta $ff00			sta 	APICommand
+.c444					_OHPWait
+.c444	ad 00 ff	lda $ff00			lda 	APICommand 					; wait for result
+.c447	d0 fb		bne $c444			bne 	_OHPWait
+.c449	ad 04 ff	lda $ff04			lda 	APIParams 					; put the controller dpad bits into the direction.
+.c44c	29 0f		and #$0f			and 	#15  						; (made the same for this reason)
+.c44e	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c451	f0 0d		beq $c460			beq 	_OHPNoSetLast 				; don't set last if no direction.
+.c453	ad 04 ff	lda $ff04			lda 	APIParams 					; any fire button pressed, if zero, set direction
+.c456	29 f0		and #$f0			and 	#$F0
+.c458	d0 06		bne $c460			bne 	_OHPNoSetLast 				; don't set last direction if non zero
+.c45a	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
+.c45d	8d 73 c4	sta $c473			sta 	OHPLastDirection
+.c460					_OHPNoSetLast:
+.c460	ee 74 c4	inc $c474			inc 	OHPFireCount 				; fire one time in 15
+.c463	ad 74 c4	lda $c474			lda 	OHPFireCount
+.c466	29 0f		and #$0f			and 	#15
+.c468	d0 05		bne $c46f			bne 	_OHPNoFire
+.c46a	a9 01		lda #$01			lda 	#1
+.c46c	20 95 c2	jsr $c295			jsr 	CreateSingleObject
+.c46f					_OHPNoFire:
+.c46f	20 22 c4	jsr $c422			jsr 	OHPSetGraphic
+.c472	60		rts				rts
+.c473					OHPLastDirection:
+>c473	02						.byte 	2
+.c474					OHPFireCount:
+>c474	00						.byte 	0
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/pmissile.asm
 
-.c470					OHMissile:
-.c470	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c472	d0 05		bne $c479			bne 	_1
-.c474	20 96 c4	jsr $c496			jsr 	OHMInitHandler
-.c477	18		clc				clc
-.c478	60		rts				rts
-.c479					_1:
-.c479	c9 02		cmp #$02			cmp 	#MSG_REPAINT
-.c47b	d0 05		bne $c482			bne 	_1
-.c47d	20 ae c4	jsr $c4ae			jsr 	OHMRepaintHandler
-.c480	18		clc				clc
-.c481	60		rts				rts
-.c482					_1:
-.c482	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c484	d0 05		bne $c48b			bne 	_1
-.c486	20 ce c4	jsr $c4ce			jsr 	OHMControl
-.c489	18		clc				clc
-.c48a	60		rts				rts
-.c48b					_1:
-.c48b	c9 04		cmp #$04			cmp 	#MSG_HITWALL
-.c48d	d0 05		bne $c494			bne 	_1
-.c48f	20 cf c4	jsr $c4cf			jsr 	OHMHitWall
-.c492	18		clc				clc
-.c493	60		rts				rts
-.c494					_1:
-.c494	38		sec				sec
-.c495	60		rts				rts
-.c496					OHMInitHandler:
-.c496	a9 01		lda #$01			lda 	#1
-.c498	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c49b	ad 6c e0	lda $e06c			lda 	OBXPos 						; copy position
-.c49e	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
-.c4a1	ad d8 e0	lda $e0d8			lda 	OBYPos
-.c4a4	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
-.c4a7	ad 6e c4	lda $c46e			lda 	OHPLastDirection 			; copy direction
-.c4aa	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c4ad	60		rts				rts
-.c4ae					OHMRepaintHandler:
-.c4ae	bc 1c e2	ldy $e21c,x			ldy 	OBDirection,x
-.c4b1	b9 be c4	lda $c4be,y			lda 	OHMGraphic,y 				; set graphic.
-.c4b4	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c4b7	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c4ba	9c 0a ff	stz $ff0a			stz 	APIParams+6 				; disables the flip.
-.c4bd	60		rts				rts
-.c4be					OHMGraphic:
->c4be	00 17 17 00					.byte 	0,GR1_HORIZFIRE,GR1_HORIZFIRE,0
->c4c2	18 1a 19 00					.byte 	GR1_VERTFIRE,GR1_NWSEFIRE,GR1_SWNEFIRE,0
->c4c6	18 19 1a 00					.byte 	GR1_VERTFIRE,GR1_SWNEFIRE,GR1_NWSEFIRE,0
->c4ca	00 00 00 00					.byte 	0,0,0,0
-.c4ce					OHMControl:
-.c4ce	60		rts				rts
-.c4cf					OHMHitWall:
-.c4cf	20 9e c1	jsr $c19e			jsr 	KillObject
-.c4d2	60		rts				rts
+.c475					OHMissile:
+.c475	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c477	d0 05		bne $c47e			bne 	_1
+.c479	20 9b c4	jsr $c49b			jsr 	OHMInitHandler
+.c47c	18		clc				clc
+.c47d	60		rts				rts
+.c47e					_1:
+.c47e	c9 02		cmp #$02			cmp 	#MSG_REPAINT
+.c480	d0 05		bne $c487			bne 	_1
+.c482	20 b3 c4	jsr $c4b3			jsr 	OHMRepaintHandler
+.c485	18		clc				clc
+.c486	60		rts				rts
+.c487					_1:
+.c487	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c489	d0 05		bne $c490			bne 	_1
+.c48b	20 d3 c4	jsr $c4d3			jsr 	OHMControl
+.c48e	18		clc				clc
+.c48f	60		rts				rts
+.c490					_1:
+.c490	c9 04		cmp #$04			cmp 	#MSG_HITWALL
+.c492	d0 05		bne $c499			bne 	_1
+.c494	20 d4 c4	jsr $c4d4			jsr 	OHMHitWall
+.c497	18		clc				clc
+.c498	60		rts				rts
+.c499					_1:
+.c499	38		sec				sec
+.c49a	60		rts				rts
+.c49b					OHMInitHandler:
+.c49b	a9 01		lda #$01			lda 	#1
+.c49d	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c4a0	ad 6c e0	lda $e06c			lda 	OBXPos 						; copy position
+.c4a3	9d 6c e0	sta $e06c,x			sta 	OBXPos,x
+.c4a6	ad d8 e0	lda $e0d8			lda 	OBYPos
+.c4a9	9d d8 e0	sta $e0d8,x			sta 	OBYPos,x
+.c4ac	ad 73 c4	lda $c473			lda 	OHPLastDirection 			; copy direction
+.c4af	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c4b2	60		rts				rts
+.c4b3					OHMRepaintHandler:
+.c4b3	bc 1c e2	ldy $e21c,x			ldy 	OBDirection,x
+.c4b6	b9 c3 c4	lda $c4c3,y			lda 	OHMGraphic,y 				; set graphic.
+.c4b9	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c4bc	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c4bf	9c 0a ff	stz $ff0a			stz 	APIParams+6 				; disables the flip.
+.c4c2	60		rts				rts
+.c4c3					OHMGraphic:
+>c4c3	00 17 17 00					.byte 	0,GR1_HORIZFIRE,GR1_HORIZFIRE,0
+>c4c7	18 1a 19 00					.byte 	GR1_VERTFIRE,GR1_NWSEFIRE,GR1_SWNEFIRE,0
+>c4cb	18 19 1a 00					.byte 	GR1_VERTFIRE,GR1_SWNEFIRE,GR1_NWSEFIRE,0
+>c4cf	00 00 00 00					.byte 	0,0,0,0
+.c4d3					OHMControl:
+.c4d3	60		rts				rts
+.c4d4					OHMHitWall:
+.c4d4	20 a1 c1	jsr $c1a1			jsr 	KillObject
+.c4d7	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/human.asm
 
-.c4d3					OHHuman1:
-.c4d3	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c4d5	d0 05		bne $c4dc			bne 	_1
-.c4d7	20 ff c4	jsr $c4ff			jsr 	OHHInitHandler1
-.c4da	18		clc				clc
-.c4db	60		rts				rts
-.c4dc					_1:
-.c4dc	38		sec				sec
-.c4dd	60		rts				rts
-.c4de					OHHuman2:
-.c4de	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c4e0	d0 05		bne $c4e7			bne 	_1
-.c4e2	20 06 c5	jsr $c506			jsr 	OHHInitHandler2
-.c4e5	18		clc				clc
-.c4e6	60		rts				rts
-.c4e7					_1:
-.c4e7	38		sec				sec
-.c4e8	60		rts				rts
-.c4e9					OHHuman3:
-.c4e9	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c4eb	d0 05		bne $c4f2			bne 	_1
-.c4ed	20 0d c5	jsr $c50d			jsr 	OHHInitHandler3
-.c4f0	18		clc				clc
-.c4f1	60		rts				rts
-.c4f2					_1:
-.c4f2	38		sec				sec
-.c4f3	60		rts				rts
-.c4f4					OHHInitHandlerMain:
-.c4f4	a9 1e		lda #$1e			lda 	#30
-.c4f6	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c4f9	a9 0f		lda #$0f			lda 	#15
-.c4fb	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c4fe	60		rts				rts
-.c4ff					OHHInitHandler1:
-.c4ff	a9 04		lda #$04			lda 	#GR_HUMANS+0
-.c501	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c504	80 ee		bra $c4f4			bra 	OHHInitHandlerMain
-.c506					OHHInitHandler2:
-.c506	a9 06		lda #$06			lda 	#GR_HUMANS+2
-.c508	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c50b	80 e7		bra $c4f4			bra 	OHHInitHandlerMain
-.c50d					OHHInitHandler3:
-.c50d	a9 08		lda #$08			lda 	#GR_HUMANS+4
-.c50f	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c512	80 e0		bra $c4f4			bra 	OHHInitHandlerMain
+.c4d8					OHHuman1:
+.c4d8	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c4da	d0 05		bne $c4e1			bne 	_1
+.c4dc	20 04 c5	jsr $c504			jsr 	OHHInitHandler1
+.c4df	18		clc				clc
+.c4e0	60		rts				rts
+.c4e1					_1:
+.c4e1	38		sec				sec
+.c4e2	60		rts				rts
+.c4e3					OHHuman2:
+.c4e3	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c4e5	d0 05		bne $c4ec			bne 	_1
+.c4e7	20 0b c5	jsr $c50b			jsr 	OHHInitHandler2
+.c4ea	18		clc				clc
+.c4eb	60		rts				rts
+.c4ec					_1:
+.c4ec	38		sec				sec
+.c4ed	60		rts				rts
+.c4ee					OHHuman3:
+.c4ee	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c4f0	d0 05		bne $c4f7			bne 	_1
+.c4f2	20 12 c5	jsr $c512			jsr 	OHHInitHandler3
+.c4f5	18		clc				clc
+.c4f6	60		rts				rts
+.c4f7					_1:
+.c4f7	38		sec				sec
+.c4f8	60		rts				rts
+.c4f9					OHHInitHandlerMain:
+.c4f9	a9 1e		lda #$1e			lda 	#30
+.c4fb	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c4fe	a9 0f		lda #$0f			lda 	#15
+.c500	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c503	60		rts				rts
+.c504					OHHInitHandler1:
+.c504	a9 04		lda #$04			lda 	#GR_HUMANS+0
+.c506	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c509	80 ee		bra $c4f9			bra 	OHHInitHandlerMain
+.c50b					OHHInitHandler2:
+.c50b	a9 06		lda #$06			lda 	#GR_HUMANS+2
+.c50d	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c510	80 e7		bra $c4f9			bra 	OHHInitHandlerMain
+.c512					OHHInitHandler3:
+.c512	a9 08		lda #$08			lda 	#GR_HUMANS+4
+.c514	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c517	80 e0		bra $c4f9			bra 	OHHInitHandlerMain
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/grunt.asm
 
-.c514					OHGrunt:
-.c514	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c516	d0 05		bne $c51d			bne 	_1
-.c518	20 28 c5	jsr $c528			jsr 	OHGInitHandler
-.c51b	18		clc				clc
-.c51c	60		rts				rts
-.c51d					_1:
-.c51d	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c51f	d0 05		bne $c526			bne 	_1
-.c521	20 59 c2	jsr $c259			jsr 	ChasePlayer
-.c524	18		clc				clc
-.c525	60		rts				rts
-.c526					_1:
-.c526	38		sec				sec
-.c527	60		rts				rts
-.c528					OHGInitHandler:
-.c528	a9 0c		lda #$0c			lda 	#GR_GRUNT
-.c52a	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c52d	a9 20		lda #$20			lda 	#32
-.c52f	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c532	a9 01		lda #$01			lda 	#1
-.c534	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c537	a9 00		lda #$00			lda 	#($100 & 255)
-.c539	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c53c	a9 01		lda #$01			lda 	#($100 >> 8)
-.c53e	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c541	60		rts				rts
+.c519					OHGrunt:
+.c519	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c51b	d0 05		bne $c522			bne 	_1
+.c51d	20 2d c5	jsr $c52d			jsr 	OHGInitHandler
+.c520	18		clc				clc
+.c521	60		rts				rts
+.c522					_1:
+.c522	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c524	d0 05		bne $c52b			bne 	_1
+.c526	20 5c c2	jsr $c25c			jsr 	ChasePlayer
+.c529	18		clc				clc
+.c52a	60		rts				rts
+.c52b					_1:
+.c52b	38		sec				sec
+.c52c	60		rts				rts
+.c52d					OHGInitHandler:
+.c52d	a9 0c		lda #$0c			lda 	#GR_GRUNT
+.c52f	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c532	a9 20		lda #$20			lda 	#32
+.c534	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c537	a9 01		lda #$01			lda 	#1
+.c539	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c53c	a9 00		lda #$00			lda 	#($100 & 255)
+.c53e	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c541	a9 01		lda #$01			lda 	#($100 >> 8)
+.c543	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c546	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/hulk.asm
 
-.c542					OHHulk:
-.c542	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c544	d0 05		bne $c54b			bne 	_1
-.c546	20 56 c5	jsr $c556			jsr 	OHHUInitHandler
-.c549	18		clc				clc
-.c54a	60		rts				rts
-.c54b					_1:
-.c54b	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c54d	d0 05		bne $c554			bne 	_1
-.c54f	20 59 c2	jsr $c259			jsr 	ChasePlayer
-.c552	18		clc				clc
-.c553	60		rts				rts
-.c554					_1:
-.c554	38		sec				sec
-.c555	60		rts				rts
-.c556					OHHUInitHandler:
-.c556	a9 0a		lda #$0a			lda 	#GR_HULK
-.c558	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c55b	a9 40		lda #$40			lda 	#64
-.c55d	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c560	a9 01		lda #$01			lda 	#1
-.c562	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c565	60		rts				rts
+.c547					OHHulk:
+.c547	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c549	d0 05		bne $c550			bne 	_1
+.c54b	20 5b c5	jsr $c55b			jsr 	OHHUInitHandler
+.c54e	18		clc				clc
+.c54f	60		rts				rts
+.c550					_1:
+.c550	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c552	d0 05		bne $c559			bne 	_1
+.c554	20 5c c2	jsr $c25c			jsr 	ChasePlayer
+.c557	18		clc				clc
+.c558	60		rts				rts
+.c559					_1:
+.c559	38		sec				sec
+.c55a	60		rts				rts
+.c55b					OHHUInitHandler:
+.c55b	a9 0a		lda #$0a			lda 	#GR_HULK
+.c55d	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c560	a9 40		lda #$40			lda 	#64
+.c562	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c565	a9 01		lda #$01			lda 	#1
+.c567	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c56a	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/sphere.asm
 
-.c566					OHSphere:
-.c566	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c568	d0 05		bne $c56f			bne 	_1
-.c56a	20 8c c5	jsr $c58c			jsr 	OHSInitHandler
-.c56d	18		clc				clc
-.c56e	60		rts				rts
-.c56f					_1:
-.c56f	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c571	d0 05		bne $c578			bne 	_1
-.c573	20 ae c5	jsr $c5ae			jsr 	OHSControl
-.c576	18		clc				clc
-.c577	60		rts				rts
-.c578					_1:
-.c578	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
-.c57a	d0 05		bne $c581			bne 	_1
-.c57c	20 bb c5	jsr $c5bb			jsr 	OHSCheckFire
-.c57f	18		clc				clc
-.c580	60		rts				rts
-.c581					_1:
-.c581	c9 02		cmp #$02			cmp 	#MSG_REPAINT
-.c583	d0 05		bne $c58a			bne 	_1
-.c585	20 cf c5	jsr $c5cf			jsr 	OHSRepaint
-.c588	18		clc				clc
-.c589	60		rts				rts
-.c58a					_1:
-.c58a	38		sec				sec
-.c58b	60		rts				rts
-.c58c					OHSInitHandler:
-.c58c	a9 0e		lda #$0e			lda 	#GR_SPHEROID
-.c58e	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c591	a9 08		lda #$08			lda 	#8
-.c593	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c596	a9 28		lda #$28			lda 	#40
-.c598	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c59b	a9 00		lda #$00			lda 	#($1000 & 255)
-.c59d	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c5a0	a9 10		lda #$10			lda 	#($1000 >> 8)
-.c5a2	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c5a5	20 61 c2	jsr $c261			jsr 	Random8Bit
-.c5a8	29 3f		and #$3f			and 	#63
-.c5aa	9d a4 e4	sta $e4a4,x			sta 	OBIntelligenceCount,x
-.c5ad	60		rts				rts
-.c5ae					OHSControl:
-.c5ae	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
-.c5b1	d0 04		bne $c5b7			bne 	_OHSNoMove
-.c5b3	20 12 c2	jsr $c212			jsr		ChooseRandomDirection
-.c5b6	60		rts				rts
-.c5b7					_OHSNoMove:
-.c5b7	9e 1c e2	stz $e21c,x			stz 	OBDirection,x
-.c5ba	60		rts				rts
-.c5bb					OHSCheckFire:
-.c5bb	20 61 c2	jsr $c261			jsr 	Random8Bit
-.c5be	29 1f		and #$1f			and 	#31
-.c5c0	d0 0c		bne $c5ce			bne 	_OHSCFExit
-.c5c2	a9 0d		lda #$0d			lda 	#TP_ENFORCER
-.c5c4	20 92 c2	jsr $c292			jsr 	CreateSingleObject
-.c5c7	ac cd c0	ldy $c0cd			ldy 	NewObject
-.c5ca	20 9a c2	jsr $c29a			jsr 	CopyStartPosition
-.c5cd	60		rts				rts
-.c5ce					_OHSCFExit:
-.c5ce	60		rts				rts
-.c5cf					OHSRepaint:
-.c5cf	4e 09 ff	lsr $ff09			lsr 	APIParams+5
-.c5d2	fe e8 e5	inc $e5e8,x			inc 	OBObjectData1,x
-.c5d5	bd e8 e5	lda $e5e8,x			lda 	OBObjectData1,x
-.c5d8	4a		lsr a				lsr 	a
-.c5d9	2e 09 ff	rol $ff09			rol 	APIParams+5
-.c5dc	60		rts				rts
-.c5dd					OHEnforcer:
-.c5dd	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c5df	d0 05		bne $c5e6			bne 	_1
-.c5e1	20 fa c5	jsr $c5fa			jsr 	OHENInitHandler
-.c5e4	18		clc				clc
-.c5e5	60		rts				rts
-.c5e6					_1:
-.c5e6	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c5e8	d0 05		bne $c5ef			bne 	_1
-.c5ea	20 59 c2	jsr $c259			jsr 	ChasePlayer
-.c5ed	18		clc				clc
-.c5ee	60		rts				rts
-.c5ef					_1:
-.c5ef	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
-.c5f1	d0 05		bne $c5f8			bne 	_1
-.c5f3	20 17 c6	jsr $c617			jsr 	OHENCheckFire
-.c5f6	18		clc				clc
-.c5f7	60		rts				rts
-.c5f8					_1:
-.c5f8	38		sec				sec
-.c5f9	60		rts				rts
-.c5fa					OHENInitHandler:
-.c5fa	a9 10		lda #$10			lda 	#GR1_ENFORCER
-.c5fc	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c5ff	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c602	a9 0f		lda #$0f			lda 	#15
-.c604	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c607	a9 1e		lda #$1e			lda 	#30
-.c609	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c60c	a9 50		lda #$50			lda 	#($150 & 255)
-.c60e	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c611	a9 01		lda #$01			lda 	#($150 >> 8)
-.c613	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c616	60		rts				rts
-.c617					OHENCheckFire:
-.c617	20 61 c2	jsr $c261			jsr 	Random8Bit
-.c61a	29 1f		and #$1f			and 	#31
-.c61c	d0 0f		bne $c62d			bne 	_OHENCFExit
-.c61e	a9 0c		lda #$0c			lda 	#TP_ESPARK
-.c620	20 92 c2	jsr $c292			jsr 	CreateSingleObject
-.c623	ac cd c0	ldy $c0cd			ldy 	NewObject
-.c626	20 9a c2	jsr $c29a			jsr 	CopyStartPosition
-.c629	20 a7 c2	jsr $c2a7			jsr 	ChasePlayerY
-.c62c	60		rts				rts
-.c62d					_OHENCFExit:
-.c62d	60		rts				rts
-.c62e					OHESpark:
-.c62e	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c630	d0 05		bne $c637			bne 	_1
-.c632	20 4b c6	jsr $c64b			jsr 	OHESInitHandler
-.c635	18		clc				clc
-.c636	60		rts				rts
-.c637					_1:
-.c637	c9 04		cmp #$04			cmp 	#MSG_HITWALL
-.c639	d0 05		bne $c640			bne 	_1
-.c63b	20 9e c1	jsr $c19e			jsr 	KillObject
-.c63e	18		clc				clc
-.c63f	60		rts				rts
-.c640					_1:
-.c640	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c642	d0 05		bne $c649			bne 	_1
-.c644	20 2c c2	jsr $c22c			jsr 	NoControlEffect
-.c647	18		clc				clc
-.c648	60		rts				rts
-.c649					_1:
-.c649	38		sec				sec
-.c64a	60		rts				rts
-.c64b					OHESInitHandler:
-.c64b	20 59 c2	jsr $c259			jsr 	ChasePlayer
-.c64e	a9 20		lda #$20			lda 	#GR1_MISSILE2
-.c650	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c653	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c656	a9 07		lda #$07			lda 	#7
-.c658	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c65b	a9 ff		lda #$ff			lda 	#255
-.c65d	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c660	a9 25		lda #$25			lda 	#($25 & 255)
-.c662	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c665	a9 00		lda #$00			lda 	#($25 >> 8)
-.c667	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c66a	60		rts				rts
+.c56b					OHSphere:
+.c56b	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c56d	d0 05		bne $c574			bne 	_1
+.c56f	20 91 c5	jsr $c591			jsr 	OHSInitHandler
+.c572	18		clc				clc
+.c573	60		rts				rts
+.c574					_1:
+.c574	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c576	d0 05		bne $c57d			bne 	_1
+.c578	20 b3 c5	jsr $c5b3			jsr 	OHSControl
+.c57b	18		clc				clc
+.c57c	60		rts				rts
+.c57d					_1:
+.c57d	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
+.c57f	d0 05		bne $c586			bne 	_1
+.c581	20 c0 c5	jsr $c5c0			jsr 	OHSCheckFire
+.c584	18		clc				clc
+.c585	60		rts				rts
+.c586					_1:
+.c586	c9 02		cmp #$02			cmp 	#MSG_REPAINT
+.c588	d0 05		bne $c58f			bne 	_1
+.c58a	20 d4 c5	jsr $c5d4			jsr 	OHSRepaint
+.c58d	18		clc				clc
+.c58e	60		rts				rts
+.c58f					_1:
+.c58f	38		sec				sec
+.c590	60		rts				rts
+.c591					OHSInitHandler:
+.c591	a9 0e		lda #$0e			lda 	#GR_SPHEROID
+.c593	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c596	a9 08		lda #$08			lda 	#8
+.c598	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c59b	a9 28		lda #$28			lda 	#40
+.c59d	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c5a0	a9 00		lda #$00			lda 	#($1000 & 255)
+.c5a2	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c5a5	a9 10		lda #$10			lda 	#($1000 >> 8)
+.c5a7	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c5aa	20 64 c2	jsr $c264			jsr 	Random8Bit
+.c5ad	29 3f		and #$3f			and 	#63
+.c5af	9d a4 e4	sta $e4a4,x			sta 	OBIntelligenceCount,x
+.c5b2	60		rts				rts
+.c5b3					OHSControl:
+.c5b3	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
+.c5b6	d0 04		bne $c5bc			bne 	_OHSNoMove
+.c5b8	20 15 c2	jsr $c215			jsr		ChooseRandomDirection
+.c5bb	60		rts				rts
+.c5bc					_OHSNoMove:
+.c5bc	9e 1c e2	stz $e21c,x			stz 	OBDirection,x
+.c5bf	60		rts				rts
+.c5c0					OHSCheckFire:
+.c5c0	20 64 c2	jsr $c264			jsr 	Random8Bit
+.c5c3	29 1f		and #$1f			and 	#31
+.c5c5	d0 0c		bne $c5d3			bne 	_OHSCFExit
+.c5c7	a9 0d		lda #$0d			lda 	#TP_ENFORCER
+.c5c9	20 95 c2	jsr $c295			jsr 	CreateSingleObject
+.c5cc	ac cd c0	ldy $c0cd			ldy 	NewObject
+.c5cf	20 9d c2	jsr $c29d			jsr 	CopyStartPosition
+.c5d2	60		rts				rts
+.c5d3					_OHSCFExit:
+.c5d3	60		rts				rts
+.c5d4					OHSRepaint:
+.c5d4	4e 09 ff	lsr $ff09			lsr 	APIParams+5
+.c5d7	fe e8 e5	inc $e5e8,x			inc 	OBObjectData1,x
+.c5da	bd e8 e5	lda $e5e8,x			lda 	OBObjectData1,x
+.c5dd	4a		lsr a				lsr 	a
+.c5de	2e 09 ff	rol $ff09			rol 	APIParams+5
+.c5e1	60		rts				rts
+.c5e2					OHEnforcer:
+.c5e2	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c5e4	d0 05		bne $c5eb			bne 	_1
+.c5e6	20 ff c5	jsr $c5ff			jsr 	OHENInitHandler
+.c5e9	18		clc				clc
+.c5ea	60		rts				rts
+.c5eb					_1:
+.c5eb	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c5ed	d0 05		bne $c5f4			bne 	_1
+.c5ef	20 5c c2	jsr $c25c			jsr 	ChasePlayer
+.c5f2	18		clc				clc
+.c5f3	60		rts				rts
+.c5f4					_1:
+.c5f4	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
+.c5f6	d0 05		bne $c5fd			bne 	_1
+.c5f8	20 1c c6	jsr $c61c			jsr 	OHENCheckFire
+.c5fb	18		clc				clc
+.c5fc	60		rts				rts
+.c5fd					_1:
+.c5fd	38		sec				sec
+.c5fe	60		rts				rts
+.c5ff					OHENInitHandler:
+.c5ff	a9 10		lda #$10			lda 	#GR1_ENFORCER
+.c601	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c604	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c607	a9 0f		lda #$0f			lda 	#15
+.c609	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c60c	a9 1e		lda #$1e			lda 	#30
+.c60e	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c611	a9 50		lda #$50			lda 	#($150 & 255)
+.c613	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c616	a9 01		lda #$01			lda 	#($150 >> 8)
+.c618	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c61b	60		rts				rts
+.c61c					OHENCheckFire:
+.c61c	20 64 c2	jsr $c264			jsr 	Random8Bit
+.c61f	29 1f		and #$1f			and 	#31
+.c621	d0 0f		bne $c632			bne 	_OHENCFExit
+.c623	a9 0c		lda #$0c			lda 	#TP_ESPARK
+.c625	20 95 c2	jsr $c295			jsr 	CreateSingleObject
+.c628	ac cd c0	ldy $c0cd			ldy 	NewObject
+.c62b	20 9d c2	jsr $c29d			jsr 	CopyStartPosition
+.c62e	20 aa c2	jsr $c2aa			jsr 	ChasePlayerY
+.c631	60		rts				rts
+.c632					_OHENCFExit:
+.c632	60		rts				rts
+.c633					OHESpark:
+.c633	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c635	d0 05		bne $c63c			bne 	_1
+.c637	20 50 c6	jsr $c650			jsr 	OHESInitHandler
+.c63a	18		clc				clc
+.c63b	60		rts				rts
+.c63c					_1:
+.c63c	c9 04		cmp #$04			cmp 	#MSG_HITWALL
+.c63e	d0 05		bne $c645			bne 	_1
+.c640	20 a1 c1	jsr $c1a1			jsr 	KillObject
+.c643	18		clc				clc
+.c644	60		rts				rts
+.c645					_1:
+.c645	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c647	d0 05		bne $c64e			bne 	_1
+.c649	20 2f c2	jsr $c22f			jsr 	NoControlEffect
+.c64c	18		clc				clc
+.c64d	60		rts				rts
+.c64e					_1:
+.c64e	38		sec				sec
+.c64f	60		rts				rts
+.c650					OHESInitHandler:
+.c650	20 5c c2	jsr $c25c			jsr 	ChasePlayer
+.c653	a9 20		lda #$20			lda 	#GR1_MISSILE2
+.c655	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c658	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c65b	a9 07		lda #$07			lda 	#7
+.c65d	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c660	a9 ff		lda #$ff			lda 	#255
+.c662	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c665	a9 25		lda #$25			lda 	#($25 & 255)
+.c667	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c66a	a9 00		lda #$00			lda 	#($25 >> 8)
+.c66c	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c66f	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/quarks.asm
 
-.c66b					OHQuark:
-.c66b	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c66d	d0 05		bne $c674			bne 	_1
-.c66f	20 7f c6	jsr $c67f			jsr 	OHQInitHandler
-.c672	18		clc				clc
-.c673	60		rts				rts
-.c674					_1:
-.c674	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
-.c676	d0 05		bne $c67d			bne 	_1
-.c678	20 a4 c6	jsr $c6a4			jsr 	OHQCheckFire
-.c67b	18		clc				clc
-.c67c	60		rts				rts
-.c67d					_1:
-.c67d	38		sec				sec
-.c67e	60		rts				rts
-.c67f					OHQInitHandler:
-.c67f	a9 11		lda #$11			lda 	#GR1_QUARK
-.c681	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c684	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c687	a9 0a		lda #$0a			lda 	#10
-.c689	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c68c	a9 1e		lda #$1e			lda 	#30
-.c68e	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c691	a9 00		lda #$00			lda 	#($1000 & 255)
-.c693	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c696	a9 10		lda #$10			lda 	#($1000 >> 8)
-.c698	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c69b	20 61 c2	jsr $c261			jsr 	Random8Bit
-.c69e	29 3f		and #$3f			and 	#63
-.c6a0	9d a4 e4	sta $e4a4,x			sta 	OBIntelligenceCount,x
-.c6a3	60		rts				rts
-.c6a4					OHQCheckFire:
-.c6a4	20 61 c2	jsr $c261			jsr 	Random8Bit
-.c6a7	29 1f		and #$1f			and 	#31
-.c6a9	d0 0c		bne $c6b7			bne 	_OHQCFExit
-.c6ab	a9 0f		lda #$0f			lda 	#TP_TANK
-.c6ad	20 92 c2	jsr $c292			jsr 	CreateSingleObject
-.c6b0	ac cd c0	ldy $c0cd			ldy 	NewObject
-.c6b3	20 9a c2	jsr $c29a			jsr 	CopyStartPosition
-.c6b6	60		rts				rts
-.c6b7					_OHQCFExit:
-.c6b7	60		rts				rts
-.c6b8					OHTank:
-.c6b8	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c6ba	d0 05		bne $c6c1			bne 	_1
-.c6bc	20 cc c6	jsr $c6cc			jsr 	OHTNInitHandler
-.c6bf	18		clc				clc
-.c6c0	60		rts				rts
-.c6c1					_1:
-.c6c1	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
-.c6c3	d0 05		bne $c6ca			bne 	_1
-.c6c5	20 e6 c6	jsr $c6e6			jsr 	OHTNCheckFire
-.c6c8	18		clc				clc
-.c6c9	60		rts				rts
-.c6ca					_1:
-.c6ca	38		sec				sec
-.c6cb	60		rts				rts
-.c6cc					OHTNInitHandler:
-.c6cc	a9 12		lda #$12			lda 	#GR_TANK
-.c6ce	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c6d1	a9 0f		lda #$0f			lda 	#15
-.c6d3	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c6d6	a9 1e		lda #$1e			lda 	#30
-.c6d8	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c6db	a9 00		lda #$00			lda 	#($200 & 255)
-.c6dd	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c6e0	a9 02		lda #$02			lda 	#($200 >> 8)
-.c6e2	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c6e5	60		rts				rts
-.c6e6					OHTNCheckFire:
-.c6e6	20 61 c2	jsr $c261			jsr 	Random8Bit
-.c6e9	29 1f		and #$1f			and 	#31
-.c6eb	d0 0f		bne $c6fc			bne 	_OHTNCFExit
-.c6ed	a9 0e		lda #$0e			lda 	#TP_SHELL
-.c6ef	20 92 c2	jsr $c292			jsr 	CreateSingleObject
-.c6f2	ac cd c0	ldy $c0cd			ldy 	NewObject
-.c6f5	20 9a c2	jsr $c29a			jsr 	CopyStartPosition
-.c6f8	20 a7 c2	jsr $c2a7			jsr 	ChasePlayerY
-.c6fb	60		rts				rts
-.c6fc					_OHTNCFExit:
-.c6fc	60		rts				rts
-.c6fd					OHShell:
-.c6fd	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c6ff	d0 05		bne $c706			bne 	_1
-.c701	20 2c c7	jsr $c72c			jsr 	OHSHInitHandler
-.c704	18		clc				clc
-.c705	60		rts				rts
-.c706					_1:
-.c706	c9 04		cmp #$04			cmp 	#MSG_HITWALL
-.c708	d0 05		bne $c70f			bne 	_1
-.c70a	20 51 c7	jsr $c751			jsr 	OHSHHitWall
-.c70d	18		clc				clc
-.c70e	60		rts				rts
-.c70f					_1:
-.c70f	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c711	d0 05		bne $c718			bne 	_1
-.c713	20 2c c2	jsr $c22c			jsr 	NoControlEffect
-.c716	18		clc				clc
-.c717	60		rts				rts
-.c718					_1:
-.c718	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
-.c71a	d0 05		bne $c721			bne 	_1
-.c71c	20 23 c7	jsr $c723			jsr 	OHSHCheckLife
-.c71f	18		clc				clc
-.c720	60		rts				rts
-.c721					_1:
-.c721	38		sec				sec
-.c722	60		rts				rts
-.c723					OHSHCheckLife:
-.c723	de e8 e5	dec $e5e8,x			dec 	OBObjectData1,x
-.c726	d0 03		bne $c72b			bne 	_OHSHCLExit
-.c728	20 9e c1	jsr $c19e			jsr 	KillObject
-.c72b					_OHSHCLExit:
-.c72b	60		rts				rts
-.c72c					OHSHInitHandler:
-.c72c	20 59 c2	jsr $c259			jsr 	ChasePlayer
-.c72f	a9 1f		lda #$1f			lda 	#GR1_MISSILE1
-.c731	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c734	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c737	a9 05		lda #$05			lda 	#5
-.c739	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c73c	a9 ff		lda #$ff			lda 	#255
-.c73e	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c741	a9 50		lda #$50			lda 	#($50 & 255)
-.c743	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c746	a9 00		lda #$00			lda 	#($50 >> 8)
-.c748	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c74b	a9 c8		lda #$c8			lda 	#200
-.c74d	9d e8 e5	sta $e5e8,x			sta 	OBObjectData1,x
-.c750	60		rts				rts
-.c751					OHSHHitWall:
-.c751	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
-.c754	c9 05		cmp #$05			cmp 	#PF_LEFT+1
-.c756	90 04		bcc $c75c			bcc 	_OHSH1
-.c758	c9 9b		cmp #$9b			cmp 	#PF_RIGHT-1
-.c75a	90 08		bcc $c764			bcc 	_OHSHCheckVertical
-.c75c					_OHSH1:
-.c75c	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
-.c75f	49 03		eor #$03			eor 	#3
-.c761	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c764					_OHSHCheckVertical:
-.c764	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
-.c767	c9 05		cmp #$05			cmp 	#PF_TOP+1
-.c769	90 04		bcc $c76f			bcc 	_OHSH2
-.c76b	c9 6b		cmp #$6b			cmp 	#PF_BOTTOM-1
-.c76d	90 08		bcc $c777			bcc 	_OHSHExit
-.c76f					_OHSH2:
-.c76f	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
-.c772	49 0c		eor #$0c			eor 	#12
-.c774	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
-.c777					_OHSHExit:
-.c777	60		rts				rts
+.c670					OHQuark:
+.c670	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c672	d0 05		bne $c679			bne 	_1
+.c674	20 84 c6	jsr $c684			jsr 	OHQInitHandler
+.c677	18		clc				clc
+.c678	60		rts				rts
+.c679					_1:
+.c679	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
+.c67b	d0 05		bne $c682			bne 	_1
+.c67d	20 a9 c6	jsr $c6a9			jsr 	OHQCheckFire
+.c680	18		clc				clc
+.c681	60		rts				rts
+.c682					_1:
+.c682	38		sec				sec
+.c683	60		rts				rts
+.c684					OHQInitHandler:
+.c684	a9 11		lda #$11			lda 	#GR1_QUARK
+.c686	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c689	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c68c	a9 0a		lda #$0a			lda 	#10
+.c68e	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c691	a9 1e		lda #$1e			lda 	#30
+.c693	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c696	a9 00		lda #$00			lda 	#($1000 & 255)
+.c698	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c69b	a9 10		lda #$10			lda 	#($1000 >> 8)
+.c69d	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c6a0	20 64 c2	jsr $c264			jsr 	Random8Bit
+.c6a3	29 3f		and #$3f			and 	#63
+.c6a5	9d a4 e4	sta $e4a4,x			sta 	OBIntelligenceCount,x
+.c6a8	60		rts				rts
+.c6a9					OHQCheckFire:
+.c6a9	20 64 c2	jsr $c264			jsr 	Random8Bit
+.c6ac	29 1f		and #$1f			and 	#31
+.c6ae	d0 0c		bne $c6bc			bne 	_OHQCFExit
+.c6b0	a9 0f		lda #$0f			lda 	#TP_TANK
+.c6b2	20 95 c2	jsr $c295			jsr 	CreateSingleObject
+.c6b5	ac cd c0	ldy $c0cd			ldy 	NewObject
+.c6b8	20 9d c2	jsr $c29d			jsr 	CopyStartPosition
+.c6bb	60		rts				rts
+.c6bc					_OHQCFExit:
+.c6bc	60		rts				rts
+.c6bd					OHTank:
+.c6bd	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c6bf	d0 05		bne $c6c6			bne 	_1
+.c6c1	20 d1 c6	jsr $c6d1			jsr 	OHTNInitHandler
+.c6c4	18		clc				clc
+.c6c5	60		rts				rts
+.c6c6					_1:
+.c6c6	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
+.c6c8	d0 05		bne $c6cf			bne 	_1
+.c6ca	20 eb c6	jsr $c6eb			jsr 	OHTNCheckFire
+.c6cd	18		clc				clc
+.c6ce	60		rts				rts
+.c6cf					_1:
+.c6cf	38		sec				sec
+.c6d0	60		rts				rts
+.c6d1					OHTNInitHandler:
+.c6d1	a9 12		lda #$12			lda 	#GR_TANK
+.c6d3	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c6d6	a9 0f		lda #$0f			lda 	#15
+.c6d8	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c6db	a9 1e		lda #$1e			lda 	#30
+.c6dd	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c6e0	a9 00		lda #$00			lda 	#($200 & 255)
+.c6e2	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c6e5	a9 02		lda #$02			lda 	#($200 >> 8)
+.c6e7	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c6ea	60		rts				rts
+.c6eb					OHTNCheckFire:
+.c6eb	20 64 c2	jsr $c264			jsr 	Random8Bit
+.c6ee	29 1f		and #$1f			and 	#31
+.c6f0	d0 0f		bne $c701			bne 	_OHTNCFExit
+.c6f2	a9 0e		lda #$0e			lda 	#TP_SHELL
+.c6f4	20 95 c2	jsr $c295			jsr 	CreateSingleObject
+.c6f7	ac cd c0	ldy $c0cd			ldy 	NewObject
+.c6fa	20 9d c2	jsr $c29d			jsr 	CopyStartPosition
+.c6fd	20 aa c2	jsr $c2aa			jsr 	ChasePlayerY
+.c700	60		rts				rts
+.c701					_OHTNCFExit:
+.c701	60		rts				rts
+.c702					OHShell:
+.c702	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c704	d0 05		bne $c70b			bne 	_1
+.c706	20 31 c7	jsr $c731			jsr 	OHSHInitHandler
+.c709	18		clc				clc
+.c70a	60		rts				rts
+.c70b					_1:
+.c70b	c9 04		cmp #$04			cmp 	#MSG_HITWALL
+.c70d	d0 05		bne $c714			bne 	_1
+.c70f	20 56 c7	jsr $c756			jsr 	OHSHHitWall
+.c712	18		clc				clc
+.c713	60		rts				rts
+.c714					_1:
+.c714	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c716	d0 05		bne $c71d			bne 	_1
+.c718	20 2f c2	jsr $c22f			jsr 	NoControlEffect
+.c71b	18		clc				clc
+.c71c	60		rts				rts
+.c71d					_1:
+.c71d	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
+.c71f	d0 05		bne $c726			bne 	_1
+.c721	20 28 c7	jsr $c728			jsr 	OHSHCheckLife
+.c724	18		clc				clc
+.c725	60		rts				rts
+.c726					_1:
+.c726	38		sec				sec
+.c727	60		rts				rts
+.c728					OHSHCheckLife:
+.c728	de e8 e5	dec $e5e8,x			dec 	OBObjectData1,x
+.c72b	d0 03		bne $c730			bne 	_OHSHCLExit
+.c72d	20 a1 c1	jsr $c1a1			jsr 	KillObject
+.c730					_OHSHCLExit:
+.c730	60		rts				rts
+.c731					OHSHInitHandler:
+.c731	20 5c c2	jsr $c25c			jsr 	ChasePlayer
+.c734	a9 1f		lda #$1f			lda 	#GR1_MISSILE1
+.c736	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c739	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c73c	a9 05		lda #$05			lda 	#5
+.c73e	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c741	a9 ff		lda #$ff			lda 	#255
+.c743	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c746	a9 50		lda #$50			lda 	#($50 & 255)
+.c748	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c74b	a9 00		lda #$00			lda 	#($50 >> 8)
+.c74d	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c750	a9 c8		lda #$c8			lda 	#200
+.c752	9d e8 e5	sta $e5e8,x			sta 	OBObjectData1,x
+.c755	60		rts				rts
+.c756					OHSHHitWall:
+.c756	bd 6c e0	lda $e06c,x			lda 	OBXPos,x
+.c759	c9 05		cmp #$05			cmp 	#PF_LEFT+1
+.c75b	90 04		bcc $c761			bcc 	_OHSH1
+.c75d	c9 9b		cmp #$9b			cmp 	#PF_RIGHT-1
+.c75f	90 08		bcc $c769			bcc 	_OHSHCheckVertical
+.c761					_OHSH1:
+.c761	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
+.c764	49 03		eor #$03			eor 	#3
+.c766	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c769					_OHSHCheckVertical:
+.c769	bd d8 e0	lda $e0d8,x			lda 	OBYPos,x
+.c76c	c9 05		cmp #$05			cmp 	#PF_TOP+1
+.c76e	90 04		bcc $c774			bcc 	_OHSH2
+.c770	c9 6b		cmp #$6b			cmp 	#PF_BOTTOM-1
+.c772	90 08		bcc $c77c			bcc 	_OHSHExit
+.c774					_OHSH2:
+.c774	bd 1c e2	lda $e21c,x			lda 	OBDirection,x
+.c777	49 0c		eor #$0c			eor 	#12
+.c779	9d 1c e2	sta $e21c,x			sta 	OBDirection,x
+.c77c					_OHSHExit:
+.c77c	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/electrode.asm
 
-.c778					OHElectrode:
-.c778	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c77a	d0 05		bne $c781			bne 	_1
-.c77c	20 8c c7	jsr $c78c			jsr 	OHELInitHandler
-.c77f	18		clc				clc
-.c780	60		rts				rts
-.c781					_1:
-.c781	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c783	d0 05		bne $c78a			bne 	_1
-.c785	20 a8 c7	jsr $c7a8			jsr 	OHELFreeze
-.c788	18		clc				clc
-.c789	60		rts				rts
-.c78a					_1:
-.c78a	38		sec				sec
-.c78b	60		rts				rts
-.c78c					OHELInitHandler:
-.c78c	a9 1b		lda #$1b			lda 	#GR4_ELECTRODES
-.c78e	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c791	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c794	a9 00		lda #$00			lda 	#0
-.c796	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c77d					OHElectrode:
+.c77d	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c77f	d0 05		bne $c786			bne 	_1
+.c781	20 91 c7	jsr $c791			jsr 	OHELInitHandler
+.c784	18		clc				clc
+.c785	60		rts				rts
+.c786					_1:
+.c786	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c788	d0 05		bne $c78f			bne 	_1
+.c78a	20 ad c7	jsr $c7ad			jsr 	OHELFreeze
+.c78d	18		clc				clc
+.c78e	60		rts				rts
+.c78f					_1:
+.c78f	38		sec				sec
+.c790	60		rts				rts
+.c791					OHELInitHandler:
+.c791	a9 1b		lda #$1b			lda 	#GR4_ELECTRODES
+.c793	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c796	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
 .c799	a9 00		lda #$00			lda 	#0
-.c79b	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c79e	a9 00		lda #$00			lda 	#($0 & 255)
-.c7a0	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c7a3	a9 00		lda #$00			lda 	#($0 >> 8)
-.c7a5	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c7a8					OHELFreeze:
-.c7a8	9e 1c e2	stz $e21c,x			stz 	OBDirection,x
-.c7ab	60		rts				rts
+.c79b	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c79e	a9 00		lda #$00			lda 	#0
+.c7a0	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c7a3	a9 00		lda #$00			lda 	#($0 & 255)
+.c7a5	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c7a8	a9 00		lda #$00			lda 	#($0 >> 8)
+.c7aa	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c7ad					OHELFreeze:
+.c7ad	9e 1c e2	stz $e21c,x			stz 	OBDirection,x
+.c7b0	60		rts				rts
 
 ;******  Return to file: main.asm
 
 
 ;******  Processing file: classes/brains.asm
 
-.c7ac					OHBrain:
-.c7ac	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c7ae	d0 05		bne $c7b5			bne 	_1
-.c7b0	20 d2 c7	jsr $c7d2			jsr 	OHBInitHandler
-.c7b3	18		clc				clc
-.c7b4	60		rts				rts
-.c7b5					_1:
-.c7b5	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
-.c7b7	d0 05		bne $c7be			bne 	_1
-.c7b9	20 ef c7	jsr $c7ef			jsr 	OHBCheckEat
-.c7bc	18		clc				clc
-.c7bd	60		rts				rts
-.c7be					_1:
-.c7be	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c7c0	d0 05		bne $c7c7			bne 	_1
-.c7c2	20 18 c8	jsr $c818			jsr 	OHBChaseHuman
-.c7c5	18		clc				clc
-.c7c6	60		rts				rts
-.c7c7					_1:
-.c7c7	c9 04		cmp #$04			cmp 	#MSG_HITWALL
-.c7c9	d0 05		bne $c7d0			bne 	_1
-.c7cb	20 12 c2	jsr $c212			jsr 	ChooseRandomDirection
-.c7ce	18		clc				clc
-.c7cf	60		rts				rts
-.c7d0					_1:
-.c7d0	38		sec				sec
-.c7d1	60		rts				rts
-.c7d2					OHBInitHandler:
-.c7d2	a9 14		lda #$14			lda 	#GR_BRAIN
-.c7d4	20 8a c2	jsr $c28a			jsr 	SetObjectGraphic
-.c7d7	a9 18		lda #$18			lda 	#24
-.c7d9	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c7dc	a9 01		lda #$01			lda 	#1
-.c7de	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c7e1	a9 00		lda #$00			lda 	#($500 & 255)
-.c7e3	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c7e6	a9 05		lda #$05			lda 	#($500 >> 8)
-.c7e8	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c7eb	20 12 c2	jsr $c212			jsr 	ChooseRandomDirection
-.c7ee	60		rts				rts
-.c7ef					OHBCheckEat:
-.c7ef	bc e8 e5	ldy $e5e8,x			ldy 	OBObjectData1,x 			; object being chased.
-.c7f2	f0 23		beq $c817			beq 	_OHBCEExit 					; none
-.c7f4	b9 00 e0	lda $e000,y			lda 	OBFlags,y 					; actual object
-.c7f7	30 1e		bmi $c817			bmi 	_OHBCEExit 					; not existing.
-.c7f9	20 af c2	jsr $c2af			jsr 	CheckCollision 				; are Y/X colliding ?
-.c7fc	90 19		bcc $c817			bcc 	_OHBCEExit
-.c7fe	da		phx				phx
-.c7ff	a9 0b		lda #$0b			lda 	#TP_PROG 					; create a PROG here
-.c801	20 92 c2	jsr $c292			jsr 	CreateSingleObject
-.c804	ac cd c0	ldy $c0cd			ldy 	NewObject
-.c807	20 9a c2	jsr $c29a			jsr 	CopyStartPosition
-.c80a	fa		plx				plx
-.c80b	da		phx				phx
-.c80c	20 9e c1	jsr $c19e			jsr 	KillObject	 				; kill the parent object
-.c80f	bd e8 e5	lda $e5e8,x			lda 	OBObjectData1,x 			; and the thing it collided with, the human.
-.c812	aa		tax				tax
-.c813	20 9e c1	jsr $c19e			jsr 	KillObject
-.c816	fa		plx				plx
-.c817					_OHBCEExit:
-.c817	60		rts				rts
-.c818					OHBChaseHuman:
-.c818	bc e8 e5	ldy $e5e8,x			ldy 	OBObjectData1,x 			; check chase
-.c81b	f0 05		beq $c822			beq 	_OHBNewChoose
-.c81d	b9 00 e0	lda $e000,y			lda 	OBFlags,y 					; chased still alive ?
-.c820	10 16		bpl $c838			bpl 	_OHBChaseIt
-.c822					_OHBNewChoose:
-.c822	20 61 c2	jsr $c261			jsr 	Random8Bit 					; no, keep randomly trying till found a live one.
-.c825	29 07		and #$07			and 	#OBH_RANDOM_MASK
-.c827	c9 06		cmp #$06			cmp 	#OBC_HUMANS
-.c829	b0 f7		bcs $c822			bcs 	_OHBNewChoose
-.c82b	69 05		adc #$05			adc 	#OB_HUMANS
-.c82d	a8		tay				tay
-.c82e	b9 e8 e5	lda $e5e8,y			lda 	OBObjectData1,y
-.c831	30 0b		bmi $c83e			bmi 	_OHBExit
-.c833	98		tya				tya
-.c834	9d e8 e5	sta $e5e8,x			sta 	OBObjectData1,x
-.c837	60		rts				rts
-.c838					_OHBChaseIt:
-.c838	bc e8 e5	ldy $e5e8,x			ldy 	OBObjectData1,x
-.c83b	20 2d c2	jsr $c22d			jsr 	ChaseObject
-.c83e					_OHBExit:
-.c83e	60		rts				rts
-.c83f					OHProg:
-.c83f	c9 01		cmp #$01			cmp 	#MSG_INIT
-.c841	d0 05		bne $c848			bne 	_1
-.c843	20 53 c8	jsr $c853			jsr 	OHPRInitHandler
-.c846	18		clc				clc
-.c847	60		rts				rts
-.c848					_1:
-.c848	c9 03		cmp #$03			cmp 	#MSG_CONTROL
-.c84a	d0 05		bne $c851			bne 	_1
-.c84c	20 59 c2	jsr $c259			jsr 	ChasePlayer
-.c84f	18		clc				clc
-.c850	60		rts				rts
-.c851					_1:
-.c851	38		sec				sec
-.c852	60		rts				rts
-.c853					OHPRInitHandler:
-.c853	a9 16		lda #$16			lda 	#GR1_PROG
-.c855	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
-.c858	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
-.c85b	a9 04		lda #$04			lda 	#4
-.c85d	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
-.c860	a9 01		lda #$01			lda 	#1
-.c862	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
-.c865	a9 00		lda #$00			lda 	#($100 & 255)
-.c867	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
-.c86a	a9 01		lda #$01			lda 	#($100 >> 8)
-.c86c	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
-.c86f	60		rts				rts
+.c7b1					OHBrain:
+.c7b1	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c7b3	d0 05		bne $c7ba			bne 	_1
+.c7b5	20 d7 c7	jsr $c7d7			jsr 	OHBInitHandler
+.c7b8	18		clc				clc
+.c7b9	60		rts				rts
+.c7ba					_1:
+.c7ba	c9 05		cmp #$05			cmp 	#MSG_ONMOVE
+.c7bc	d0 05		bne $c7c3			bne 	_1
+.c7be	20 f4 c7	jsr $c7f4			jsr 	OHBCheckEat
+.c7c1	18		clc				clc
+.c7c2	60		rts				rts
+.c7c3					_1:
+.c7c3	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c7c5	d0 05		bne $c7cc			bne 	_1
+.c7c7	20 1d c8	jsr $c81d			jsr 	OHBChaseHuman
+.c7ca	18		clc				clc
+.c7cb	60		rts				rts
+.c7cc					_1:
+.c7cc	c9 04		cmp #$04			cmp 	#MSG_HITWALL
+.c7ce	d0 05		bne $c7d5			bne 	_1
+.c7d0	20 15 c2	jsr $c215			jsr 	ChooseRandomDirection
+.c7d3	18		clc				clc
+.c7d4	60		rts				rts
+.c7d5					_1:
+.c7d5	38		sec				sec
+.c7d6	60		rts				rts
+.c7d7					OHBInitHandler:
+.c7d7	a9 14		lda #$14			lda 	#GR_BRAIN
+.c7d9	20 8d c2	jsr $c28d			jsr 	SetObjectGraphic
+.c7dc	a9 18		lda #$18			lda 	#24
+.c7de	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c7e1	a9 01		lda #$01			lda 	#1
+.c7e3	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c7e6	a9 00		lda #$00			lda 	#($500 & 255)
+.c7e8	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c7eb	a9 05		lda #$05			lda 	#($500 >> 8)
+.c7ed	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c7f0	20 15 c2	jsr $c215			jsr 	ChooseRandomDirection
+.c7f3	60		rts				rts
+.c7f4					OHBCheckEat:
+.c7f4	bc e8 e5	ldy $e5e8,x			ldy 	OBObjectData1,x 			; object being chased.
+.c7f7	f0 23		beq $c81c			beq 	_OHBCEExit 					; none
+.c7f9	b9 00 e0	lda $e000,y			lda 	OBFlags,y 					; actual object
+.c7fc	30 1e		bmi $c81c			bmi 	_OHBCEExit 					; not existing.
+.c7fe	20 b2 c2	jsr $c2b2			jsr 	CheckCollision 				; are Y/X colliding ?
+.c801	90 19		bcc $c81c			bcc 	_OHBCEExit
+.c803	da		phx				phx
+.c804	a9 0b		lda #$0b			lda 	#TP_PROG 					; create a PROG here
+.c806	20 95 c2	jsr $c295			jsr 	CreateSingleObject
+.c809	ac cd c0	ldy $c0cd			ldy 	NewObject
+.c80c	20 9d c2	jsr $c29d			jsr 	CopyStartPosition
+.c80f	fa		plx				plx
+.c810	da		phx				phx
+.c811	20 a1 c1	jsr $c1a1			jsr 	KillObject	 				; kill the parent object
+.c814	bd e8 e5	lda $e5e8,x			lda 	OBObjectData1,x 			; and the thing it collided with, the human.
+.c817	aa		tax				tax
+.c818	20 a1 c1	jsr $c1a1			jsr 	KillObject
+.c81b	fa		plx				plx
+.c81c					_OHBCEExit:
+.c81c	60		rts				rts
+.c81d					OHBChaseHuman:
+.c81d	bc e8 e5	ldy $e5e8,x			ldy 	OBObjectData1,x 			; check chase
+.c820	f0 05		beq $c827			beq 	_OHBNewChoose
+.c822	b9 00 e0	lda $e000,y			lda 	OBFlags,y 					; chased still alive ?
+.c825	10 16		bpl $c83d			bpl 	_OHBChaseIt
+.c827					_OHBNewChoose:
+.c827	20 64 c2	jsr $c264			jsr 	Random8Bit 					; no, keep randomly trying till found a live one.
+.c82a	29 07		and #$07			and 	#OBH_RANDOM_MASK
+.c82c	c9 06		cmp #$06			cmp 	#OBC_HUMANS
+.c82e	b0 f7		bcs $c827			bcs 	_OHBNewChoose
+.c830	69 05		adc #$05			adc 	#OB_HUMANS
+.c832	a8		tay				tay
+.c833	b9 e8 e5	lda $e5e8,y			lda 	OBObjectData1,y
+.c836	30 0b		bmi $c843			bmi 	_OHBExit
+.c838	98		tya				tya
+.c839	9d e8 e5	sta $e5e8,x			sta 	OBObjectData1,x
+.c83c	60		rts				rts
+.c83d					_OHBChaseIt:
+.c83d	bc e8 e5	ldy $e5e8,x			ldy 	OBObjectData1,x
+.c840	20 30 c2	jsr $c230			jsr 	ChaseObject
+.c843					_OHBExit:
+.c843	60		rts				rts
+.c844					OHProg:
+.c844	c9 01		cmp #$01			cmp 	#MSG_INIT
+.c846	d0 05		bne $c84d			bne 	_1
+.c848	20 58 c8	jsr $c858			jsr 	OHPRInitHandler
+.c84b	18		clc				clc
+.c84c	60		rts				rts
+.c84d					_1:
+.c84d	c9 03		cmp #$03			cmp 	#MSG_CONTROL
+.c84f	d0 05		bne $c856			bne 	_1
+.c851	20 5c c2	jsr $c25c			jsr 	ChasePlayer
+.c854	18		clc				clc
+.c855	60		rts				rts
+.c856					_1:
+.c856	38		sec				sec
+.c857	60		rts				rts
+.c858					OHPRInitHandler:
+.c858	a9 16		lda #$16			lda 	#GR1_PROG
+.c85a	9d 44 e1	sta $e144,x			sta 	OBSprite1,x
+.c85d	9d b0 e1	sta $e1b0,x			sta 	OBSprite2,x
+.c860	a9 04		lda #$04			lda 	#4
+.c862	9d 88 e2	sta $e288,x			sta 	OBSpeed,x
+.c865	a9 01		lda #$01			lda 	#1
+.c867	9d 38 e4	sta $e438,x			sta 	OBIntelligence,x
+.c86a	a9 00		lda #$00			lda 	#($100 & 255)
+.c86c	9d 10 e5	sta $e510,x			sta 	OBScoreLow,x
+.c86f	a9 01		lda #$01			lda 	#($100 >> 8)
+.c871	9d 7c e5	sta $e57c,x			sta 	OBScoreHigh,x
+.c874	60		rts				rts
 
 ;******  Return to file: main.asm
 
-.c870					MainLoop:
-.c870	ee 7d c8	inc $c87d			inc 	FrameCount
-.c873	20 5d c1	jsr $c15d			jsr 	AnimatePalette 				; causes flashing effects
-.c876	20 ce c0	jsr $c0ce			jsr 	MoveObjects 				; move all objects
-.c879	20 4e c1	jsr $c14e			jsr 	ClockDelay 					; delay to stop it being insanely fast.
-.c87c	60		rts				rts
-.c87d					FrameCount:
->c87d	00						.byte 	0
-.c87e					HandlerTable:
->c87e	cf c3						.word 		OHPlayer 				; type 0 Player
->c880	70 c4						.word 		OHMissile 				; type 1 Player missile
->c882	14 c5						.word 		OHGrunt 				; type 2 Grunt
->c884	78 c7						.word 		OHElectrode 			; type 3 Electrode
->c886	d3 c4						.word 		OHHuman1 				; type 4-6 Humans
->c888	de c4						.word 		OHHuman2
->c88a	e9 c4						.word 		OHHuman3
->c88c	42 c5						.word 		OHHulk 					; type 7 Hulk
->c88e	ac c7						.word 		OHBrain 				; type 8 Brain
->c890	66 c5						.word 		OHSphere 				; type 9 Sphere
->c892	6b c6						.word 		OHQuark 				; type 10 Quark
->c894	3f c8						.word 		OHProg 					; type 11 Prog
->c896	2e c6						.word 		OHESpark 				; type 12 Enforcer Sparks.
->c898	dd c5						.word 		OHEnforcer 				; type 13 Enforcer
->c89a	fd c6						.word 		OHShell 				; type 14 Shell
->c89c	b8 c6						.word 		OHTank 					; type 15 Tank
+
+;******  Processing file: checks/human.asm
+
+.c875					CheckPlayerHuman:
+.c875	a2 05		ldx #$05			ldx 	#OB_HUMANS 					; check player human collisions
+.c877					_CPHLoop:
+.c877	bd 00 e0	lda $e000,x			lda 	OBFlags,x 					; check live
+.c87a	30 21		bmi $c89d			bmi 	_CPHFail
+.c87c	a0 00		ldy #$00			ldy 	#0 							; check collision with player
+.c87e	20 b2 c2	jsr $c2b2			jsr 	CheckCollision
+.c881	90 1a		bcc $c89d			bcc 	_CPHFail
+.c883	20 a1 c1	jsr $c1a1			jsr 	KillObject 					; delete the human as collected
+.c886	ad a3 c8	lda $c8a3			lda 	CollectCount 				; bump collect count, limit to 5
+.c889	1a		inc a				inc 	a
+.c88a	c9 06		cmp #$06			cmp 	#6
+.c88c	90 02		bcc $c890			bcc 	_CPHMax5
+.c88e	a9 05		lda #$05			lda 	#5
+.c890					_CPHMax5:
+.c890	8d a3 c8	sta $c8a3			sta 	CollectCount
+.c893	0a		asl a				asl 	a 							; make to BCD x000
+.c894	0a		asl a				asl 	a
+.c895	0a		asl a				asl 	a
+.c896	0a		asl a				asl 	a
+.c897	a8		tay				tay
+.c898	a9 00		lda #$00			lda 	#0
+.c89a	20 d9 c2	jsr $c2d9			jsr 	AddYAToScore
+.c89d					_CPHFail:
+.c89d	e8		inx				inx
+.c89e	e0 0c		cpx #$0c			cpx 	#OB_ENEMIES+1
+.c8a0	d0 d5		bne $c877			bne 	_CPHLoop
+.c8a2	60		rts				rts
+.c8a3					CollectCount:
+>c8a3	00						.byte 	0
+
+;******  Return to file: main.asm
+
+.c8a4					MainLoop:
+.c8a4	ee b4 c8	inc $c8b4			inc 	FrameCount
+.c8a7	20 5d c1	jsr $c15d			jsr 	AnimatePalette 				; causes flashing effects
+.c8aa	20 ce c0	jsr $c0ce			jsr 	MoveObjects 				; move all objects
+.c8ad	20 4e c1	jsr $c14e			jsr 	ClockDelay 					; delay to stop it being insanely fast.
+.c8b0	20 75 c8	jsr $c875			jsr 	CheckPlayerHuman 			; collect ?
+.c8b3	60		rts				rts
+.c8b4					FrameCount:
+>c8b4	00						.byte 	0
+.c8b5					HandlerTable:
+>c8b5	d4 c3						.word 		OHPlayer 				; type 0 Player
+>c8b7	75 c4						.word 		OHMissile 				; type 1 Player missile
+>c8b9	19 c5						.word 		OHGrunt 				; type 2 Grunt
+>c8bb	7d c7						.word 		OHElectrode 			; type 3 Electrode
+>c8bd	d8 c4						.word 		OHHuman1 				; type 4-6 Humans
+>c8bf	e3 c4						.word 		OHHuman2
+>c8c1	ee c4						.word 		OHHuman3
+>c8c3	47 c5						.word 		OHHulk 					; type 7 Hulk
+>c8c5	b1 c7						.word 		OHBrain 				; type 8 Brain
+>c8c7	6b c5						.word 		OHSphere 				; type 9 Sphere
+>c8c9	70 c6						.word 		OHQuark 				; type 10 Quark
+>c8cb	44 c8						.word 		OHProg 					; type 11 Prog
+>c8cd	33 c6						.word 		OHESpark 				; type 12 Enforcer Sparks.
+>c8cf	e2 c5						.word 		OHEnforcer 				; type 13 Enforcer
+>c8d1	02 c7						.word 		OHShell 				; type 14 Shell
+>c8d3	bd c6						.word 		OHTank 					; type 15 Tank
 
 ;******  Processing file: data.asm
 

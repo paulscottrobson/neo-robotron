@@ -35,12 +35,16 @@
 		.include 	"classes/quarks.asm"
 		.include 	"classes/electrode.asm"
 		.include 	"classes/brains.asm"
+		.include 	"checks/human.asm"
 
 MainLoop:
 		inc 	FrameCount
 		jsr 	AnimatePalette 				; causes flashing effects
 		jsr 	MoveObjects 				; move all objects
 		jsr 	ClockDelay 					; delay to stop it being insanely fast.
+		jsr 	CheckPlayerHuman 			; collect ?
+		; check robot collision
+		; check missile collision if not dead
 		rts
 
 FrameCount:

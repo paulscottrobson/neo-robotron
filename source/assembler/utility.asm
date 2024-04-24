@@ -25,6 +25,7 @@ _RSLoop:
 		inx
 		cpx 	#OBJ_COUNT
 		bne 	_RSLoop
+		stz 	CollectCount
 		rts
 
 ; ***************************************************************************************

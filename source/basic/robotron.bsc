@@ -24,12 +24,12 @@ rect 0,8 frame ink 3 to 319,230
 a = 1:sys $C00C:sys $C000:sys $C009
 x = 1:a = 0:sys $C003
 x = 2:for a = 4 to 6:sys $C003:next
-x = 4:a = 2:sys $C003
-x = 10:a = 3:sys $C003
-x = 4:a = 7 :sys $C003
-x = 2:a = 8:sys $C003
-x = 2:a = 9:sys $C003
-x = 2:a = 10:sys $C003
+'x = 4:a = 2:sys $C003
+'x = 10:a = 3:sys $C003
+'x = 4:a = 7 :sys $C003
+'x = 2:a = 8:sys $C003
+'x = 2:a = 9:sys $C003
+'x = 2:a = 10:sys $C003
 
 repeat
 	sys $C006
