@@ -18,7 +18,6 @@
 ; ***************************************************************************************
 
 MoveObjects:
-		inc 	FrameCount
 		ldx 	#0  						; look for an unused object
 _MOLoop: 		
 		bit 	OBFlags,x
@@ -92,8 +91,6 @@ _MOHitWall:
 		.sendmsg MSG_HITWALL 				; hit the wall.
 		rts		
 
-FrameCount:
-		.byte 	0
 
 ; ***************************************************************************************
 ;
@@ -116,3 +113,4 @@ _MLDelay:
 
 MoveSpeed:
 		.byte 	40
+		

@@ -16,11 +16,14 @@
 		jmp 	ResetObjects 				; $C000 reset all sprites.
 		jmp 	CreateObjects 				; $C003 create X objects of type A.
 		jmp 	MainLoop 					; $C006 main loop code.
+		jmp 	ResetScore 					; $C009 reset the score.
+		jmp 	SetWave 					; $C00C New Wave A
 		
 		.include 	"create.asm"
 		.include 	"move.asm"
 		.include 	"palette.asm"
 		.include 	"utility.asm"
+		.include 	"score.asm"
 		.include 	"classes/default.asm"
 		.include 	"classes/player.asm"
 		.include 	"classes/pmissile.asm"
@@ -33,10 +36,14 @@
 		.include 	"classes/brains.asm"
 
 MainLoop:
+		inc 	FrameCount
 		jsr 	AnimatePalette 				; causes flashing effects
 		jsr 	MoveObjects 				; move all objects
 		jsr 	ClockDelay 					; delay to stop it being insanely fast.
 		rts
+
+FrameCount:
+		.byte 	0
 
 HandlerTable:
 		.word 		OHPlayer 				; type 0 Player
