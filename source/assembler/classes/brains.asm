@@ -32,6 +32,27 @@ OHBInitHandler:
 		rts
 
 OHBCheckEat:
+		ldy 	OBObjectData1,x 			; object being chased.
+		beq 	_OHBCEExit 					; none
+		lda 	OBFlags,y 					; actual object
+		bmi 	_OHBCEExit 					; not existing.
+		jsr 	CheckCollision 				; are Y/X colliding ?
+		bcc 	_OHBCEExit
+
+		phx
+		lda 	#TP_PROG 					; create a PROG here
+		jsr 	CreateSingleObject
+		ldy 	NewObject
+		jsr 	CopyStartPosition
+		plx
+		phx		
+		jsr 	KillObject	 				; kill the parent object
+		lda 	OBObjectData1,x 			; and the thing it collided with, the human.
+		tax
+		jsr 	KillObject
+		plx
+
+_OHBCEExit:		
 		rts
 
 OHBChaseHuman:
@@ -56,4 +77,23 @@ _OHBChaseIt:
 		jsr 	ChaseObject
 _OHBExit:		
 		rts
+
+
+; ***************************************************************************************
+;
+;									Prog Object 
+;
+; ***************************************************************************************
+
+OHProg:
+		.method MSG_INIT,OHPRInitHandler
+		.method MSG_CONTROL,ChasePlayer
+		.superclass
+
+OHPRInitHandler:
+		.static GR1_PROG
+		.speed 4
+		.brains 1
+		.score 100
+		rts		
 

@@ -49,8 +49,11 @@ CreateObject:
 		ldx 	#OB_HUMANS 					; humans (next 6)
 		ldy 	#OBC_HUMANS
 		cmp 	#TP_CHILD+1
-		bcc 	_COLoop
+		bcs 	_CONotHuman
+		cmp 	#TP_MUM
+		bcs 	_COLoop
 
+_CONotHuman:
 		ldx 	#OB_ENEMIES 				; check everything else
 		ldy 	#OBC_ENEMIES
 _COLoop: 			
@@ -63,7 +66,7 @@ _COLoop:
 
 _COFound:
 		stx 	NewObject 					; remember the new object
-		stz 	OBObjectData1,x 			; zero object data
+		stz 	OBObjectData1,x 			; zero object OBObjectData1
 		sta 	OBFlags,x 					; clear unused flag, set type.
 		asl 	a 							; double -> Y
 		tay

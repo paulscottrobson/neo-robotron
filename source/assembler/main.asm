@@ -33,26 +33,28 @@
 		.include 	"classes/brains.asm"
 
 MainLoop:
-		jsr 	AnimatePalette
-		jsr 	MoveObjects
+		jsr 	AnimatePalette 				; causes flashing effects
+		jsr 	MoveObjects 				; move all objects
+		jsr 	ClockDelay 					; delay to stop it being insanely fast.
 		rts
 
 HandlerTable:
-		.word 		OHPlayer 				; type 0, player object
-		.word 		OHMissile 				; type 1, player missile object
-		.word 		OHHuman1 				; type 2-4 humans
+		.word 		OHPlayer 				; type 0 Player
+		.word 		OHMissile 				; type 1 Player missile 
+		.word 		OHGrunt 				; type 2 Grunt
+		.word 		OHElectrode 			; type 3 Electrode
+		.word 		OHHuman1 				; type 4-6 Humans
 		.word 		OHHuman2
 		.word 		OHHuman3
-		.word 		OHGrunt 				; type 5 grunt
-		.word 		OHHulk 					; type 6 hulk
-		.word 		OHESpark 				; type 7 Enforcer Sparks.
-		.word 		OHEnforcer 				; type 8 Enforcer
+		.word 		OHHulk 					; type 7 Hulk
+		.word 		OHBrain 				; type 8 Brain
 		.word 		OHSphere 				; type 9 Sphere
-		.word 		OHShell 				; type 10 shell
-		.word 		OHTank 					; type 11 tank
-		.word 		OHQuark 				; type 12 quark
-		.word 		OHElectrode 			; type 13 electrode
-		.word 		OHBrain 				; type 14 brain
-		
+		.word 		OHQuark 				; type 10 Quark
+		.word 		OHProg 					; type 11 Prog
+		.word 		OHESpark 				; type 12 Enforcer Sparks.
+		.word 		OHEnforcer 				; type 13 Enforcer
+		.word 		OHShell 				; type 14 Shell
+		.word 		OHTank 					; type 15 Tank
+
 		* = $E000
 		.include "data.asm"

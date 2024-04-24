@@ -273,3 +273,35 @@ ChasePlayerY:
 		jsr 	ChasePlayer
 		plx
 		rts
+
+absolute .macro
+		bpl 	_1
+		eor 	#$FF
+		inc 	a
+_1
+		.endm
+
+; ***************************************************************************************
+;
+;						Check collision of objects X and Y
+;
+; ***************************************************************************************
+
+CheckCollision:
+		sec
+		lda 	OBXPos,x
+		sbc 	OBXPos,y
+		.absolute
+		cmp 	#4
+		bcs 	_CCFail
+		lda 	OBYPos,x
+		sbc 	OBYPos,y
+		.absolute
+		cmp 	#4
+		bcs 	_CCFail
+		sec
+		rts
+_CCFail:
+		clc
+		rts
+

@@ -97,7 +97,7 @@ _OHSHCLExit:
 
 OHSHInitHandler:
 		jsr 	ChasePlayer
-		.static GR1_MISSILE2
+		.static GR1_MISSILE1
 		.speed 	5
 		.brains 255
 		.score  50

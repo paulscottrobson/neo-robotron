@@ -94,3 +94,25 @@ _MOHitWall:
 
 FrameCount:
 		.byte 	0
+
+; ***************************************************************************************
+;
+;			   Delay for game speed. 40 seems to be about right for default
+;
+; ***************************************************************************************
+
+ClockDelay:
+		phx
+		phy
+		ldx 	MoveSpeed
+_MLDelay:
+		dey
+		bne 	_MLDelay
+		dex		
+		bne 	_MLDelay
+		ply
+		plx
+		rts
+
+MoveSpeed:
+		.byte 	40

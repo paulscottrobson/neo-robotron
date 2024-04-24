@@ -18,18 +18,20 @@
 
 TP_PLAYER = 0
 TP_PLAYERMISSILE = 1
-TP_MUM = 2
-TP_DAD = 3
-TP_CHILD = 4
-TP_GRUNT = 5
-TP_HULK = 6
-TP_ESPARK = 7
-TP_ENFORCER = 8
+TP_GRUNT = 2
+TP_ELECTRODE = 3
+TP_MUM = 4
+TP_DAD = 5
+TP_CHILD = 6
+TP_HULK = 7
+TP_BRAIN = 8
 TP_SPHERE = 9
-TP_SHELL = 10
-TP_TANK = 11
-TP_QUARK = 12
-TP_ELECTRODE = 13
+TP_QUARK = 10
+TP_PROG = 11
+TP_ESPARK = 12
+TP_ENFORCER = 13
+TP_SHELL = 14
+TP_TANK = 15
 
 ; ***************************************************************************************
 ;
@@ -75,7 +77,7 @@ GR1_ENFORCER= 16  							; Enforcer graphic (1 only)
 GR1_QUARK = 17   							; Quark graphic (1 only)
 GR_TANK = 18  								; Tank graphic
 GR_BRAIN = 20  								; Brain graphic
-GR1_ROBOT = 22 								; Robot (mutated human)
+GR1_PROG = 22 								; Prog (mutated human)
 GR1_HORIZFIRE = 23  						; Horizontal fire
 GR1_VERTFIRE = 24  							; Vertical fire 
 GR1_SWNEFIRE = 25   						; / fire  
