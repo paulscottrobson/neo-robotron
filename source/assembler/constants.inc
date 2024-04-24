@@ -42,6 +42,8 @@ OB_PLAYERMISSILE = 1 						; player missile (4)
 OB_HUMANS = 5 								; humans (6)
 OB_ENEMIES = 11 							; enemies (everything else)
 
+OBH_RANDOM_MASK = 7 						; reduce random to mask
+
 OBC_PLAYERMISSILES = OB_HUMANS-OB_PLAYERMISSILE
 OBC_HUMANS = OB_ENEMIES-OB_HUMANS
 OBC_ENEMIES = OBJ_COUNT - OB_ENEMIES

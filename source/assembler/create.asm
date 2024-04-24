@@ -63,6 +63,7 @@ _COLoop:
 
 _COFound:
 		stx 	NewObject 					; remember the new object
+		stz 	OBObjectData1,x 			; zero object data
 		sta 	OBFlags,x 					; clear unused flag, set type.
 		asl 	a 							; double -> Y
 		tay

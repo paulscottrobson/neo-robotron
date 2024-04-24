@@ -30,6 +30,7 @@
 		.include 	"classes/sphere.asm"
 		.include 	"classes/quarks.asm"
 		.include 	"classes/electrode.asm"
+		.include 	"classes/brains.asm"
 
 MainLoop:
 		jsr 	AnimatePalette
@@ -51,6 +52,7 @@ HandlerTable:
 		.word 		OHTank 					; type 11 tank
 		.word 		OHQuark 				; type 12 quark
 		.word 		OHElectrode 			; type 13 electrode
-
+		.word 		OHBrain 				; type 14 brain
+		
 		* = $E000
 		.include "data.asm"
