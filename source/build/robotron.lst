@@ -1,7 +1,7 @@
 
 ; 64tass Turbo Assembler Macro V1.59. listing file
 ; 64tass -b -c -Wall -o ../storage/robotron.bin -L ../build/robotron.lst main.asm
-; Wed Apr 24 19:52:12 2024
+; Fri Apr 26 17:30:16 2024
 
 ;Offset	;Hex		;Monitor	;Source
 
@@ -72,7 +72,7 @@
 
 .c000	4c 91 c1	jmp $c191			jmp 	ResetObjects 				; $C000 reset all sprites.
 .c003	4c 0f c0	jmp $c00f			jmp 	CreateObjects 				; $C003 create X objects of type A.
-.c006	4c ea c8	jmp $c8ea			jmp 	MainLoop 					; $C006 main loop code.
+.c006	4c ec c8	jmp $c8ec			jmp 	MainLoop 					; $C006 main loop code.
 .c009	4c 00 c3	jmp $c300			jmp 	ResetScore 					; $C009 reset the score.
 .c00c	4c d5 c2	jmp $c2d5			jmp 	SetWave 					; $C00C New Wave A
 
@@ -121,9 +121,9 @@
 .c04e	9d 00 e0	sta $e000,x			sta 	OBFlags,x 					; clear unused flag, set type.
 .c051	0a		asl a				asl 	a 							; double -> Y
 .c052	a8		tay				tay
-.c053	b9 08 c9	lda $c908,y			lda 	HandlerTable,y  			; put the handler address in.
+.c053	b9 0a c9	lda $c90a,y			lda 	HandlerTable,y  			; put the handler address in.
 .c056	9d 60 e3	sta $e360,x			sta 	OBHandlerLow,x
-.c059	b9 09 c9	lda $c909,y			lda 	HandlerTable+1,y
+.c059	b9 0b c9	lda $c90b,y			lda 	HandlerTable+1,y
 .c05c	9d cc e3	sta $e3cc,x			sta 	OBHandlerHigh,x
 .c05f					_COPos1:
 .c05f	20 64 c2	jsr $c264			jsr 	Random8Bit  				; value is 0-151
@@ -1446,69 +1446,71 @@
 .c8b8	a2 0b		ldx #$0b			ldx 	#OB_ENEMIES 				; check enemies collide ?
 .c8ba					_CHRLoop1:
 .c8ba	bd 00 e0	lda $e000,x			lda 	OBFlags,x 					; check enemy alive
-.c8bd	30 24		bmi $c8e3			bmi 	_CHRNext1
+.c8bd	30 26		bmi $c8e5			bmi 	_CHRNext1
 .c8bf	a0 01		ldy #$01			ldy 	#OB_PLAYERMISSILE 			; check missiles
 .c8c1					_CHRLoop2:
 .c8c1	b9 00 e0	lda $e000,y			lda 	OBFlags,y 					; missile in use
-.c8c4	30 18		bmi $c8de			bmi 	_CHRNext2
+.c8c4	30 1a		bmi $c8e0			bmi 	_CHRNext2
 .c8c6	20 b2 c2	jsr $c2b2			jsr 	CheckCollision 				; check collision.
-.c8c9	90 13		bcc $c8de			bcc 	_CHRNext2
-.c8cb	a9 06		lda #$06			lda 	#MSG_SHOT
-.c8cd	20 7c c2	jsr $c27c			jsr 	SendObjectMessage
-.c8d0	90 03		bcc $c8d5			bcc 	_1
-.c8d2	20 b7 c3	jsr $c3b7			jsr 	DefaultHandler
-.c8d5					_1:
-.c8d5	da		phx				phx 								; kill this missile.
-.c8d6	98		tya				tya
-.c8d7	aa		tax				tax
-.c8d8	20 a1 c1	jsr $c1a1			jsr		KillObject
-.c8db	fa		plx				plx
-.c8dc	80 05		bra $c8e3			bra 	_CHRNext1 					; go to check next human
-.c8de					_CHRNext2:
-.c8de	c8		iny				iny
-.c8df	c0 05		cpy #$05			cpy		#OB_HUMANS 					; reached the end
-.c8e1	d0 de		bne $c8c1			bne 	_CHRLoop2
-.c8e3					_CHRNext1:
-.c8e3	e8		inx				inx
-.c8e4	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
-.c8e6	d0 d2		bne $c8ba			bne 	_CHRLoop1
-.c8e8	60		rts				rts
-.c8e9	60		rts				rts
+.c8c9	90 15		bcc $c8e0			bcc 	_CHRNext2
+.c8cb	5a		phy				phy
+.c8cc	a9 06		lda #$06			lda 	#MSG_SHOT
+.c8ce	20 7c c2	jsr $c27c			jsr 	SendObjectMessage
+.c8d1	90 03		bcc $c8d6			bcc 	_1
+.c8d3	20 b7 c3	jsr $c3b7			jsr 	DefaultHandler
+.c8d6					_1:
+.c8d6	7a		ply				ply
+.c8d7	da		phx				phx 								; kill this missile.
+.c8d8	98		tya				tya
+.c8d9	aa		tax				tax
+.c8da	20 a1 c1	jsr $c1a1			jsr		KillObject
+.c8dd	fa		plx				plx
+.c8de	80 05		bra $c8e5			bra 	_CHRNext1 					; go to check next human
+.c8e0					_CHRNext2:
+.c8e0	c8		iny				iny
+.c8e1	c0 05		cpy #$05			cpy		#OB_HUMANS 					; reached the end
+.c8e3	d0 dc		bne $c8c1			bne 	_CHRLoop2
+.c8e5					_CHRNext1:
+.c8e5	e8		inx				inx
+.c8e6	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
+.c8e8	d0 d0		bne $c8ba			bne 	_CHRLoop1
+.c8ea	60		rts				rts
+.c8eb	60		rts				rts
 
 ;******  Return to file: main.asm
 
-.c8ea					MainLoop:
-.c8ea	ee 07 c9	inc $c907			inc 	FrameCount
-.c8ed	20 5d c1	jsr $c15d			jsr 	AnimatePalette 				; causes flashing effects
-.c8f0	20 ce c0	jsr $c0ce			jsr 	MoveObjects 				; move all objects
-.c8f3	20 4e c1	jsr $c14e			jsr 	ClockDelay 					; delay to stop it being insanely fast.
-.c8f6	20 89 c8	jsr $c889			jsr 	CheckPlayerHuman 			; collect ?
-.c8f9	20 b8 c8	jsr $c8b8			jsr 	CheckHitRobots 				; check if hit robot.
-.c8fc	ad 07 c9	lda $c907			lda 	FrameCount
-.c8ff	29 07		and #$07			and 	#7
-.c901	d0 03		bne $c906			bne 	_MainNoScore
-.c903	20 45 c3	jsr $c345			jsr 	DrawScore
-.c906					_MainNoScore:
-.c906	60		rts				rts
-.c907					FrameCount:
->c907	00						.byte 	0
-.c908					HandlerTable:
->c908	e8 c3						.word 		OHPlayer 				; type 0 Player
->c90a	89 c4						.word 		OHMissile 				; type 1 Player missile
->c90c	2d c5						.word 		OHGrunt 				; type 2 Grunt
->c90e	91 c7						.word 		OHElectrode 			; type 3 Electrode
->c910	ec c4						.word 		OHHuman1 				; type 4-6 Humans
->c912	f7 c4						.word 		OHHuman2
->c914	02 c5						.word 		OHHuman3
->c916	5b c5						.word 		OHHulk 					; type 7 Hulk
->c918	c5 c7						.word 		OHBrain 				; type 8 Brain
->c91a	7f c5						.word 		OHSphere 				; type 9 Sphere
->c91c	84 c6						.word 		OHQuark 				; type 10 Quark
->c91e	58 c8						.word 		OHProg 					; type 11 Prog
->c920	47 c6						.word 		OHESpark 				; type 12 Enforcer Sparks.
->c922	f6 c5						.word 		OHEnforcer 				; type 13 Enforcer
->c924	16 c7						.word 		OHShell 				; type 14 Shell
->c926	d1 c6						.word 		OHTank 					; type 15 Tank
+.c8ec					MainLoop:
+.c8ec	ee 09 c9	inc $c909			inc 	FrameCount
+.c8ef	20 5d c1	jsr $c15d			jsr 	AnimatePalette 				; causes flashing effects
+.c8f2	20 ce c0	jsr $c0ce			jsr 	MoveObjects 				; move all objects
+.c8f5	20 4e c1	jsr $c14e			jsr 	ClockDelay 					; delay to stop it being insanely fast.
+.c8f8	20 89 c8	jsr $c889			jsr 	CheckPlayerHuman 			; collect ?
+.c8fb	20 b8 c8	jsr $c8b8			jsr 	CheckHitRobots 				; check if hit robot.
+.c8fe	ad 09 c9	lda $c909			lda 	FrameCount
+.c901	29 07		and #$07			and 	#7
+.c903	d0 03		bne $c908			bne 	_MainNoScore
+.c905	20 45 c3	jsr $c345			jsr 	DrawScore
+.c908					_MainNoScore:
+.c908	60		rts				rts
+.c909					FrameCount:
+>c909	00						.byte 	0
+.c90a					HandlerTable:
+>c90a	e8 c3						.word 		OHPlayer 				; type 0 Player
+>c90c	89 c4						.word 		OHMissile 				; type 1 Player missile
+>c90e	2d c5						.word 		OHGrunt 				; type 2 Grunt
+>c910	91 c7						.word 		OHElectrode 			; type 3 Electrode
+>c912	ec c4						.word 		OHHuman1 				; type 4-6 Humans
+>c914	f7 c4						.word 		OHHuman2
+>c916	02 c5						.word 		OHHuman3
+>c918	5b c5						.word 		OHHulk 					; type 7 Hulk
+>c91a	c5 c7						.word 		OHBrain 				; type 8 Brain
+>c91c	7f c5						.word 		OHSphere 				; type 9 Sphere
+>c91e	84 c6						.word 		OHQuark 				; type 10 Quark
+>c920	58 c8						.word 		OHProg 					; type 11 Prog
+>c922	47 c6						.word 		OHESpark 				; type 12 Enforcer Sparks.
+>c924	f6 c5						.word 		OHEnforcer 				; type 13 Enforcer
+>c926	16 c7						.word 		OHShell 				; type 14 Shell
+>c928	d1 c6						.word 		OHTank 					; type 15 Tank
 
 ;******  Processing file: data.asm
 

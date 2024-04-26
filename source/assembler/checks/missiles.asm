@@ -29,7 +29,9 @@ _CHRLoop2:
 		jsr 	CheckCollision 				; check collision.
 		bcc 	_CHRNext2
 
+		phy
 		.sendmsg  MSG_SHOT 					; notify object it has been shot.
+		ply
 		phx 								; kill this missile.
 		tya
 		tax
