@@ -3,7 +3,9 @@ call Setup()
 rect 0,8 frame ink 3 to 319,230
 
 sys $C009
-a = 0:sys $C00C
+a = 2:sys $C00C
+sys $C006
+
 sys $C006
 
 end

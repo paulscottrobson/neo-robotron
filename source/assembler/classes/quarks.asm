@@ -33,7 +33,7 @@ OHQInitHandler:
 
 OHQCheckFire:
 		jsr 	Random8Bit
-		and 	#31
+		and 	#63
 		bne 	_OHQCFExit
 		lda 	#TP_TANK
 		jsr 	CreateSingleObject

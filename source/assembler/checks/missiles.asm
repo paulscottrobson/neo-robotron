@@ -26,14 +26,13 @@ _CHRLoop2:
 		lda 	OBFlags,y 					; missile in use
 		bmi 	_CHRNext2
 
-		lda 	OBObjectData1,x 			; not immediately fired
+		lda 	OBObjectData1,y 			; not immediately fired
 		bne 	_CHRNext2
 
 		jsr 	CheckCollision 				; check collision.
 		bcc 	_CHRNext2
 
-		.byte 	3
-		
+
 		phy
 		.sendmsg  MSG_SHOT 					; notify object it has been shot.
 		ply

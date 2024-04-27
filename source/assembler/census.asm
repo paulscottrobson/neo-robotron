@@ -16,6 +16,9 @@
 CurrentLevel:
 	.byte 	0,0,0,0,0,0,0,1,0
 
+WaveIndex:
+	.byte 	0
+
 ; ***************************************************************************************
 ;
 ;										 Set Wave to n.
@@ -23,6 +26,7 @@ CurrentLevel:
 ; ***************************************************************************************
 
 SetWave:
+		sta 	Wave
 		cmp 	#0 							; if 0, use the level data
 		beq 	_SWExit
 
@@ -48,13 +52,13 @@ _SWGetSet:
 		bra 	_SWGetSet
 
 _SWHaveWave:
-		sta 	Wave 						; 0-39 identifying the wave.
+		sta 	WaveIndex					; 0-39 identifying the wave.
 		sty 	MoveSpeed 					; the move speed.
 
 		asl 	a 							; multiply by 9.
 		asl 	a
 		asl 	a
-		adc 	Wave
+		adc 	WaveIndex
 		tax
 		ldy 	#0 							; copy the wave data in
 _SWCopyCensus:		
@@ -92,6 +96,32 @@ _CreateLoop1:
 		cpy 	#9
 		bne 	_CreateLoop1
 		rts
+
+; ***************************************************************************************
+;
+;								Object X killed ; update census
+;
+; ***************************************************************************************
+
+CensusUpdate:
+		lda 	OBFlags,x 					; get the object ID
+		and 	#$1F
+		dec 	a 							; in range for census objects 2-11
+		dec 	a
+		cmp 	#9
+		bcs 	_UCExit 					; not a census object
+		phx 								; decrement that count so if we restart it is right
+		tax
+		dec 	CurrentLevel,x
+		plx
+_UCExit:
+		rts		
+
+; ***************************************************************************************
+;
+;								Level Data for levels 1-40
+;
+; ***************************************************************************************
 
 LevelData:
 	.byte	15,5,1,1,0,0,0,0,0

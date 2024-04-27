@@ -35,6 +35,8 @@ _RSLoop:
 ; ***************************************************************************************
 
 KillObject:
+		jsr 	CensusUpdate 				; update the census.
+		
 		lda 	APICommand 					; wait for API to be available
 		bne 	KillObject
 		lda 	#$FF 						; mark not in use

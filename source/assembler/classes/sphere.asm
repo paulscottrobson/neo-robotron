@@ -44,7 +44,7 @@ _OHSNoMove:
 
 OHSCheckFire:
 		jsr 	Random8Bit
-		and 	#31
+		and 	#63
 		bne 	_OHSCFExit
 		lda 	#TP_ENFORCER
 		jsr 	CreateSingleObject

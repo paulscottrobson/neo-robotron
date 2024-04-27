@@ -62,7 +62,8 @@ MainGame:
 		ldx 	#1
 		jsr 	CreateObjects
 		jsr 	CreateCurrentObjects 		; create the objects expected.
-
+		jsr 	DrawWave
+		jsr 	DrawScore 
 MainLoop:
 		inc 	FrameCount 					; bump frame counter
 		jsr 	CheckComplete 				; check completed first.
