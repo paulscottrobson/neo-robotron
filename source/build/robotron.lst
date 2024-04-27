@@ -1,7 +1,7 @@
 
 ; 64tass Turbo Assembler Macro V1.59. listing file
 ; 64tass -b -c -Wall -o ../storage/robotron.bin -L ../build/robotron.lst main.asm
-; Sat Apr 27 14:09:59 2024
+; Sat Apr 27 14:32:40 2024
 
 ;Offset	;Hex		;Monitor	;Source
 
@@ -74,7 +74,7 @@
 .c000					Start:
 .c000	4c b8 c1	jmp $c1b8			jmp 	ResetObjects 				; $C000 reset all sprites.
 .c003	4c 45 c0	jmp $c045			jmp 	CreateObjects 				; $C003 create X objects of type A.
-.c006	4c b1 cb	jmp $cbb1			jmp 	MainGame 					; $C006 main loop code, speed A
+.c006	4c ce cb	jmp $cbce			jmp 	MainGame 					; $C006 main loop code, speed A
 .c009	4c 26 c3	jmp $c326			jmp 	ResetScore 					; $C009 reset the score.
 .c00c	4c e1 c3	jmp $c3e1			jmp 	SetWave 					; $C00C New Wave A
 .c040					Result:
@@ -129,9 +129,9 @@
 .c084	9d 00 e0	sta $e000,x			sta 	OBFlags,x 					; clear unused flag, set type.
 .c087	0a		asl a				asl 	a 							; double -> Y
 .c088	a8		tay				tay
-.c089	b9 01 cc	lda $cc01,y			lda 	HandlerTable,y  			; put the handler address in.
+.c089	b9 23 cc	lda $cc23,y			lda 	HandlerTable,y  			; put the handler address in.
 .c08c	9d 60 e3	sta $e360,x			sta 	OBHandlerLow,x
-.c08f	b9 02 cc	lda $cc02,y			lda 	HandlerTable+1,y
+.c08f	b9 24 cc	lda $cc24,y			lda 	HandlerTable+1,y
 .c092	9d cc e3	sta $e3cc,x			sta 	OBHandlerHigh,x
 .c095					_COPos1:
 .c095	20 8e c2	jsr $c28e			jsr 	Random8Bit  				; value is 0-151
@@ -651,7 +651,7 @@
 .c3fe	80 eb		bra $c3eb			bra 	_SWGetSet
 .c400					_SWHaveWave:
 .c400	8d e0 c3	sta $c3e0			sta 	WaveIndex					; 0-39 identifying the wave.
-.c403	8c 00 cc	sty $cc00			sty 	MoveSpeed 					; the move speed.
+.c403	8c 22 cc	sty $cc22			sty 	MoveSpeed 					; the move speed.
 .c406	0a		asl a				asl 	a 							; multiply by 9.
 .c407	0a		asl a				asl 	a
 .c408	0a		asl a				asl 	a
@@ -1766,70 +1766,98 @@
 
 ;******  Return to file: main.asm
 
-.cbb1					MainGame:
-.cbb1	20 b8 c1	jsr $c1b8			jsr 	ResetObjects 				; reset all game objects
-.cbb4	a9 00		lda #$00			lda 	#0 							; create player
-.cbb6	a2 01		ldx #$01			ldx 	#1
-.cbb8	20 45 c0	jsr $c045			jsr 	CreateObjects
-.cbbb	20 1c c4	jsr $c41c			jsr 	CreateCurrentObjects 		; create the objects expected.
-.cbbe	20 3b c3	jsr $c33b			jsr 	DrawWave
-.cbc1	20 69 c3	jsr $c369			jsr 	DrawScore
-.cbc4					MainLoop:
-.cbc4	ee f1 cb	inc $cbf1			inc 	FrameCount 					; bump frame counter
-.cbc7	20 8b cb	jsr $cb8b			jsr 	CheckComplete 				; check completed first.
-.cbca	b0 21		bcs $cbed			bcs 	_MLComplete
-.cbcc	20 84 c1	jsr $c184			jsr 	AnimatePalette 				; causes flashing effects
-.cbcf	20 04 c1	jsr $c104			jsr 	MoveObjects 				; move all objects
-.cbd2	20 f2 cb	jsr $cbf2			jsr 	ClockDelay 					; delay to stop it being insanely fast.
-.cbd5	20 23 cb	jsr $cb23			jsr 	CheckPlayerHuman 			; collect ?
-.cbd8	20 52 cb	jsr $cb52			jsr 	CheckHitRobots 				; check if hit robot.
-.cbdb	ad f1 cb	lda $cbf1			lda 	FrameCount
-.cbde	29 07		and #$07			and 	#7
-.cbe0	d0 03		bne $cbe5			bne 	_MainNoScore
-.cbe2	20 69 c3	jsr $c369			jsr 	DrawScore
-.cbe5					_MainNoScore:
-.cbe5	80 dd		bra $cbc4			bra 	MainLoop
-.cbe7					_MLKilled:
-.cbe7	a9 01		lda #$01			lda 	#1
-.cbe9	8d 40 c0	sta $c040			sta 	Result
-.cbec	60		rts				rts
-.cbed					_MLComplete:
-.cbed	9c 40 c0	stz $c040			stz 	Result						; return 0 (level complete, not dead)
-.cbf0	60		rts				rts
-.cbf1					FrameCount:
->cbf1	00						.byte 	0
-.cbf2					ClockDelay:
-.cbf2	da		phx				phx
-.cbf3	5a		phy				phy
-.cbf4	ae 00 cc	ldx $cc00			ldx 	MoveSpeed
-.cbf7					_MLDelay:
-.cbf7	88		dey				dey
-.cbf8	d0 fd		bne $cbf7			bne 	_MLDelay
-.cbfa	ca		dex				dex
-.cbfb	d0 fa		bne $cbf7			bne 	_MLDelay
-.cbfd	7a		ply				ply
-.cbfe	fa		plx				plx
-.cbff	60		rts				rts
-.cc00					MoveSpeed:
->cc00	28						.byte 	40
-.cc01					HandlerTable:
->cc01	ed c5						.word 		OHPlayer 				; type 0 Player
->cc03	8e c6						.word 		OHMissile 				; type 1 Player missile
->cc05	49 c7						.word 		OHGrunt 				; type 2 Grunt
->cc07	ca c9						.word 		OHElectrode 			; type 3 Electrode
->cc09	08 c7						.word 		OHHuman1 				; type 4-6 Humans
->cc0b	13 c7						.word 		OHHuman2
->cc0d	1e c7						.word 		OHHuman3
->cc0f	77 c7						.word 		OHHulk 					; type 7 Hulk
->cc11	07 ca						.word 		OHBrain 				; type 8 Brain
->cc13	b8 c7						.word 		OHSphere 				; type 9 Sphere
->cc15	bd c8						.word 		OHQuark 				; type 10 Quark
->cc17	9a ca						.word 		OHProg 					; type 11 Prog
->cc19	80 c8						.word 		OHESpark 				; type 12 Enforcer Sparks.
->cc1b	2f c8						.word 		OHEnforcer 				; type 13 Enforcer
->cc1d	4f c9						.word 		OHShell 				; type 14 Shell
->cc1f	0a c9						.word 		OHTank 					; type 15 Tank
->cc21	cb ca						.word 		OHExplode 				; type 16 Explosion Graphic
+
+;******  Processing file: checks/dead.asm
+
+.cbb1					CheckDead:
+.cbb1	a2 0b		ldx #$0b			ldx 	#OB_ENEMIES 				; check enemies collide ?
+.cbb3					_CDLoop1:
+.cbb3	bd 00 e0	lda $e000,x			lda 	OBFlags,x 					; check enemy alive
+.cbb6	30 0d		bmi $cbc5			bmi 	_CDNext1
+.cbb8	29 1f		and #$1f			and 	#$1F 						; object class, check if >= explosion animation
+.cbba	c9 10		cmp #$10			cmp 	#TP_EXPLODE
+.cbbc	b0 07		bcs $cbc5			bcs 	_CDNext1
+.cbbe	a0 00		ldy #$00			ldy 	#0 							; check hit player object
+.cbc0	20 dc c2	jsr $c2dc			jsr 	CheckCollision 				; check collision.
+.cbc3	b0 07		bcs $cbcc			bcs 	_CDDead 					; collision
+.cbc5					_CDNext1:
+.cbc5	e8		inx				inx 								; check next.
+.cbc6	e0 6c		cpx #$6c			cpx 	#OBJ_COUNT
+.cbc8	d0 e9		bne $cbb3			bne 	_CDLoop1
+.cbca	18		clc				clc
+.cbcb	60		rts				rts
+.cbcc					_CDDead:
+.cbcc	38		sec				sec
+.cbcd	60		rts				rts
+
+;******  Return to file: main.asm
+
+.cbce					MainGame:
+.cbce	20 b8 c1	jsr $c1b8			jsr 	ResetObjects 				; reset all game objects
+.cbd1	a9 00		lda #$00			lda 	#0 							; create player
+.cbd3	a2 01		ldx #$01			ldx 	#1
+.cbd5	20 45 c0	jsr $c045			jsr 	CreateObjects
+.cbd8	20 1c c4	jsr $c41c			jsr 	CreateCurrentObjects 		; create the objects expected.
+.cbdb	20 3b c3	jsr $c33b			jsr 	DrawWave
+.cbde	20 69 c3	jsr $c369			jsr 	DrawScore
+.cbe1					MainLoop:
+.cbe1	ee 13 cc	inc $cc13			inc 	FrameCount 					; bump frame counter
+.cbe4	20 8b cb	jsr $cb8b			jsr 	CheckComplete 				; check completed first.
+.cbe7	b0 26		bcs $cc0f			bcs 	_MLComplete
+.cbe9	20 b1 cb	jsr $cbb1			jsr 	CheckDead 					; robot collision
+.cbec	b0 1b		bcs $cc09			bcs 	_MLKilled
+.cbee	20 84 c1	jsr $c184			jsr 	AnimatePalette 				; causes flashing effects
+.cbf1	20 04 c1	jsr $c104			jsr 	MoveObjects 				; move all objects
+.cbf4	20 14 cc	jsr $cc14			jsr 	ClockDelay 					; delay to stop it being insanely fast.
+.cbf7	20 23 cb	jsr $cb23			jsr 	CheckPlayerHuman 			; collect ?
+.cbfa	20 52 cb	jsr $cb52			jsr 	CheckHitRobots 				; check if hit robot.
+.cbfd	ad 13 cc	lda $cc13			lda 	FrameCount
+.cc00	29 07		and #$07			and 	#7
+.cc02	d0 03		bne $cc07			bne 	_MainNoScore
+.cc04	20 69 c3	jsr $c369			jsr 	DrawScore
+.cc07					_MainNoScore:
+.cc07	80 d8		bra $cbe1			bra 	MainLoop
+.cc09					_MLKilled:
+.cc09	a9 01		lda #$01			lda 	#1
+.cc0b	8d 40 c0	sta $c040			sta 	Result
+.cc0e	60		rts				rts
+.cc0f					_MLComplete:
+.cc0f	9c 40 c0	stz $c040			stz 	Result						; return 0 (level complete, not dead)
+.cc12	60		rts				rts
+.cc13					FrameCount:
+>cc13	00						.byte 	0
+.cc14					ClockDelay:
+.cc14	da		phx				phx
+.cc15	5a		phy				phy
+.cc16	ae 22 cc	ldx $cc22			ldx 	MoveSpeed
+.cc19					_MLDelay:
+.cc19	88		dey				dey
+.cc1a	d0 fd		bne $cc19			bne 	_MLDelay
+.cc1c	ca		dex				dex
+.cc1d	d0 fa		bne $cc19			bne 	_MLDelay
+.cc1f	7a		ply				ply
+.cc20	fa		plx				plx
+.cc21	60		rts				rts
+.cc22					MoveSpeed:
+>cc22	28						.byte 	40
+.cc23					HandlerTable:
+>cc23	ed c5						.word 		OHPlayer 				; type 0 Player
+>cc25	8e c6						.word 		OHMissile 				; type 1 Player missile
+>cc27	49 c7						.word 		OHGrunt 				; type 2 Grunt
+>cc29	ca c9						.word 		OHElectrode 			; type 3 Electrode
+>cc2b	08 c7						.word 		OHHuman1 				; type 4-6 Humans
+>cc2d	13 c7						.word 		OHHuman2
+>cc2f	1e c7						.word 		OHHuman3
+>cc31	77 c7						.word 		OHHulk 					; type 7 Hulk
+>cc33	07 ca						.word 		OHBrain 				; type 8 Brain
+>cc35	b8 c7						.word 		OHSphere 				; type 9 Sphere
+>cc37	bd c8						.word 		OHQuark 				; type 10 Quark
+>cc39	9a ca						.word 		OHProg 					; type 11 Prog
+>cc3b	80 c8						.word 		OHESpark 				; type 12 Enforcer Sparks.
+>cc3d	2f c8						.word 		OHEnforcer 				; type 13 Enforcer
+>cc3f	4f c9						.word 		OHShell 				; type 14 Shell
+>cc41	0a c9						.word 		OHTank 					; type 15 Tank
+>cc43	cb ca						.word 		OHExplode 				; type 16 Explosion Graphic
 
 ;******  Processing file: data.asm
 

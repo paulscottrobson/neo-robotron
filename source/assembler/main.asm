@@ -49,7 +49,8 @@ DScore:
 		.include 	"checks/human.asm"
 		.include 	"checks/missiles.asm"
 		.include 	"checks/complete.asm"
-
+		.include 	"checks/dead.asm"
+		
 ; ***************************************************************************************
 ;
 ;							Current level routine
@@ -69,7 +70,8 @@ MainLoop:
 		jsr 	CheckComplete 				; check completed first.
 		bcs 	_MLComplete
 
-		; check robot collision, exit if dead
+		jsr 	CheckDead 					; robot collision
+		bcs 	_MLKilled
 
 		jsr 	AnimatePalette 				; causes flashing effects
 		jsr 	MoveObjects 				; move all objects
