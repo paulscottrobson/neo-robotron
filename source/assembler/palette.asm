@@ -23,6 +23,7 @@ AnimatePalette:
 		inc 	_APCount
 		lda 	_APCount
 		lsr 	a
+		lsr 	a
 		ldy 	#1
 		jsr 	_APBit
 		jsr 	_APBit

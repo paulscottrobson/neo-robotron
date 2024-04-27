@@ -1,9 +1,64 @@
+'
+'		Robotron 2084 : By Paul Robson.
+'
 cls:sprite clear
 call Setup()
-rect 0,8 frame ink 3 to 319,230
+call NewGame()
 
-sys $C009
-a = 1:sys $C00C
-sys $C006
+repeat
+	if newWave
+		call NewLevel()
+		a = wave:sys $C00C
+		wave = wave + 1:newWave = false
+	endif
+	cls:sprite clear:palette clear
+	rect 0,8 frame ink wave % 7 + 1 to 319,230	
+	sys $C006
+	result = peek($C040)
+	if result = 0 
+		newWave = true
+	else
+		call AnimateDeath()
+	endif
 
+until peek($C041) = 0
 end
+'
+'		Start New game
+'
+proc NewGame()
+	sys $C009:' Reset score and lives
+	wave = 1
+	newWave = true
+endproc
+'
+'		New Level Animation
+'
+proc NewLevel()
+	local i,j
+	cls:sprite clear:palette clear
+	for i = 0 to 119
+		rect 120-i,120-i ink i%8+2 frame to 200+i,120+i
+		for j = 1 to 70:next
+	next
+	for i = 0 to 119
+		rect 120-i,120-i ink 0 frame to 200+i,120+i
+		for j = 1 to 70:next
+	next
+endproc
+'
+'		Death animation
+'
+proc AnimateDeath()
+	local i,r,g,b
+	sprite 0 image $A1
+	for i = 0 to 31
+		r = 255:g = 0:b = 255
+		if i & 1 then r = 255
+		if i & 2 then g = 255
+		if i & 4 then b = 255
+		palette 224,r,g,b
+		wait 2
+	next
+endproc	
+

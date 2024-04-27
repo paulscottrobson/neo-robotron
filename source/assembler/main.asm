@@ -20,7 +20,7 @@ Start:
 		jmp 	MainGame 					; $C006 main loop code, speed A
 		jmp 	ResetScore 					; $C009 reset the score.
 		jmp 	SetWave 					; $C00C New Wave A
-		
+
 		* = Start + $40
 Result:
 		.byte 	0
@@ -88,6 +88,8 @@ _MainNoScore:
 _MLKilled:									; return 1 (level not complete, player dead)	
 		lda 	#1
 		sta 	Result
+		dec 	Lives
+		jsr 	DrawScore
 		rts
 
 _MLComplete:		
@@ -107,11 +109,13 @@ ClockDelay:
 		phx
 		phy
 		ldx 	MoveSpeed
+		beq 	_MLExit
 _MLDelay:
 		dey
 		bne 	_MLDelay
 		dex		
 		bne 	_MLDelay
+_MLExit:		
 		ply
 		plx
 		rts

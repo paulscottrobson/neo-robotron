@@ -111,8 +111,10 @@ DrawScore:
 		lda		#$83
 		ldx 	Lives
 		jsr 	PrintCharacter
-_DSLoop:dex
+_DSLoop:
+		cpx 	#0
 		beq 	_DSExit
+		dex
 		lda 	#234
 		jsr 	PrintCharacter
 		bra 	_DSLoop
