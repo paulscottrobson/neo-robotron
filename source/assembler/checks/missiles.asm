@@ -28,10 +28,12 @@ _CHRLoop2:
 
 		lda 	OBObjectData1,x 			; not immediately fired
 		bne 	_CHRNext2
-		
+
 		jsr 	CheckCollision 				; check collision.
 		bcc 	_CHRNext2
 
+		.byte 	3
+		
 		phy
 		.sendmsg  MSG_SHOT 					; notify object it has been shot.
 		ply
