@@ -1,9 +1,7 @@
 TODO
-
-	- check end of level.
-	- hulk shooting
+					
 	- object management
 		- copy to registers on initialise level
 		- copy from registers
 	
-	
+	- collision with robots (not explosions)

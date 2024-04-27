@@ -14,12 +14,17 @@
 
 		* = $C000
 
+Start:
 		jmp 	ResetObjects 				; $C000 reset all sprites.
 		jmp 	CreateObjects 				; $C003 create X objects of type A.
-		jmp 	MainLoop 					; $C006 main loop code.
+		jmp 	MainGame 					; $C006 main loop code, speed A
 		jmp 	ResetScore 					; $C009 reset the score.
 		jmp 	SetWave 					; $C00C New Wave A
 		
+		* = Start + $40
+Result:
+		.byte 	0
+
 		.include 	"create.asm"
 		.include 	"move.asm"
 		.include 	"palette.asm"
@@ -35,12 +40,20 @@
 		.include 	"classes/quarks.asm"
 		.include 	"classes/electrode.asm"
 		.include 	"classes/brains.asm"
+		.include 	"classes/explode.asm"
 		.include 	"checks/human.asm"
 		.include 	"checks/missiles.asm"
+		.include 	"checks/complete.asm"
 
+MainGame:
+		sta 	MoveSpeed
 MainLoop:
-		inc 	FrameCount
+		inc 	FrameCount 					; bump frame counter
+		jsr 	CheckComplete 				; check completed first.
+		bcs 	_MLComplete
+
 		; check robot collision, exit if dead
+
 		jsr 	AnimatePalette 				; causes flashing effects
 		jsr 	MoveObjects 				; move all objects
 		jsr 	ClockDelay 					; delay to stop it being insanely fast.
@@ -51,10 +64,41 @@ MainLoop:
 		bne 	_MainNoScore
 		jsr 	DrawScore
 _MainNoScore:		
+		bra 	MainLoop
+
+_MLKilled:									; return 1 (level not complete, player dead)	
+		lda 	#1
+		sta 	Result
+		rts
+
+_MLComplete:		
+		stz 	Result						; return 0 (level complete, not dead)
 		rts
 
 FrameCount:
 		.byte 	0
+
+; ***************************************************************************************
+;
+;			   Delay for game speed. 40 seems to be about right for default
+;
+; ***************************************************************************************
+
+ClockDelay:
+		phx
+		phy
+		ldx 	MoveSpeed
+_MLDelay:
+		dey
+		bne 	_MLDelay
+		dex		
+		bne 	_MLDelay
+		ply
+		plx
+		rts
+
+MoveSpeed:
+		.byte 	40
 
 HandlerTable:
 		.word 		OHPlayer 				; type 0 Player
@@ -73,7 +117,8 @@ HandlerTable:
 		.word 		OHEnforcer 				; type 13 Enforcer
 		.word 		OHShell 				; type 14 Shell
 		.word 		OHTank 					; type 15 Tank
-
+		.word 		OHExplode 				; type 16 Explosion Graphic
+		
 		* = $E000
 		
 		.include "data.asm"

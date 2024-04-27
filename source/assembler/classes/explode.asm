@@ -1,43 +1,57 @@
 ; ***************************************************************************************
 ; ***************************************************************************************
 ;
-;		Name : 		hulk.asm
+;		Name : 		explode.asm
 ;		Author :	Paul Robson (paul@robsons.org.uk)
-;		Date : 		22nd April 2024
+;		Date : 		27th April 2024
 ;		Reviewed :	No
-;		Purpose :	Grunt Class
+;		Purpose :	Exploding effect
 ;
 ; ***************************************************************************************
 ; ***************************************************************************************
 
 ; ***************************************************************************************
 ;
-;									Grunt Object 
+;								Explosion Object 
 ;
 ; ***************************************************************************************
 
-OHHulk:
-		.method MSG_INIT,OHHUInitHandler
-		.method MSG_CONTROL,OHHUControl
-		.method MSG_SHOT,OHHUOnHit
+OHExplode:
+		.method MSG_INIT,OHXInitHandler
+		.method MSG_ONMOVE,OHXOnMove
+		.method MSG_CONTROL,OHXNoMove
+		.method MSG_SHOT,OHXNoHit
 		.superclass
 
 
-OHHUInitHandler:
-		.animation GR_HULK
-
-OHHUControl:
-		jsr 	ChasePlayer
-		.speed 	64
-		.brains 1
+OHXInitHandler:
+		jsr 	UpdateAnimation
+		.speed 	8
+		.brains 255
+OHXNoMove:		
+		stz 	OBDirection,x
+OHXNoHit:		
 		rts
 
-
-OHHUOnHit:
-		lda 	OBDirection,y
-		sta 	OBDirection,x
-		.brains 7
-		.speed 3
+OHXOnMove:
+		lda 	OBObjectData1,x
+		cmp 	#4
+		beq 	_OHXKill
+		inc 	OBObjectData1,x
+		jsr 	UpdateAnimation
+		stz 	OBDirection,x
 		rts
+_OHXKill:
+		jsr 	KillObject
+		rts
+
+UpdateAnimation:
+		lda 	OBObjectData1,x
+		ora 	#$C0
+		sta 	OBSprite1,x
+		sta 	OBSprite2,x
+		rts				
+
+
 
 

@@ -36,6 +36,14 @@ DefaultHitWall:
 ;		Robot has been shot. Y missile, X object hit.
 ;
 DefaultShot:
+		lda 	#TP_EXPLODE 				; spawn an explosion
+		jsr 	CreateSingleObject
+		ldy 	NewObject
+		jsr 	CopyStartPosition
+		jsr 	RemoveAndScoreObject 		; remove object and score it
+		rts
+
+RemoveAndScoreObject:
 		lda 	OBScoreLow,x 				; get score into YA
 		ldy 	OBScoreHigh,x
 		phx		

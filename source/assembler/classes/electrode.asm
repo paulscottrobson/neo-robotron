@@ -19,6 +19,7 @@
 OHElectrode:
 		.method MSG_INIT,OHELInitHandler
 		.method MSG_CONTROL,OHELFreeze
+		.method MSG_SHOT,KillObject
 		.superclass
 
 
@@ -27,6 +28,7 @@ OHELInitHandler:
 		.speed 	0
 		.brains 0
 		.score  0
+		
 OHELFreeze:		
 		stz 	OBDirection,x
 		rts

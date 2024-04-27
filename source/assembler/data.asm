@@ -16,7 +16,7 @@ OBBase = *
 ;			Object flags. 
 ;
 ;			Bit 7 : object is not in use if set.
-;			Bit 0..3 : object ID
+;			Bit 0..4 : object ID
 ;
 OBFlags = OBBase + 0*OBJ_COUNT
 ;
