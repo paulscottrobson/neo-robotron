@@ -1,7 +1,6 @@
 TODO
 					
 	- object management
-		- copy to registers on initialise level
-		- copy from registers
+		decrement when object deleted.
 	
 	- collision with robots (not explosions)

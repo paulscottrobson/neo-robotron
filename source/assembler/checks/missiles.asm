@@ -26,6 +26,9 @@ _CHRLoop2:
 		lda 	OBFlags,y 					; missile in use
 		bmi 	_CHRNext2
 
+		lda 	OBObjectData1,x 			; not immediately fired
+		bne 	_CHRNext2
+		
 		jsr 	CheckCollision 				; check collision.
 		bcc 	_CHRNext2
 

@@ -1,38 +1,9 @@
 cls:sprite clear
-gload "robotron.gfx"
-load "robotron.bin",$C000
+call Setup()
+rect 0,8 frame ink 3 to 319,230
 
-defchr 224,31,17,17,17,17,17,31
-defchr 225,6,2,2,2,2,2,15
-defchr 226,15,1,1,31,16,16,31
-defchr 227,15,1,1,15,1,1,31
-defchr 228,16,18,18,31,2,2,2
-defchr 229,30,16,16,31,1,1,31
-defchr 230,30,16,16,31,17,17,31
-defchr 231,31,1,1,2,4,8,16
-defchr 232,31,17,17,31,17,17,31
-defchr 233,31,17,17,31,1,1,15
+sys $C009
+a = 0:sys $C00C
+sys $C006
 
-defchr 234,4,10,27,31,4,10,17
-
-defchr 235,0,17,17,21,21,31,0
-defchr 236,0,31,17,31,17,17,0
-defchr 237,0,17,17,17,10,4,0
-defchr 238,0,31,16,30,16,31,0
-
-cls:sprite clear:rect 0,8 frame ink 3 to 319,230
-a = 1:sys $C00C:sys $C000:sys $C009
-x = 1:a = 0:sys $C003
-x = 4:a = 2:sys $C003
-x = 10:a = 3:sys $C003
-x = 2:a = 7:sys $C003
-x = 2:for a = 4 to 6:sys $C003:next
- 
-'x = 4:a = 2:sys $C003
-'x = 4:a = 7 :sys $C003
-'x = 2:a = 8:sys $C003
-'x = 2:a = 9:sys $C003
-'x = 2:a = 10:sys $C003
-
-a = 40:sys $C006
-cls:sprite clear
+end

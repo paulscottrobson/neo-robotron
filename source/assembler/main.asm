@@ -24,12 +24,17 @@ Start:
 		* = Start + $40
 Result:
 		.byte 	0
+Lives:	
+		.byte 	3	
+DScore:
+		.byte 	0,0,0
 
 		.include 	"create.asm"
 		.include 	"move.asm"
 		.include 	"palette.asm"
 		.include 	"utility.asm"
 		.include 	"score.asm"
+		.include 	"census.asm"
 		.include 	"classes/default.asm"
 		.include 	"classes/player.asm"
 		.include 	"classes/pmissile.asm"
@@ -45,8 +50,19 @@ Result:
 		.include 	"checks/missiles.asm"
 		.include 	"checks/complete.asm"
 
+; ***************************************************************************************
+;
+;							Current level routine
+;
+; ***************************************************************************************
+
 MainGame:
-		sta 	MoveSpeed
+		jsr 	ResetObjects 				; reset all game objects
+		lda 	#0 							; create player
+		ldx 	#1
+		jsr 	CreateObjects
+		jsr 	CreateCurrentObjects 		; create the objects expected.
+
 MainLoop:
 		inc 	FrameCount 					; bump frame counter
 		jsr 	CheckComplete 				; check completed first.
@@ -99,6 +115,12 @@ _MLDelay:
 
 MoveSpeed:
 		.byte 	40
+
+; ***************************************************************************************
+;
+;						Message handlers for each object type
+;
+; ***************************************************************************************
 
 HandlerTable:
 		.word 		OHPlayer 				; type 0 Player

@@ -12,7 +12,7 @@
 
 include ../common.make
 
-SOURCES = basic/robotron.bsc
+SOURCES = basic/robotron.bsc basic/setup.bsc
 
 .any:
 

@@ -21,6 +21,7 @@ OHMissile:
 		.method MSG_REPAINT,OHMRepaintHandler
 		.method MSG_CONTROL,OHMControl
 		.method MSG_HITWALL,OHMHitWall
+		.method MSG_ONMOVE,OHMOnMove
 		.superclass
 
 OHMInitHandler:
@@ -31,7 +32,8 @@ OHMInitHandler:
 		sta 	OBYPos,x
 		lda 	OHPLastDirection 			; copy direction
 		sta 	OBDirection,x
-
+		lda 	#3  						; stops collision testing straight after fire.
+		sta 	OBObjectData1,x 	
 		rts
 
 OHMRepaintHandler:
@@ -49,6 +51,13 @@ OHMGraphic:
 		.byte 	0,0,0,0
 
 OHMControl:
+		rts
+
+OHMOnMove:
+		lda 	OBObjectData1,x
+		beq 	_OHMExit
+		dec 	OBObjectData1,x
+_OHMExit:
 		rts	
 
 OHMHitWall:
