@@ -11,16 +11,23 @@ end
 '		Play one complete game
 '
 proc PlayGame()	
-	call Title()
+	call TitleScreen()
 	call NewGame()
 	'wave = 255:poke $C041,1
+	'firstWave = false
 	repeat
 		if newWave
-			call NewLevel()
+			if firstWave = 0 then call NewLevelAnimation()
 			a = wave:sys $C00C
 			wave = wave + 1:newWave = false
 		endif
 		cls:sprite clear:palette clear
+		rect 0,8 frame ink wave % 7 + 1 to 319,230	
+		if firstWave 
+			firstWave = false
+			text "Save the Humans !" ink 3 dim 2 to 70,110
+			sound 0,300,60,-400:while notes(0):wend:cls
+		endif
 		rect 0,8 frame ink wave % 7 + 1 to 319,230	
 		sys $C006
 		result = peek($C040)
@@ -40,19 +47,23 @@ proc NewGame()
 	sys $C009:' Reset score and lives
 	wave = 1
 	newWave = true
+	firstWave = true
 endproc
 '
 '		New Level Animation
 '
-proc NewLevel()
-	local i,j
+proc NewLevelAnimation()
+	local i,j,p 
 	cls:sprite clear:palette clear
+	p = 100
 	for i = 0 to 119
 		rect 120-i,120-i ink i%8+2 frame to 200+i,120+i
+		p = p + 1:sound 0 clear (p & $FFF0),4
 		for j = 1 to 70:next
 	next
 	for i = 0 to 119
 		rect 120-i,120-i ink 0 frame to 200+i,120+i
+		p = p + 1:sound 0 clear (p & $FFF0),4
 		for j = 1 to 40:next
 	next
 endproc
@@ -86,5 +97,13 @@ endproc
 '
 '		Title display
 '
-proc Title()
+proc TitleScreen()
+	cls:sprite clear
+	text "Robotron: 2084" dim 3 ink 3 to 32,40
+	text "For the Neo6502" dim 2 ink 6 to 70,80
+	text "Written by Paul Robson" dim 2 ink 2 to 24,120
+	text "Press Fire to Start" dim 2 ink 5 to 44,200
+	repeat:until joypad(x,y) = 0
+	wait 40
+	repeat:until joypad(x,y) <> 0
 endproc

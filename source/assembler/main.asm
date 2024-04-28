@@ -35,6 +35,7 @@ DScore:
 		.include 	"utility.asm"
 		.include 	"score.asm"
 		.include 	"census.asm"
+		.include 	"sound.asm"
 		.include 	"classes/default.asm"
 		.include 	"classes/player.asm"
 		.include 	"classes/pmissile.asm"

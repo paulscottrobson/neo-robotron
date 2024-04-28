@@ -46,7 +46,13 @@ DefaultShot:
 RemoveAndScoreObject:
 		lda 	OBScoreLow,x 				; get score into YA
 		ldy 	OBScoreHigh,x
+		bne 	_HasScore 					; continue if non zero score 
+		cmp		#0 				
+		beq 	_RASExit
+_HasScore:		
 		phx		
 		jsr 	AddYAToScore 				; add to score
 		plx
+		jsr 	SND_EnemyDead
+_RASExit:		
 		jmp 	KillObject 					; delete the object

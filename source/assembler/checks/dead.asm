@@ -35,6 +35,7 @@ _CDNext1:
 		rts
 
 _CDDead:
+		jsr 	SND_PlayerDead
 		sec
 		rts
 

@@ -19,8 +19,12 @@
 OHGrunt:
 		.method MSG_INIT,OHGInitHandler
 		.method MSG_CONTROL,ChasePlayer
+		.method MSG_ONMOVE,OHGSound
 		.superclass
 
+OHGSound:
+		jsr 	SND_GruntMove
+		.superclass		
 
 OHGInitHandler:
 		.animation GR_GRUNT

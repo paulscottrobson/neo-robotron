@@ -85,6 +85,7 @@ _OHPNoSetLast:
 
 		lda 	#1	
 		jsr 	CreateSingleObject
+		jsr 	SND_PlayerShoot
 
 _OHPNoFire:		
 		jsr 	OHPSetGraphic

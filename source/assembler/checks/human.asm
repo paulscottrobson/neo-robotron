@@ -38,7 +38,8 @@ _CPHMax5:
 		asl 	a	
 		tay
 		lda 	#0
-		jsr 	AddYAToScore		
+		jsr 	AddYAToScore
+		jsr 	SND_FamilyCollect		
 _CPHFail:
 		inx
 		cpx 	#OB_ENEMIES+1		
