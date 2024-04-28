@@ -3,26 +3,36 @@
 '
 cls:sprite clear
 call Setup()
-call NewGame()
-
 repeat
-	if newWave
-		call NewLevel()
-		a = wave:sys $C00C
-		wave = wave + 1:newWave = false
-	endif
-	cls:sprite clear:palette clear
-	rect 0,8 frame ink wave % 7 + 1 to 319,230	
-	sys $C006
-	result = peek($C040)
-	if result = 0 
-		newWave = true
-	else
-		call AnimateDeath()
-	endif
-
-until peek($C041) = 0
+	call PlayGame()
+until false
 end
+'
+'		Play one complete game
+'
+proc PlayGame()	
+	call Title()
+	call NewGame()
+	'wave = 255:poke $C041,1
+	repeat
+		if newWave
+			call NewLevel()
+			a = wave:sys $C00C
+			wave = wave + 1:newWave = false
+		endif
+		cls:sprite clear:palette clear
+		rect 0,8 frame ink wave % 7 + 1 to 319,230	
+		sys $C006
+		result = peek($C040)
+		if result = 0 
+			newWave = true
+		else
+			call AnimateDeath()
+		endif
+	until peek($C041) = 0
+	text "GAME OVER" dim 1 ink 240 to 160-27,120-4
+	call AnimatePalette(240,120)
+endproc
 '
 '		Start New game
 '
@@ -43,22 +53,38 @@ proc NewLevel()
 	next
 	for i = 0 to 119
 		rect 120-i,120-i ink 0 frame to 200+i,120+i
-		for j = 1 to 70:next
+		for j = 1 to 40:next
 	next
 endproc
 '
 '		Death animation
 '
 proc AnimateDeath()
-	local i,r,g,b
 	sprite 0 image $A1
-	for i = 0 to 31
-		r = 255:g = 0:b = 255
-		if i & 1 then r = 255
-		if i & 2 then g = 255
-		if i & 4 then b = 255
-		palette 224,r,g,b
-		wait 2
+	call AnimatePalette(224,31)
+endproc
+'
+'		Palette Animation
+'
+proc AnimatePalette(c,t)
+	local i
+	for i = 0 to t
+		call SetPaletteIndex(c,i):wait 2
 	next
 endproc	
-
+'
+'		Set palette by RGB 0-7
+'
+proc SetPaletteIndex(c,i)
+	local r,g,b
+	r = 255:g = 0:b = 255
+	if i & 1 then r = 255
+	if i & 2 then g = 255
+	if i & 4 then b = 255
+	palette c,r,g,b
+endproc
+'
+'		Title display
+'
+proc Title()
+endproc
