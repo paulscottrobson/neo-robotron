@@ -24,6 +24,10 @@ basic: .any
 
 app: assembler basic 
 
+release: app
+	rm -f ../robotron.zip
+	zip ../robotron.zip robotron.bas storage/robotron.bin storage/robotron.gfx
+
 run: app
 	$(BINDIR)neo robotron.bas@page exec
 
